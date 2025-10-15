@@ -1,0 +1,15 @@
+{
+      "signIn": {
+            "title": "Chào mừng bạn trở lại!",
+            "description": "Đăng nhập vào tài khoản của bạn để tiếp tục",
+            "email": "Địa chỉ email",
+            "emailError": "Địa chỉ email không hợp lệ",
+            "placeholderEmail": "Nhập email của bạn",
+            "password": "Mật khẩu",
+            "passwordError": "Mật khẩu phải có ít nhất 8 ký tự",
+            "placeholderPassword": "Nhập mật khẩu của bạn",
+            "button": "Đăng nhập",
+            "textSignUp": "Chưa có tài khoản? ",
+            "textSignUpLink": "Đăng ký"
+      }
+}

@@ -1,0 +1,15 @@
+{
+      "signIn": {
+            "title": "Welcome Back!",
+            "description": "Sign in to your account to continue",
+            "email": "Email Address",
+            "emailError": "Invalid email address",
+            "placeholderEmail": "Enter your email",
+            "password": "Password",
+            "passwordError": "Password must be at least 8 characters",
+            "placeholderPassword": "Enter your password",
+            "button": "Log In",
+            "textSignUp": "Don't have an account? ",
+            "textSignUpLink": "Sign Up"
+      }
+}
