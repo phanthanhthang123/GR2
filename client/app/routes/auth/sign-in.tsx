@@ -17,10 +17,6 @@ const SignIn = () => {
 
   type SingInFormData = z.infer<typeof singInSchema>;
 
-  const changeLanguage = (lang: string) => {
-    i18n.changeLanguage(lang);
-  };
-  // changeLanguage('en');
   const form = useForm<SingInFormData>({
     resolver: zodResolver(singInSchema), // use zod schema for validation
     defaultValues: {
@@ -37,7 +33,7 @@ const SignIn = () => {
     <div
     className='min-h-screen flex flex-col items-center justify-center bg-muted/40 p-4'
     >
-      <Card className='max-w-max w-full'> 
+      <Card className='max-w-3/12 w-full'> 
         <CardHeader className='text-center mb-5'> 
           <CardTitle className='text-2xl font-bold'>{t('signIn.title')}</CardTitle>
           <CardDescription className='text-sm text-muted-foreground '>{t('signIn.description')}</CardDescription>
@@ -68,7 +64,11 @@ const SignIn = () => {
                 name='password'
                 render= {({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('signIn.password')}</FormLabel>
+                    <div className='flex items-center justify-betweenls'>
+                      <FormLabel>{t('signIn.password')}</FormLabel>
+                      <Link to="/forgot-password" className='text-sm text-blue-600 float-right'>{t('signIn.forgotPassword')}
+                      </Link>
+                    </div>
                     <FormControl>
                       <Input
                         type='password'
@@ -87,9 +87,9 @@ const SignIn = () => {
 
         </CardContent>
 
-        <CardFooter className='text-center py-4'>
+        <CardFooter className='flex items-center justify-center text-center mt6'>
           <div> 
-            <p>{t('signIn.textSignUp')} <Link to="/sign-up">{t('signIn.textSignUpLink')}</Link></p>
+            <p>{t('signIn.textSignUp')} <Link className='text-blue-600' to="/sign-up">{t('signIn.textSignUpLink')}</Link></p>
           </div>
         </CardFooter>
       </Card>

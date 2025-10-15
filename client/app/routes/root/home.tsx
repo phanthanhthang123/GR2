@@ -2,6 +2,7 @@ import React from 'react'
 import type { Route } from '../../+types/root';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router';
+import i18n from '@/lib/i18n';
 
 export function meta({}: Route.MetaArgs) {
       return [
@@ -11,6 +12,11 @@ export function meta({}: Route.MetaArgs) {
 }
     
 const Homepage = () => {
+  const changeLanguage = (lang: string) => {
+    i18n.changeLanguage(lang);
+  };
+  // changeLanguage('en');
+  
   return (
     <div className="h-full w-full flex items-center justify-center gap-4">
       <Link to="/sign-in">

@@ -8,8 +8,28 @@
             "password": "Password",
             "passwordError": "Password must be at least 8 characters",
             "placeholderPassword": "Enter your password",
+            "forgotPassword": "Forgot Password?",
             "button": "Log In",
             "textSignUp": "Don't have an account? ",
             "textSignUpLink": "Sign Up"
+      },
+      "signUp": {
+            "title": "Create an Account",
+            "description": "Sign up to get started!",
+            "fullName": "Full Name",
+            "fullNameError": "Full name is required",
+            "placeholderFullName": "Enter your full name",
+            "email": "Email Address",
+            "emailError": "Invalid email address",
+            "placeholderEmail": "Enter your email",
+            "password": "Password",
+            "passwordError": "Password must be at least 8 characters",
+            "placeholderPassword": "Create a password",
+            "confirmPassword": "Confirm Password",
+            "passwordsDontMatch": "Passwords do not match",
+            "placeholderConfirmPassword": "Re-enter your password",
+            "button": "Sign Up",
+            "textSignIn": "Already have an account? ",
+            "textSignInLink": "Log In"
       }
 }
