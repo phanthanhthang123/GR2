@@ -13,7 +13,7 @@
             "textSignUp": "Chưa có tài khoản? ",
             "textSignUpLink": "Đăng ký"
       },
-      "signUp":{
+      "signUp": {
             "title": "Tạo tài khoản",
             "description": "Đăng ký để bắt đầu!",
             "fullName": "Họ và tên",
@@ -29,7 +29,35 @@
             "passwordsDontMatch": "Mật khẩu không khớp",
             "placeholderConfirmPassword": "Nhập lại mật khẩu của bạn",
             "button": "Đăng ký",
+            "buttonLoading": "Đang đăng ký...",
             "textSignIn": "Đã có tài khoản? ",
-            "textSignInLink": "Đăng nhập"
+            "textSignInLink": "Đăng nhập",
+            "successMessage": "Đăng ký thành công!",
+            "serverError": "Đăng ký không thành công. Vui lòng thử lại."
+      },
+      "forgotPassword": {
+            "title": "Quên mật khẩu",
+            "description": "Nhập email của bạn để nhận liên kết đặt lại mật khẩu",
+            "email": "Địa chỉ email",
+            "placeholderEmail": "Nhập email của bạn",
+            "emailError": "Địa chỉ email không hợp lệ",
+            "successTitle": "Liên kết đặt lại đã được gửi!",
+            "successDescription": "Vui lòng kiểm tra hộp thư đến của bạn để đặt lại mật khẩu.",
+            "button": "Gửi liên kết đặt lại",
+            "backToLogin": "Quay lại đăng nhập"
+      },
+      "resetPassword": {
+            "title": "Đặt lại mật khẩu",
+            "description": "Nhập mật khẩu mới để đặt lại tài khoản của bạn",
+            "token": "Mã xác nhận",
+            "tokenError": "Mã xác nhận là bắt buộc",
+            "newPassword": "Mật khẩu mới",
+            "placeholderNewPassword": "Nhập mật khẩu mới",
+            "passwordError": "Mật khẩu phải có ít nhất 8 ký tự",
+            "confirmNewPassword": "Xác nhận mật khẩu mới",
+            "placeholderConfirmNewPassword": "Nhập lại mật khẩu mới",
+            "passwordsDontMatch": "Hai mật khẩu không khớp",
+            "button": "Đặt lại mật khẩu",
+            "backToLogin": "Quay lại đăng nhập"
       }
 }

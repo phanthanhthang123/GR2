@@ -15,7 +15,11 @@ const Homepage = () => {
   const changeLanguage = (lang: string) => {
     i18n.changeLanguage(lang);
   };
-  // changeLanguage('en');
+  
+  // Move language change to useEffect to avoid hydration mismatch
+  React.useEffect(() => {
+    changeLanguage('vi');
+  }, []);
   
   return (
     <div className="h-full w-full flex items-center justify-center gap-4">

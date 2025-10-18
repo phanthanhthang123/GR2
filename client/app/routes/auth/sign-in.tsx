@@ -12,7 +12,7 @@ import { Link } from 'react-router'
 
 
 const SignIn = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const singInSchema = createSignInSchema(t);
 
   type SingInFormData = z.infer<typeof singInSchema>;
@@ -25,8 +25,17 @@ const SignIn = () => {
     }
   })
 
-  const handleOnSubmit = (values: SingInFormData) => {
-    console.log(values)
+  const handleOnSubmit = async (values: SingInFormData) => {
+    try {
+      // const data = await login(values)
+      // if(data?.err === 0) {
+      //   console.log('Login success', data)
+      // } else {
+      //   console.error('Login failed', data?.msg)
+      // }
+    } catch (error) {
+      console.error('Login failed', error)
+    }
   }
 
   return (
@@ -64,7 +73,7 @@ const SignIn = () => {
                 name='password'
                 render= {({ field }) => (
                   <FormItem>
-                    <div className='flex items-center justify-betweenls'>
+                    <div className='flex items-center justify-between'>
                       <FormLabel>{t('signIn.password')}</FormLabel>
                       <Link to="/forgot-password" className='text-sm text-blue-600 float-right'>{t('signIn.forgotPassword')}
                       </Link>

@@ -8,6 +8,9 @@ i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
+    lng: typeof window !== 'undefined' 
+      ? localStorage.getItem('lang') || 'vi'
+      : 'vi',
     resources: {
       en: { translation: en },
       vi: { translation: vi }

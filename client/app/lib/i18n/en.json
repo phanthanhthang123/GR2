@@ -10,6 +10,7 @@
             "placeholderPassword": "Enter your password",
             "forgotPassword": "Forgot Password?",
             "button": "Log In",
+            "buttonLoading": "Logging in...",
             "textSignUp": "Don't have an account? ",
             "textSignUpLink": "Sign Up"
       },
@@ -30,6 +31,33 @@
             "placeholderConfirmPassword": "Re-enter your password",
             "button": "Sign Up",
             "textSignIn": "Already have an account? ",
-            "textSignInLink": "Log In"
+            "textSignInLink": "Log In",
+            "successMessage": "Sign up successful!",
+            "serverError": "Sign up failed. Please try again."
+      },
+      "forgotPassword": {
+            "title": "Forgot Password",
+            "description": "Enter your email to receive a password reset link",
+            "email": "Email Address",
+            "placeholderEmail": "Enter your email",
+            "emailError": "Invalid email address",
+            "successTitle": "Reset Link Sent!",
+            "successDescription": "Please check your inbox to reset your password.",
+            "button": "Send Reset Link",
+            "backToLogin": "Back to Sign In"
+      },
+      "resetPassword": {
+            "title": "Reset Password",
+            "description": "Enter your new password below to reset your account",
+            "token": "Reset Token",
+            "tokenError": "Token is required",
+            "newPassword": "New Password",
+            "placeholderNewPassword": "Enter your new password",
+            "passwordError": "Password must be at least 8 characters",
+            "confirmNewPassword": "Confirm New Password",
+            "placeholderConfirmNewPassword": "Re-enter your new password",
+            "passwordsDontMatch": "Passwords do not match",
+            "button": "Reset Password",
+            "backToLogin": "Back to Sign In"
       }
 }

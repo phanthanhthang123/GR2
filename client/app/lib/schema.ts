@@ -13,12 +13,27 @@ export const createSignInSchema = (t: (key: string) => string) =>
 
 export const createSignUpSchema = (t: (key: string) => string) =>
   z.object({
-      email: z.string().email(t("signUp.emailError")),
-      password: z.string().min(8, t("signUp.passwordError")),
-      name: z.string().min(3, t("signUp.fullNameError")),
-      confirmPassword: z.string().min(8, t("signUp.passwordsDontMatch")),
-    })
+    email: z.string().email(t("signUp.emailError")),
+    password: z.string().min(8, t("signUp.passwordError")),
+    name: z.string().min(3, t("signUp.fullNameError")),
+    confirmPassword: z.string().min(8, t("signUp.passwordsDontMatch")),
+  })
     .refine((data) => data.password === data.confirmPassword, {
       path: ["confirmPassword"],
       message: t("signUp.passwordsDontMatch"),
     });
+
+export const createResetPasswordSchema = (t: (key: string) => string) =>
+  z.object({
+    newPassword: z.string().min(8, t("resetPassword.passwordError")),
+    confirmNewPassword: z.string().min(8, t("resetPassword.passwordsDontMatch")),
+  })
+  .refine((data) => data.newPassword === data.confirmNewPassword, {
+    path: ["confirmNewPassword"],
+    message: t("resetPassword.passwordsDontMatch"),
+  });
+
+export const createForgotPasswordSchema = (t: (key: string) => string) =>
+  z.object({
+    email: z.string().email(t("forgotPassword.emailError")),
+  });

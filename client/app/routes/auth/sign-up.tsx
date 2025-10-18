@@ -9,10 +9,13 @@ import { Input } from '@/components/ui/input'
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router'
-
+import { useNavigate } from "react-router";
+import { useSignUpMutation } from '@/hooks/use-auth'
+import { toast } from 'sonner'
 
 const SignUp = () => {
-  const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
+  const { t } = useTranslation();
   const singUpSchema = createSignUpSchema(t);
 
   type SingUpFormData = z.infer<typeof singUpSchema>;
@@ -27,8 +30,25 @@ const SignUp = () => {
     }
   })
 
-  const handleOnSubmit = (values: SingUpFormData) => {
-    console.log(values)
+  const {mutate,isPending} = useSignUpMutation();
+
+  const handleOnSubmit = async (values: SingUpFormData) => {
+    try {
+      // console.log('Submitting form with values:', values);
+      mutate(values, {
+        onSuccess: () => {
+          toast.success(t("signUp.successMessage"));
+          // Redirect to sign-in page after successful registration
+          // navigate('/sign-in');
+        },
+        onError: (error: any) => {
+          const errorMessage = error?.response?.data?.message || t("signUp.serverError");
+          toast.error(errorMessage);
+        }
+      });
+    } catch (error) {
+      form.setError('root.serverError', { message: (error as Error)?.message })
+    }
   }
 
   return (
@@ -69,7 +89,7 @@ const SignUp = () => {
                     <FormLabel>{t('signUp.fullName')}</FormLabel>
                     <FormControl>
                       <Input
-                        type='email'
+                        type='text'
                         placeholder={t('signUp.placeholderFullName')} {...field} />
                     </FormControl>
                     <FormMessage />
@@ -107,8 +127,8 @@ const SignUp = () => {
                 )}
               />
               
-              <Button type='submit' className='w-full pointer '>
-                {t('signUp.button')}
+              <Button type='submit' className='w-full pointer' disabled={isPending}>
+                {isPending ?  t('signUp.buttonLoading') : t('signUp.button')}
               </Button>
             </form>
           </Form>
