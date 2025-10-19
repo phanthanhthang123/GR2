@@ -47,7 +47,8 @@
             "successTitle": "Liên kết đặt lại đã được gửi!",
             "successDescription": "Vui lòng kiểm tra hộp thư đến của bạn để đặt lại mật khẩu.",
             "button": "Gửi liên kết đặt lại",
-            "backToLogin": "Quay lại đăng nhập"
+            "backToLogin": "Quay lại đăng nhập",
+            "errorMessage": "Không thể gửi liên kết đặt lại. Vui lòng thử lại."
       },
       "resetPassword": {
             "title": "Đặt lại mật khẩu",

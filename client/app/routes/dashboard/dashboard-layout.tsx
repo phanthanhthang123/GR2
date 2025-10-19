@@ -1,8 +1,13 @@
+import { Button } from '@/components/ui/button'
+import { useAuth } from '@/provider/auth-context';
 import React from 'react'
 
 const DashBoardLayout = () => {
+      const {logout} = useAuth();
   return (
-    <div>DashBoardLayout</div>
+    <div>
+      <Button onClick={logout} >Logout</Button>
+    </div>
   )
 }
 

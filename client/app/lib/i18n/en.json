@@ -46,7 +46,8 @@
             "successTitle": "Reset Link Sent!",
             "successDescription": "Please check your inbox to reset your password.",
             "button": "Send Reset Link",
-            "backToLogin": "Back to Sign In"
+            "backToLogin": "Back to Sign In",
+            "errorMessage": "Failed to send reset link. Please try again."
       },
       "resetPassword": {
             "title": "Reset Password",

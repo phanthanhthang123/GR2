@@ -32,3 +32,11 @@ export const useSignInMutation = () => {
     },
   });
 }
+
+export const useForgotPasswordMutation = () => {
+  return useMutation({
+    mutationFn: async (data: { email: string }) => {
+      return postData("/auth/forgot-password", data);
+    },
+  });
+}

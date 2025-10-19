@@ -7,17 +7,20 @@ import { Input } from '@/components/ui/input'
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, CheckCircle, Loader2 } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Button } from '@/components/ui/button'
+import { useForgotPasswordMutation } from '@/hooks/use-auth'
+import { toast } from 'sonner'
 
 const ForgotPassword = () => {
   const { t } = useTranslation();
   const forgotPasswordSchema = createForgotPasswordSchema(t);
   type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
-  
-  const [isSuccess, setIsSuccess] = useState(false);
 
+  const [isSuccess, setIsSuccess] = useState(false);
+  const {mutate: forgotPassword, isPending} = useForgotPasswordMutation();
+  
   const form = useForm<z.infer<typeof forgotPasswordSchema>>({
     resolver: zodResolver(forgotPasswordSchema), // use zod schema for validation
     defaultValues: {
@@ -26,7 +29,16 @@ const ForgotPassword = () => {
   })
 
   const onSubmit = async (values: ForgotPasswordFormData) => {
-    
+    forgotPassword(values, {
+      onSuccess: () => {
+        setIsSuccess(true);
+      },
+      onError: (error) => {
+        const errorMessage = error?.message || t("forgotPassword.errorMessage");
+        toast.error(errorMessage);
+        console.error('Forgot password failed', error);
+      }
+    });
   }
 
   return (
@@ -41,7 +53,7 @@ const ForgotPassword = () => {
 
         <Card>
           <CardHeader>
-            <Link to="/sign-in">
+            <Link to="/sign-in" className='flex items-center gap-2 text-sm text-primary hover:underline mb-4'>
               <ArrowLeft className='w-4 h-4'/>
               <span>{t("forgotPassword.backToLogin")}</span>
             </Link>
@@ -49,7 +61,8 @@ const ForgotPassword = () => {
           <CardContent>
             {
               isSuccess ? (
-                <div className='text-center'>
+                <div className='flex flex-col items-center justify-center'>
+                  <CheckCircle className='w-10 h-10 text-green-500'/>
                   <h2 className='text-lg font-semibold mb-4'>{t("forgotPassword.successTitle")}</h2>
                   <p className='text-muted-foreground'>{t("forgotPassword.successDescription")}</p>
                 </div>
@@ -71,8 +84,12 @@ const ForgotPassword = () => {
                     )}
                     />
 
-                    <Button type='submit' className='w-full'>
-                      {t("forgotPassword.button")}
+                    <Button type='submit' className='w-full' disabled={isPending}>
+                      {
+                        isPending ? (
+                          <Loader2 className='w-4 h-4 animate-spin'/>
+                        ) : t("forgotPassword.button")
+                      }
                     </Button>
                   </form>
                 </Form>

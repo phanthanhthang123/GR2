@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { createResetPasswordSchema } from '@/lib/schema'
 import {z} from 'zod'
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, CheckCircle } from "lucide-react";
 
 const ResetPassword = () => {
   const { t, i18n } = useTranslation();
@@ -50,7 +50,19 @@ const ResetPassword = () => {
             </Link>
           </CardHeader>
           <CardContent>
-
+            {
+              isSuccess ? (
+                <div className='flex flex-col items-center justify-center'>
+                  <CheckCircle className='w-10 h-10 text-green-500'/>
+                  <h1 className='text-2xl font-bold'>{t("forgotPassword.successTitle")}</h1>
+                  <p className='text-center'>{t("forgotPassword.successDescription")}</p>
+                </div>
+              ):(
+                <div>
+                  
+                </div>
+              )
+            }
           </CardContent>
         </Card>
       </div>
