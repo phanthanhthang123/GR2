@@ -12,7 +12,9 @@
             "button": "Log In",
             "buttonLoading": "Logging in...",
             "textSignUp": "Don't have an account? ",
-            "textSignUpLink": "Sign Up"
+            "textSignUpLink": "Sign Up",
+            "successMessage": "Login successful!",
+            "signingIn": "Signing in..."
       },
       "signUp": {
             "title": "Create an Account",

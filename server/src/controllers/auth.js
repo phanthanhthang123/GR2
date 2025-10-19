@@ -35,7 +35,7 @@ export const login = async (req, res) => {
             })
         }
         const response = await services.loginService(email, password);
-        console.log(response)
+        // console.log(response)
         if (response.err === 0) {
             // Set cookies
             res.cookie('accessToken', response.token, {
@@ -54,7 +54,7 @@ export const login = async (req, res) => {
 
             // Remove tokens from response body for security
             const { token, refreshToken, ...userData } = response
-            return res.status(200).json(userData)
+            return res.status(200).json(response)
         }
         return res.status(400).json(response)
     } catch (error) {

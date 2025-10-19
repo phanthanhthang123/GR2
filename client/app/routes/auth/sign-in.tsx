@@ -8,12 +8,18 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input'
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button'
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
+import { useSignInMutation } from '@/hooks/use-auth'
+import { toast } from 'sonner'
+import { Loader2, type Loader } from 'lucide-react'
+import { useAuth } from '@/provider/auth-context'
 
 
 const SignIn = () => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const singInSchema = createSignInSchema(t);
+  const {login} = useAuth();
 
   type SingInFormData = z.infer<typeof singInSchema>;
 
@@ -25,14 +31,22 @@ const SignIn = () => {
     }
   })
 
+  const {mutate,isPending} = useSignInMutation();
+
   const handleOnSubmit = async (values: SingInFormData) => {
     try {
-      // const data = await login(values)
-      // if(data?.err === 0) {
-      //   console.log('Login success', data)
-      // } else {
-      //   console.error('Login failed', data?.msg)
-      // }
+      mutate(values, {
+        onSuccess: (data) => {
+          login(data)
+          navigate('/dashboard');
+          toast.success(t("signIn.successMessage"));
+        },
+        onError: (error: any) => {
+          const errorMessage = error?.response?.data?.message || t("signIn.serverError");
+          toast.error(errorMessage);
+          // console.log(error)
+        }
+      });
     } catch (error) {
       console.error('Login failed', error)
     }
@@ -88,8 +102,8 @@ const SignIn = () => {
                 )}
               />
               
-              <Button type='submit' className='w-full pointer '>
-                {t('signIn.button')}
+              <Button type='submit' className='w-full pointer' disabled={isPending}>
+                {isPending ? <Loader2 className='w-4 h-4 mr-2'/>: t('signIn.button')}
               </Button>
             </form>
           </Form>

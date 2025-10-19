@@ -24,3 +24,11 @@ export const useSignUpMutation = () => {
     },
   });
 };
+
+export const useSignInMutation = () => {
+  return useMutation({
+    mutationFn: async (data: { email: string; password: string }) => {
+      return postData("/auth/login", data);
+    },
+  });
+}

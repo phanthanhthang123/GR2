@@ -11,7 +11,10 @@
             "forgotPassword": "Quên mật khẩu?",
             "button": "Đăng nhập",
             "textSignUp": "Chưa có tài khoản? ",
-            "textSignUpLink": "Đăng ký"
+            "textSignUpLink": "Đăng ký",
+            "successMessage": "Đăng nhập thành công!",
+            "signingIn": "Đang đăng nhập..."
+            
       },
       "signUp": {
             "title": "Tạo tài khoản",
