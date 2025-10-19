@@ -13,8 +13,8 @@
             "textSignUp": "Chưa có tài khoản? ",
             "textSignUpLink": "Đăng ký",
             "successMessage": "Đăng nhập thành công!",
-            "signingIn": "Đang đăng nhập..."
-            
+            "signingIn": "Đang đăng nhập...",
+            "signInFailed": "Đăng nhập không thành công. Vui lòng kiểm tra thông tin và thử lại."
       },
       "signUp": {
             "title": "Tạo tài khoản",
@@ -48,7 +48,9 @@
             "successDescription": "Vui lòng kiểm tra hộp thư đến của bạn để đặt lại mật khẩu.",
             "button": "Gửi liên kết đặt lại",
             "backToLogin": "Quay lại đăng nhập",
-            "errorMessage": "Không thể gửi liên kết đặt lại. Vui lòng thử lại."
+            "errorMessage": "Không thể gửi liên kết đặt lại. Vui lòng thử lại.",
+            "EmailNotFound": "Địa chỉ email không được tìm thấy.",
+            "successToast": "Liên kết đặt lại mật khẩu đã được gửi đến email của bạn."
       },
       "resetPassword": {
             "title": "Đặt lại mật khẩu",
@@ -62,6 +64,18 @@
             "placeholderConfirmNewPassword": "Nhập lại mật khẩu mới",
             "passwordsDontMatch": "Hai mật khẩu không khớp",
             "button": "Đặt lại mật khẩu",
-            "backToLogin": "Quay lại đăng nhập"
+            "backToLogin": "Quay lại đăng nhập",
+            "invalidTokenTitle": "Mã xác nhận không hợp lệ",
+            "invalidTokenDescription": "Mã xác nhận đã hết hạn hoặc không hợp lệ. Vui lòng thử lại.",
+            "successToast": "Mật khẩu của bạn đã được đặt lại thành công.",
+            "errorMessage": "Đặt lại mật khẩu không thành công. Vui lòng thử lại."
+      },
+      "header": {
+            "myAccount": "Tài khoản của tôi",
+            "selectWorkspace": "Chọn không gian làm việc",
+            "workspaces": "Không gian làm việc",
+            "createWorkspace": "Tạo không gian làm việc",
+            "profile": "Hồ sơ",
+            "signOut": "Đăng xuất"
       }
 }

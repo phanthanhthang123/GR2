@@ -42,7 +42,7 @@ const SignIn = () => {
           toast.success(t("signIn.successMessage"));
         },
         onError: (error: any) => {
-          const errorMessage = error?.response?.data?.message || t("signIn.serverError");
+          const errorMessage = error?.response?.data?.message || t("signIn.signInFailed");
           toast.error(errorMessage);
           // console.log(error)
         }

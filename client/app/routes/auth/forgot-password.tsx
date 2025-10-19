@@ -1,5 +1,5 @@
 import React,{useState} from 'react'
-import { z } from 'zod'
+import {z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createForgotPasswordSchema } from '@/lib/schema'
@@ -30,13 +30,19 @@ const ForgotPassword = () => {
 
   const onSubmit = async (values: ForgotPasswordFormData) => {
     forgotPassword(values, {
-      onSuccess: () => {
+      onSuccess: (res) => {
+        // console.log(res);
+        if((res as any)?.err === 1){
+          toast.error(t("forgotPassword.EmailNotFound"));
+          return;
+        }
         setIsSuccess(true);
+        toast.success(t("forgotPassword.successToast"));
       },
       onError: (error) => {
         const errorMessage = error?.message || t("forgotPassword.errorMessage");
         toast.error(errorMessage);
-        console.error('Forgot password failed', error);
+        // console.error('Forgot password failed', error);
       }
     });
   }

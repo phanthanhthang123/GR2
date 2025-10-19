@@ -40,3 +40,11 @@ export const useForgotPasswordMutation = () => {
     },
   });
 }
+
+export const useResetPasswordMutation = () => {
+  return useMutation({
+    mutationFn: async (data: { token: string | null; newPassword: string }) => {
+      return postData("/auth/reset-password", data);
+    },
+  });
+}

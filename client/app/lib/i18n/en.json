@@ -14,7 +14,8 @@
             "textSignUp": "Don't have an account? ",
             "textSignUpLink": "Sign Up",
             "successMessage": "Login successful!",
-            "signingIn": "Signing in..."
+            "signingIn": "Signing in...",
+            "signInFailed": "Login failed. Please check your credentials and try again."
       },
       "signUp": {
             "title": "Create an Account",
@@ -47,7 +48,9 @@
             "successDescription": "Please check your inbox to reset your password.",
             "button": "Send Reset Link",
             "backToLogin": "Back to Sign In",
-            "errorMessage": "Failed to send reset link. Please try again."
+            "errorMessage": "Failed to send reset link. Please try again.",
+            "EmailNotFound": "Email address not found.",
+            "successToast": "Password reset link has been sent to your email."
       },
       "resetPassword": {
             "title": "Reset Password",
@@ -61,6 +64,18 @@
             "placeholderConfirmNewPassword": "Re-enter your new password",
             "passwordsDontMatch": "Passwords do not match",
             "button": "Reset Password",
-            "backToLogin": "Back to Sign In"
+            "backToLogin": "Back to Sign In",
+            "invalidTokenTitle": "Invalid Reset Token",
+            "invalidTokenDescription": "The reset token has expired or is invalid. Please try again.",
+            "successMessage": "Your password has been reset successfully!",
+            "errorMessage": "Failed to reset password. Please try again."
+      },
+      "header":{
+            "myAccount": "My Account",
+            "selectWorkspace": "Select Workspace",
+            "workspaces": "Workspaces",
+            "createWorkspace": "Create Workspace",
+            "profile": "Profile",
+            "signOut": "Sign Out"
       }
 }
