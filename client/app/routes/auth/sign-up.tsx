@@ -38,8 +38,7 @@ const SignUp = () => {
       mutate(values, {
         onSuccess: () => {
           toast.success(t("signUp.successMessage"));
-          // Redirect to sign-in page after successful registration
-          // navigate('/sign-in');
+          navigate('/sign-in');
         },
         onError: (error: any) => {
           const errorMessage = error?.response?.data?.message || t("signUp.serverError");

@@ -1,14 +1,9 @@
 import { useAuth } from "@/provider/auth-context";
 import type { Workspace } from "@/type";
 import {
-  CheckCircle2,
   ChevronsLeft,
   ChevronsRight,
-  LayoutDashboard,
-  ListCheck,
   LogOut,
-  Settings,
-  User,
   Wrench,
 } from "lucide-react";
 import { useState } from "react";
@@ -18,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { ScrollArea } from "../ui/scroll-area";
 import { t } from "i18next";
 import { SidebarNav } from "./sidebar-nav";
+import {NAV_ITEMS } from "@/constants/navItems";
 
 export const SidebarComponent = ({
   currentWorkspace,
@@ -26,33 +22,7 @@ export const SidebarComponent = ({
 }) => {
   const { user, logout } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const navItems = [
-    {
-      title: "Dashboard",
-      href: "/dashboard",
-      icon: LayoutDashboard,
-    },
-    {
-      title: "Workspaces",
-      href: "/workspaces",
-      icon: User,
-    },
-    {
-      title: "My Tasks",
-      href: "/my-tasks",
-      icon: ListCheck,
-    },
-    {
-      title: "Achieved",
-      href: "/achieved",
-      icon: CheckCircle2,
-    },
-    {
-      title: "Settings",
-      href: "/settings",
-      icon: Settings,
-    },
-  ];
+
   return (
     <div
       className={cn(
@@ -88,7 +58,7 @@ export const SidebarComponent = ({
 
       <ScrollArea className="flex-1 px-3 py-2">
             <SidebarNav
-            items = {navItems}
+            items  = {NAV_ITEMS}
             isCollapsed={isCollapsed}
             currentWorkspace={currentWorkspace}
             className={cn(isCollapsed && "items-center space-y-2")}

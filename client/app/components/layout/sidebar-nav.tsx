@@ -25,13 +25,14 @@ export const SidebarNav = ({
 }: SidebarNavProps) => {
   const location = useLocation();
   const navigate = useNavigate();
-      console.log(location.pathname);
+      // console.log(location.pathname);
   return (
     <nav className={cn("flex flex-col gap-y-2", className)} {...props}>
       {items.map((el) => {
         const Icon = el.icon;
         const isActive = location.pathname === el.href;
-        console.log("pathname:", location.pathname, "el.href:", el.href, "isActive:", isActive);
+        // console.log("pathname:", location.pathname, "el.href:", el.href, "isActive:", isActive);
+        
         const handleClick = () => {
           if (el.href === "/workspaces") {
             navigate(el.href);

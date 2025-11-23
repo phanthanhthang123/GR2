@@ -2,6 +2,7 @@ import { useAuth } from "@/provider/auth-context";
 import type { Workspace } from "@/type";
 import React, { use } from "react";
 import { Button } from "../ui/button";
+import { useLoaderData } from "react-router";
 import { Bell, PlusCircle } from "lucide-react";
 import {
   DropdownMenu,
@@ -30,14 +31,16 @@ export const Header = ({
 }: HeaderProps) => {
   const { user, logout } = useAuth();
   const { t } = useTranslation();
-  const workspaces: any = [];
+
   const getLastNameInitial = (username: string) => {
-    const names = username.split(" ");
+    if (!username || username.trim() === "") return "";
+    const names = username.trim().split(" ").filter(name => name.length > 0);
     if (names.length === 0) return "";
     const lastName = names[names.length - 1];
     return lastName.charAt(0).toUpperCase();
   };
-
+  const { workspaces } = useLoaderData() as { workspaces: Workspace[] };
+  // console.log(workspaces)
   return (
     <div className="bg-background sticky top-0 z-40 border-b">
       <div className="flex h-14 items-center justify-between px-4 sm:px-6 lg:px-8 py-4">
@@ -66,7 +69,7 @@ export const Header = ({
             <DropdownMenuLabel>{t("header.workspaces")}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              {workspaces.map((ws: any) => (
+              {workspaces?.map((ws: any) => (
                 <DropdownMenuItem
                   key={ws.id}
                   onClick={() => onWorkspaceSelected && onWorkspaceSelected(ws)}
@@ -102,7 +105,7 @@ export const Header = ({
                     alt={user?.username || "User"}
                   />
                   <AvatarFallback className="bg-primary text-primary-foreground">
-                    {user?.username ? getLastNameInitial(user?.username) : "U"}
+                    {getLastNameInitial(user?.username || "") || "U"}
                   </AvatarFallback>
                 </Avatar>
               </button>

@@ -15,6 +15,14 @@ module.exports = {
           key: 'id'
         }
       },
+      workspace_id: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        references: {
+          model: 'Workspaces',
+          key: 'id'
+        }
+      },
       name: {
         type: Sequelize.STRING,
         allowNull: false
@@ -32,7 +40,7 @@ module.exports = {
         allowNull: false
       },
       status: {
-        type: Sequelize.ENUM('Pending', 'IN Progress', 'Completed'),
+        type: Sequelize.ENUM('Pending', 'In Progress', 'Completed'),
         defaultValue: 'Pending'
       },
       created_by: {

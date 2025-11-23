@@ -10,7 +10,47 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      // Project belongs to Workspace
+      Project.belongsTo(models.Workspaces, {
+        foreignKey: 'workspace_id',
+        as: 'workspace'
+      });
+
+      // Project belongs to User (leader)
+      Project.belongsTo(models.Users, {
+        foreignKey: 'leader_id',
+        as: 'leader'
+      });
+
+      // Project belongs to User (creator)
+      Project.belongsTo(models.Users, {
+        foreignKey: 'created_by',
+        as: 'creator'
+      });
+
+      // Project has many Project_Members
+      Project.hasMany(models.Project_Member, {
+        foreignKey: 'project_id',
+        as: 'members'
+      });
+
+      // Project has many Tasks
+      Project.hasMany(models.Task, {
+        foreignKey: 'project_id',
+        as: 'tasks'
+      });
+
+      // Project has many Progress
+      Project.hasMany(models.Progress, {
+        foreignKey: 'project_id',
+        as: 'progress'
+      });
+
+      // Project has one Project_Prediction
+      Project.hasOne(models.Project_Prediction, {
+        foreignKey: 'project_id',
+        as: 'prediction'
+      });
     }
   }
   Project.init({
@@ -24,6 +64,14 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
       references: {
         model: 'Users',
+        key: 'id'
+      }
+    },
+    workspace_id: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      references: {
+        model: 'Workspaces',
         key: 'id'
       }
     },
@@ -44,7 +92,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     status: {
-      type: DataTypes.ENUM('Pending', 'IN Progress', 'Completed'),
+      type: DataTypes.ENUM('Pending', 'In Progress', 'Completed'),
       defaultValue: 'Pending'
     },
     created_by: {

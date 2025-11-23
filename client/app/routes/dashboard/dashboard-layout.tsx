@@ -1,17 +1,56 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Header } from "@/components/layout/header";
 import { useAuth } from "@/provider/auth-context";
 import { Loader } from "lucide-react";
-import { Outlet, useNavigate } from "react-router";
+import { Outlet, useNavigate, useLocation, useLoaderData } from "react-router";
 import type { Workspace } from "@/type";
-import { set } from "zod";
 import { SidebarComponent } from "@/components/layout/sidebar-component";
+import { CreateWorkspace } from "@/components/workspace/create-workspace";
+import { postData } from "@/lib/fetch-utlis";
+
+export const clientLoader = async () => {
+  const userInfo= JSON.parse(localStorage.getItem("user") || "{}");
+  if(!userInfo) {
+    return {error: "User not authenticated"};
+  }
+  const workspaces = await postData<Workspace[]>("/workspace/list-workspace-by-user", {user_id: userInfo.id});
+  return {workspaces};
+}
 
 const DashBoardLayout = () => {
   const {isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { workspaces } = useLoaderData() as { workspaces: Workspace[] };
   const [isCreatingWorkspace, setIsCreatingWorkspace] = useState(false);
   const [currentWorkspace, setCurrentWorkspace] = useState<Workspace | null>(null);
+
+  // Load saved workspace from localStorage on mount
+  useEffect(() => {
+    const savedWorkspaceId = localStorage.getItem('selectedWorkspaceId');
+    if (savedWorkspaceId && workspaces) {
+      const workspace = workspaces.find((ws: Workspace) => ws.id === savedWorkspaceId);
+      if (workspace) {
+        setCurrentWorkspace(workspace);
+      }
+    }
+  }, [workspaces]);
+
+  // Sync currentWorkspace with URL params when on workspace page
+  useEffect(() => {
+    const pathMatch = location.pathname.match(/\/workspaces\/([^/]+)/);
+    if (pathMatch && workspaces) {
+      const workspaceId = pathMatch[1];
+      const workspace = workspaces.find((ws: Workspace) => ws.id === workspaceId);
+      if (workspace) {
+        setCurrentWorkspace(workspace);
+        // Save to localStorage
+        localStorage.setItem('selectedWorkspaceId', workspaceId);
+      }
+    }
+    // Don't clear currentWorkspace when navigating away from workspace page
+    // Keep the selected workspace visible in header
+  }, [location.pathname, workspaces]);
 
   if(isLoading) {
     return <Loader/>
@@ -22,6 +61,10 @@ const DashBoardLayout = () => {
 
   const handleWorkspaceSelected = (workspace: Workspace) => {
     setCurrentWorkspace(workspace);
+    // Save to localStorage to persist across page refreshes
+    localStorage.setItem('selectedWorkspaceId', workspace.id);
+    // Navigate to workspace details page
+    navigate(`/workspaces/${workspace.id}`);
   }
   const handleCreateWorkspace = () => {
     setIsCreatingWorkspace(true);
@@ -34,7 +77,7 @@ const DashBoardLayout = () => {
       <div className="flex flex-1 flex-col h-full">
         {/* Header */}
         <Header
-          onWorkspaceSelected = {() => {handleWorkspaceSelected}}
+          onWorkspaceSelected = {(workspace) => handleWorkspaceSelected(workspace)}
           selectedWorkspace = {currentWorkspace}
           onCreateWorkspace = {() => setIsCreatingWorkspace(true)}
         />
@@ -44,6 +87,10 @@ const DashBoardLayout = () => {
             </div>
         </main>
       </div>
+      <CreateWorkspace 
+      isCreatingWorkspace = {isCreatingWorkspace}
+      setIsCreatingWorkspace = {setIsCreatingWorkspace}
+      />
     </div>
   );
 };

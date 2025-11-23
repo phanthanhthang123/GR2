@@ -10,7 +10,47 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      // User has many Workspaces (as owner)
+      Users.hasMany(models.Workspaces, {
+        foreignKey: 'owner_id',
+        as: 'ownedWorkspaces'
+      });
+
+      // User has many Workspace_Members
+      Users.hasMany(models.Workspace_Members, {
+        foreignKey: 'user_id',
+        as: 'workspaceMemberships'
+      });
+
+      // User has many Project_Members
+      Users.hasMany(models.Project_Member, {
+        foreignKey: 'user_id',
+        as: 'projectMemberships'
+      });
+
+      // User has many Projects (as leader)
+      Users.hasMany(models.Project, {
+        foreignKey: 'leader_id',
+        as: 'ledProjects'
+      });
+
+      // User has many Projects (as creator)
+      Users.hasMany(models.Project, {
+        foreignKey: 'created_by',
+        as: 'createdProjects'
+      });
+
+      // User has many Tasks (as assigned)
+      Users.hasMany(models.Task, {
+        foreignKey: 'assigned_to',
+        as: 'assignedTasks'
+      });
+
+      // User has many Notifications
+      Users.hasMany(models.Notification, {
+        foreignKey: 'user_id',
+        as: 'notifications'
+      });
     }
   }
   Users.init({

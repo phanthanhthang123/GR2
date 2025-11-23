@@ -11,6 +11,17 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      // Task belongs to Project
+      Task.belongsTo(models.Project, {
+        foreignKey: 'project_id',
+        as: 'project'
+      });
+
+      // Task belongs to User (assigned_to)
+      Task.belongsTo(models.Users, {
+        foreignKey: 'assigned_to',
+        as: 'assignedUser'
+      });
     }
   }
   Task.init({
@@ -26,6 +37,10 @@ module.exports = (sequelize, DataTypes) => {
         model: 'Projects',
         key: 'id'
       }
+    },
+    priority: {
+      type: DataTypes.ENUM('Low', 'Medium', 'High'),
+      allowNull: true
     },
     assigned_to: {
       type: DataTypes.STRING,

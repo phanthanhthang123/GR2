@@ -17,10 +17,11 @@ const Homepage = () => {
   };
   
   // Move language change to useEffect to avoid hydration mismatch
-  React.useEffect(() => {
-    changeLanguage('vi');
-  }, []);
-  
+  // React.useEffect(() => {
+  //   changeLanguage('en');
+  // }, []);
+
+  changeLanguage('en');
   return (
     <div className="h-full w-full flex items-center justify-center gap-4">
       <Link to="/sign-in">

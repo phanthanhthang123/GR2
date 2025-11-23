@@ -16,6 +16,10 @@ module.exports = {
           key: 'id'
         }
       },
+      priority: {
+        type: Sequelize.ENUM('Low', 'Medium', 'High'),
+        allowNull: true
+      },
       assigned_to: {
         type: Sequelize.STRING,
         allowNull: true,
