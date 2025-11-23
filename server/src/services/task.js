@@ -18,6 +18,7 @@ export const createTaskService = (projectId, taskData) => new Promise(async (res
             description: taskData.description,
             status: taskData.status,
             priority: taskData.priority || 'Medium',
+            dueDate : taskData.dueDate,
             createdAt: new Date(),
             updatedAt: new Date()
         });

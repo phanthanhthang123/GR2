@@ -40,6 +40,10 @@ module.exports = {
         type: Sequelize.ENUM('To Do', 'In Progress', 'Done'),
         allowNull: true
       },
+      dueDate: {
+        type: Sequelize.DATE,
+        allowNull: true
+      },
         createdAt: {
         type: Sequelize.DATE,
         allowNull: false

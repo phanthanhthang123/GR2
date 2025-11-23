@@ -61,7 +61,7 @@ export interface Task {
   isArchived?: boolean;
   dueDate: Date | null;
   priority: 'Low' | 'Medium' | 'High';
-  assignee?: User[] | string | null;
+  assigned_to?: User[] | string | null;
   createdBy: User | string;
   assigners?: User[] | string[] | null;
   subtasks?: Subtask[];
