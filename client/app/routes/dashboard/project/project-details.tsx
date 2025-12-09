@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router';
-import type { Project, Task, User } from '@/type';
+import type { Task } from '@/type';
 import { useProjectQueryById } from '@/hooks/use-project';
 import type { TaskStatus } from '@/type';
 import { Loader } from '@/components/loader';
@@ -9,13 +9,14 @@ import { BackButton } from '@/components/back-button';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { CreateTaskDialog } from '@/components/task/create-task-dialog';
+import { TaskCard } from '@/components/task/task-card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { AlertCircle, CheckCircle, Clock, Calendar } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { format } from "date-fns";
+import { toast } from 'sonner';
+import { useArchiveTaskMutation } from '@/hooks/use-task';
+import { Archive } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 
 const ProjectDetails = () => {
 
@@ -23,9 +24,28 @@ const ProjectDetails = () => {
     const navigate = useNavigate();
 
     const [isCreateTask, setIsCreateTask] = useState(false);
-    const [taskFilter, setTaskFilter] = useState<'All' | 'To Do' | 'In Progress' | 'Done'>('All');
+    const [taskFilter, setTaskFilter] = useState<'All' | 'To Do' | 'In Progress' | 'Done' | 'Archived'>('All');
 
-    const { data, isLoading } = useProjectQueryById(projectId!);
+    const { data, isLoading, error } = useProjectQueryById(projectId!);
+    const queryClient = useQueryClient();
+    const { mutate: archiveTask, isPending: isArchiving } = useArchiveTaskMutation();
+    
+    // Handle access denied error
+    useEffect(() => {
+        if (error && (error as any)?.response?.status === 403) {
+            const errorMsg = (error as any)?.response?.data?.msg || "Bạn không phải là thành viên trong project này";
+            toast.error(errorMsg);
+            // Redirect back to workspace
+            if (workspaceId) {
+                navigate(`/workspaces/${workspaceId}`);
+            } else {
+                navigate('/dashboard');
+            }
+        } else if (error) {
+            toast.error("Failed to load project");
+        }
+    }, [error, navigate, workspaceId]);
+
     if (isLoading) {
         return (
             <div>
@@ -35,6 +55,10 @@ const ProjectDetails = () => {
     }
 
     if (!data || data.err !== 0) {
+        // Check if it's a permission error
+        if (data?.code === "NOT_PROJECT_MEMBER" || data?.msg?.includes("không phải là thành viên")) {
+            return null; // Will be handled by useEffect
+        }
         return (
             <div>
                 <p>Failed to load project</p>
@@ -43,7 +67,7 @@ const ProjectDetails = () => {
     }
 
     const { project, tasks } = data;
-    console.log("task",tasks)
+    console.log("task", tasks)
     if (!project) {
         return (
             <div>
@@ -51,10 +75,27 @@ const ProjectDetails = () => {
             </div>
         )
     }
-    const projectProgess = getProjectProgress(tasks as { status: TaskStatus }[]);
+    
+    // Filter out archived tasks from main view
+    const activeTasks = tasks?.filter(task => !task.isArchived) || [];
+    const archivedTasks = tasks?.filter(task => task.isArchived) || [];
+    
+    const projectProgess = getProjectProgress(activeTasks as { status: TaskStatus }[]);
 
     const handleTaskClick = (taskId: string) => {
         navigate(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}`);
+    }
+
+    const handleUnarchiveTask = (taskId: string, e: React.MouseEvent) => {
+        e.stopPropagation(); // Prevent navigation when clicking unarchive button
+        archiveTask({ taskId }, {
+            onSuccess: () => {
+                // Invalidate project query to refresh the task list
+                queryClient.invalidateQueries({
+                    queryKey: ["project", projectId],
+                });
+            }
+        });
     }
 
 
@@ -102,6 +143,9 @@ const ProjectDetails = () => {
                             <TabsTrigger value='done' onClick={() => setTaskFilter('Done')}>
                                 Done
                             </TabsTrigger>
+                            <TabsTrigger value='archived' onClick={() => setTaskFilter('Archived')}>
+                                Archived ({archivedTasks.length})
+                            </TabsTrigger>
                         </TabsList>
 
                         <div className='flex items-center text-sm'>
@@ -111,21 +155,21 @@ const ProjectDetails = () => {
                                     variant='outline'
                                     className='bg-background'
                                 >
-                                    {tasks?.filter(task => task.status === 'To Do').length} To Do
+                                    {activeTasks?.filter(task => task.status === 'To Do').length} To Do
                                 </Badge>
 
                                 <Badge
                                     variant='outline'
                                     className='bg-background'
                                 >
-                                    {tasks?.filter(task => task.status === 'In Progress').length} In Progress
+                                    {activeTasks?.filter(task => task.status === 'In Progress').length} In Progress
                                 </Badge>
 
                                 <Badge
                                     variant='outline'
                                     className='bg-background'
                                 >
-                                    {tasks?.filter(task => task.status === 'Done').length} Done
+                                    {activeTasks?.filter(task => task.status === 'Done').length} Done
                                 </Badge>
 
                             </div>
@@ -136,17 +180,17 @@ const ProjectDetails = () => {
                         <div className='grid grid-cols-3 gap-4'>
                             <TaskColumn
                                 title="To Do"
-                                tasks={tasks?.filter(task => task.status === 'To Do')}
+                                tasks={activeTasks?.filter(task => task.status === 'To Do')}
                                 onTaskClick={handleTaskClick}
                             />
                             <TaskColumn
                                 title="In Progress"
-                                tasks={tasks?.filter(task => task.status === 'In Progress')}
+                                tasks={activeTasks?.filter(task => task.status === 'In Progress')}
                                 onTaskClick={handleTaskClick}
                             />
                             <TaskColumn
                                 title="Done"
-                                tasks={tasks?.filter(task => task.status === 'Done')}
+                                tasks={activeTasks?.filter(task => task.status === 'Done')}
                                 onTaskClick={handleTaskClick}
                             />
                         </div>
@@ -156,9 +200,9 @@ const ProjectDetails = () => {
                         <div className='grid md:grid-cols-1 gap-4'>
                             <TaskColumn
                                 title="To Do"
-                                tasks={tasks?.filter(task => task.status === 'To Do')}
+                                tasks={activeTasks?.filter(task => task.status === 'To Do')}
                                 onTaskClick={handleTaskClick}
-                                // isFullWidth
+                                isFullWidth
                             />
                         </div>
                     </TabsContent>
@@ -167,9 +211,9 @@ const ProjectDetails = () => {
                         <div className='grid md:grid-cols-1 gap-4'>
                             <TaskColumn
                                 title="In Progress"
-                                tasks={tasks?.filter(task => task.status === 'In Progress')}
+                                tasks={activeTasks?.filter(task => task.status === 'In Progress')}
                                 onTaskClick={handleTaskClick}
-                                // isFullWidth
+                                isFullWidth
                             />
                         </div>
                     </TabsContent>
@@ -178,9 +222,21 @@ const ProjectDetails = () => {
                         <div className='grid md:grid-cols-1 gap-4'>
                             <TaskColumn
                                 title="Done"
-                                tasks={tasks?.filter(task => task.status === 'Done')}
+                                tasks={activeTasks?.filter(task => task.status === 'Done')}
                                 onTaskClick={handleTaskClick}
-                                // isFullWidth  
+                                isFullWidth
+                            />
+                        </div>
+                    </TabsContent>
+
+                    <TabsContent value='archived' className='m-0'>
+                        <div className='grid md:grid-cols-1 gap-4'>
+                            <ArchivedTaskColumn
+                                title="Archived Tasks"
+                                tasks={archivedTasks}
+                                onTaskClick={handleTaskClick}
+                                onUnarchive={handleUnarchiveTask}
+                                isArchiving={isArchiving}
                             />
                         </div>
                     </TabsContent>
@@ -220,12 +276,10 @@ const TaskColumn = ({ title, tasks, onTaskClick, isFullWidth = false }: TaskColu
                     !isFullWidth ? "h-full" : "col-span-full mb-4"
                 )}
             >
-                {!isFullWidth && (
-                    <div className='flex items-center justify-between'>
-                        <h1 className='font-medium'>{title}</h1>
-                        <Badge variant="outline">{tasks?.length}</Badge>
-                    </div>
-                )}
+                <div className='flex items-center justify-between'>
+                    <h1 className='font-medium'>{title}</h1>
+                    <Badge variant="outline">{tasks?.length}</Badge>
+                </div>
 
                 <div
                     className={cn(
@@ -255,120 +309,52 @@ const TaskColumn = ({ title, tasks, onTaskClick, isFullWidth = false }: TaskColu
     )
 }
 
-const TaskCard = ({ task, onClick }: { task: Task; onClick: () => void }) => {
+interface ArchivedTaskColumnProps {
+    title: string;
+    tasks: Task[];
+    onTaskClick: (taskId: string) => void;
+    onUnarchive: (taskId: string, e: React.MouseEvent) => void;
+    isArchiving: boolean;
+}
+
+const ArchivedTaskColumn = ({ title, tasks, onTaskClick, onUnarchive, isArchiving }: ArchivedTaskColumnProps) => {
     return (
-        <Card
-            onClick={onClick}
-            className='cursor-pointer hover:shadow-md transition-all duration-300 hover:translate-y-1'
-        >
-            <CardHeader>
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+            <div className="space-y-4 col-span-full mb-4">
                 <div className='flex items-center justify-between'>
-                    <Badge
-                        className={
-                            task.priority === "High" 
-                            ? "bg-red-500 text-white"
-                            :task.priority === "Medium" 
-                            ? "bg-orange-500 text-white"
-                            : "bg-slate-500 text-white" 
-                        }
-                    >{task.priority}</Badge>
-
-                    <div className='flex gap-1'>
-                        {
-                            task.status !== "To Do" && (
-                                <Button
-                                variant={"ghost"}
-                                size={"icon"}
-                                className='size-6'
-                                onClick={()=>{
-                                  console.log("mark as to do")  
-                                }}
-                                title='Mark as To Do'
-                                >
-                                    <AlertCircle className={cn("size-4")}/>
-                                    <span className='sr-only'>Mark as To Do</span>
-                                </Button>
-                            )
-                        }
-                        {
-                            task.status !== "In Progress" && (
-                                <Button
-                                variant={"ghost"}
-                                size={"icon"}
-                                className='size-6'
-                                onClick={()=>{
-                                  console.log("mark as In Progress")  
-                                }}
-                                title='Mark as In Progress'
-                                >
-                                    <Clock className={cn("size-4")}/>
-                                    <span className='sr-only'>Mark as In Progress</span>
-                                </Button>
-                            )
-                        }
-                        {
-                            task.status !== "Done" && (
-                                <Button
-                                variant={"ghost"}
-                                size={"icon"}
-                                className='size-6'
-                                onClick={()=>{
-                                  console.log("mark as Done")  
-                                }}
-                                title='Mark as Done'
-                                >
-                                    <CheckCircle className={cn("size-4")}/>
-                                    <span className='sr-only'>Mark as Done</span>
-                                </Button>
-                            )
-                        }
-                    </div>
+                    <h1 className='font-medium'>{title}</h1>
+                    <Badge variant="outline">{tasks?.length}</Badge>
                 </div>
-            </CardHeader>
 
-            <CardContent>
-                <h4 className='font-medium mt-[-20px]'>{task.title}</h4>
-                {
-                    task.description && (
-                        <p className='text-sm text-muted-foreground line-clamp-2 mb-2'>
-                            {task.description}
-                        </p>
-                    )
-                }
-                <div className='flex items-center justify-between text-sm'>
-                    <div className='flex items-center gap-2'>
-                        {
-                            (task as any).assignedUser && 
-                            <div className='flex space-x-2'>
-                                <Avatar
-                                    key={(task as any).assignedUser.id}
-                                    className='relative size-6 bg-gray-700 rounded-full border-1 border-background overflow-hidden'
-                                    title={(task as any).assignedUser.username}
-                                >
-                                    <AvatarImage src={(task as any).assignedUser?.avatarUrl || undefined}></AvatarImage>
-                                    <AvatarFallback>{(task as any).assignedUser?.username?.charAt(0).toUpperCase()}</AvatarFallback>
-                                </Avatar>
-                            </div>
-                        }
-                        {
-                            Array.isArray(task.assigned_to) && task.assigned_to.length > 5 && (
-                                <span className='text-xs text-muted-foreground'>
-                                    + {task.assigned_to.length - 5}
-                                </span>
-                            )
-                        }
-                    </div>
-
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                     {
-                        task.dueDate && (
-                        <div className='text-xs text-muted-foreground flex items-center'>
-                            <Calendar className='size-3 mr-1'/>
-                            {format(new Date(task.dueDate), "MMM d, yyyy")}
-                        </div>
-                    )}
+                        tasks.length === 0 ? (
+                            <div className='text-center text-sm text-muted-foreground col-span-full py-8'>
+                                No archived tasks
+                            </div>
+                        ) : (
+                            tasks.map((task) => (
+                                <div key={task.id} className="relative">
+                                    <TaskCard
+                                        task={task}
+                                        onClick={() => onTaskClick(task.id)}
+                                    />
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="absolute top-2 right-2 z-10"
+                                        onClick={(e) => onUnarchive(task.id, e)}
+                                        disabled={isArchiving}
+                                    >
+                                        <Archive className="size-4 mr-2" />
+                                        Unarchive
+                                    </Button>
+                                </div>
+                            ))
+                        )
+                    }
                 </div>
-            </CardContent>
-        </Card>
-
+            </div>
+        </div>
     )
 }

@@ -9,6 +9,7 @@ router.post('/logout', controllers.logout);
 router.post('/edit-password', controllers.editPassword);
 router.post('/forgot-password', controllers.forgotPassword);
 router.post('/reset-password', controllers.resetPassword);
+router.get('/users', controllers.getAllUsers);
 // router.post('/send-reset-password-email', controllers.sendResetPasswordEmail);
 // router.post('/verify-email', controllers.verifyEmail);
 export default router;

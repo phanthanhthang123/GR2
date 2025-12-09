@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Header } from "@/components/layout/header";
 import { useAuth } from "@/provider/auth-context";
-import { Loader } from "lucide-react";
-import { Outlet, useNavigate, useLocation, useLoaderData } from "react-router";
+import { Loader } from "@/components/loader";
+import { Outlet, useNavigate, useLocation, useLoaderData, useRevalidator } from "react-router";
 import type { Workspace } from "@/type";
 import { SidebarComponent } from "@/components/layout/sidebar-component";
 import { CreateWorkspace } from "@/components/workspace/create-workspace";
@@ -18,12 +18,29 @@ export const clientLoader = async () => {
 }
 
 const DashBoardLayout = () => {
-  const {isAuthenticated, isLoading } = useAuth();
+  const {isAuthenticated, isLoading, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const revalidator = useRevalidator();
   const { workspaces } = useLoaderData() as { workspaces: Workspace[] };
   const [isCreatingWorkspace, setIsCreatingWorkspace] = useState(false);
   const [currentWorkspace, setCurrentWorkspace] = useState<Workspace | null>(null);
+
+  // Refetch workspaces when user changes (after login)
+  useEffect(() => {
+    if (user && isAuthenticated && !isLoading) {
+      // Check if workspaces need to be refetched
+      // This will trigger when user logs in and navigates to dashboard
+      const userInfo = JSON.parse(localStorage.getItem("user") || "{}");
+      if (userInfo?.id && userInfo.id === user.id) {
+        // Small delay to ensure everything is ready
+        const timer = setTimeout(() => {
+          revalidator.revalidate();
+        }, 300);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [user?.id, isAuthenticated, isLoading, revalidator]);
 
   // Load saved workspace from localStorage on mount
   useEffect(() => {

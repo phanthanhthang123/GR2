@@ -62,6 +62,7 @@ export interface Task {
   dueDate: Date | null;
   priority: 'Low' | 'Medium' | 'High';
   assigned_to?: User[] | string | null;
+  assignedUser?: User;
   createdBy: User | string;
   assigners?: User[] | string[] | null;
   subtasks?: Subtask[];
@@ -85,8 +86,70 @@ export interface Attachment {
   id : string;
 }
 
+export enum TaskPriority {
+  LOW = 'Low',
+  MEDIUM = 'Medium',
+  HIGH = 'High',
+}
+
 export enum ProjectMemberRole {
   ADMIN = 'Admin',
   LEADER = 'Leader',
   MEMBER = 'Member',
 }
+
+export type ResourceType = 
+  | "Task"
+  | "Project"
+  | "Workspace"
+  | "Comment"
+  | "User"
+
+
+export type ActionType =
+  | "created_task"
+  | "updated_task"
+  | "created_subtask"
+  | "updated_subtask"
+  | "completed_task"
+  | "created_project"
+  | "updated_project"
+  | "completed_project"
+  | "created_workspace"
+  | "updated_workspace"
+  | "added_comment"
+  | "added_member"
+  | "removed_member"
+  | "joined_workspace"
+  | "added_attachment"
+  | "TITLE_UPDATED"
+  | "STATUS_UPDATED"
+  | "DESCRIPTION_UPDATED"
+  | "ASSIGNEES_UPDATED"
+  | "PRIORITY_UPDATED"
+  | "WATCHED"
+  | "UNWATCHED"
+  | "TASK_ACHIEVED"
+  | "TASK_ARCHIVED"
+  | "TASK_UNARCHIVED";
+
+
+  export interface ActivityLog {
+    id: string;
+    user : User | string;
+    action: ActionType;
+    resourceType: ResourceType;
+    resourceId: string;
+    payload?: any;
+    createdAt: Date;
+  }
+
+  export interface Comment {
+    id: string | number;
+    task_id: string | number;
+    user_id: string;
+    content: string;
+    user?: User;
+    createdAt: Date | string;
+    updatedAt: Date | string;
+  }

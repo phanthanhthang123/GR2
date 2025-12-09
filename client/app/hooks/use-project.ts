@@ -36,6 +36,7 @@ export const useProjectQueryById = (projectId: string) => {
         msg: string;
         project: Project;
         tasks: Task[];
+        code?: string;
     }>({
         queryKey: ["project", projectId],
         queryFn: async () => {
@@ -44,7 +45,9 @@ export const useProjectQueryById = (projectId: string) => {
                 msg: string;
                 project: Project;
                 tasks: Task[];
+                code?: string;
             }>(`/project/${projectId}/tasks`);
-        }
+        },
+        retry: false, // Don't retry on 403 errors
     })
 }

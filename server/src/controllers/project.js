@@ -75,7 +75,31 @@ export const getProjectTasks = async (req,res)=>{
                 msg : 'Missing required parameter: projectId'
             })
         }
-        const respone = await services.getProjectTasksService(projectId);
+
+        // Get userId from token
+        const authHeader = req.headers.authorization;
+        const token = authHeader?.startsWith('Bearer ') 
+            ? authHeader.replace('Bearer ', '') 
+            : (req.cookies?.accessToken || null);
+        
+        let currentUserId = null;
+        if (token) {
+            try {
+                const jwt = require('jsonwebtoken');
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                currentUserId = decoded.id;
+            } catch (error) {
+                // If token is invalid, continue without userId (will fail permission check)
+            }
+        }
+
+        const respone = await services.getProjectTasksService(projectId, currentUserId);
+        
+        // Return 403 if user is not a project member
+        if (respone.err === 1 && respone.code === "NOT_PROJECT_MEMBER") {
+            return res.status(403).json(respone);
+        }
+        
         return res.status(200).json(respone);
     } catch (error) {
         return res.status(500).json({

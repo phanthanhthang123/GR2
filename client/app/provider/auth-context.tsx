@@ -56,11 +56,36 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
 
       const login = async (data: any) => {
-            localStorage.setItem("token", data.token);
-            localStorage.setItem("user", JSON.stringify(data.response));
+            try {
+                  // Store token and user data
+                  localStorage.setItem("token", data.token);
+                  const userData = data.response || data.user;
+                  localStorage.setItem("user", JSON.stringify(userData));
 
-            setUser(data.user);
-            setIsAuthenticated(true);
+                  // Update state synchronously first
+                  setUser(userData);
+                  setIsAuthenticated(true);
+
+                  // Wait a bit for state to update
+                  await new Promise(resolve => setTimeout(resolve, 50));
+
+                  // Invalidate all queries to refetch fresh data
+                  queryClient.invalidateQueries();
+                  
+                  // Refetch critical queries
+                  const userId = userData?.id;
+                  if (userId) {
+                        queryClient.invalidateQueries({
+                              queryKey: ["workspaces", userId],
+                        });
+                        queryClient.invalidateQueries({
+                              queryKey: ["workspace"],
+                        });
+                  }
+            } catch (error) {
+                  console.error("Login error:", error);
+                  throw error;
+            }
       }
       const logout = async () => {
             localStorage.removeItem("token");

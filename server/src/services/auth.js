@@ -235,6 +235,39 @@ export const resetPasswordService = (token, newPassword) => new Promise(async (r
     }
 })
 
+// //GET ALL USERS (with optional search)
+export const getAllUsersService = (searchQuery) => new Promise(async (resolve, reject) => {
+    try {
+        const whereClause = {};
+        
+        if (searchQuery) {
+            whereClause[db.Sequelize.Op.or] = [
+                { username: { [db.Sequelize.Op.like]: `%${searchQuery}%` } },
+                { email: { [db.Sequelize.Op.like]: `%${searchQuery}%` } }
+            ];
+        }
+
+        const users = await db.Users.findAll({
+            where: whereClause,
+            attributes: ['id', 'username', 'email', 'role'],
+            order: [['username', 'ASC']],
+            limit: 100 // Limit to prevent loading too many users
+        });
+
+        resolve({
+            err: 0,
+            msg: 'OK',
+            response: users
+        });
+    } catch (error) {
+        resolve({
+            err: 1,
+            msg: 'FAILED TO GET USERS: ' + error.message,
+            response: []
+        });
+    }
+});
+
 // export const verifyEmailService = (email) => new Promise(async (resolve, reject) => {
 //     try {
 //         const user = await db.Users.findOne({

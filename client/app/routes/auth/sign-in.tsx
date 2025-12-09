@@ -36,10 +36,19 @@ const SignIn = () => {
   const handleOnSubmit = async (values: SingInFormData) => {
     try {
       mutate(values, {
-        onSuccess: (data) => {
-          login(data)
-          navigate('/dashboard');
-          toast.success(t("signIn.successMessage"));
+        onSuccess: async (data) => {
+          try {
+            // Wait for login to complete (including state updates and query invalidation)
+            await login(data);
+            // Small delay to ensure all state is updated and queries are invalidated
+            await new Promise(resolve => setTimeout(resolve, 150));
+            toast.success(t("signIn.successMessage"));
+            // Navigate after everything is ready
+            navigate('/dashboard');
+          } catch (error) {
+            console.error('Login failed', error);
+            toast.error(t("signIn.signInFailed"));
+          }
         },
         onError: (error: any) => {
           const errorMessage = error?.response?.data?.message || t("signIn.signInFailed");

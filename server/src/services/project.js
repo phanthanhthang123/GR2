@@ -150,7 +150,7 @@ export const createProjectService = (workspaceId, projectData, createdBy) => new
 //GET PROJECT
 
 
-export const getProjectTasksService = async (projectId) => {
+export const getProjectTasksService = async (projectId, userId) => {
     try {
 
         // Lấy project
@@ -178,6 +178,22 @@ export const getProjectTasksService = async (projectId) => {
 
         if (!project) {
             return { err: 1, msg: "Project not found" };
+        }
+
+        // Check if user is a project member
+        if (userId) {
+            const isMember = project.members?.some((member) => {
+                const memberUserId = typeof member.user === 'string' ? member.user : member.user?.id || member.user_id;
+                return memberUserId === userId;
+            }) || project.leader_id === userId || project.created_by === userId;
+
+            if (!isMember) {
+                return { 
+                    err: 1, 
+                    msg: "Bạn không phải là thành viên trong project này",
+                    code: "NOT_PROJECT_MEMBER"
+                };
+            }
         }
 
         // Lấy tasks

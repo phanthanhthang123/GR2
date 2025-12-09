@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import type { Workspace } from "@/type";
 import {type LucideIcon } from "lucide-react";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "../ui/button";
 import { useLocation, useNavigate } from "react-router";
 
@@ -25,15 +25,33 @@ export const SidebarNav = ({
 }: SidebarNavProps) => {
   const location = useLocation();
   const navigate = useNavigate();
-      // console.log(location.pathname);
+  const [clickedHref, setClickedHref] = useState<string | null>(null);
+  
+  // Reset clickedHref when location changes (navigation completed)
+  useEffect(() => {
+    setClickedHref(null);
+  }, [location.pathname]);
+  
   return (
     <nav className={cn("flex flex-col gap-y-2", className)} {...props}>
       {items.map((el) => {
         const Icon = el.icon;
-        const isActive = location.pathname === el.href;
-        // console.log("pathname:", location.pathname, "el.href:", el.href, "isActive:", isActive);
+        // Check if current pathname matches the nav item
+        // Match exact path or paths that start with href + "/"
+        const isActiveByPath = location.pathname === el.href || 
+                               location.pathname.startsWith(el.href + "/");
+        // Also check if this item was just clicked (for immediate visual feedback)
+        const isActive = isActiveByPath || clickedHref === el.href;
         
-        const handleClick = () => {
+        const handleMouseDown = () => {
+          // Set clicked state on mousedown for immediate visual feedback
+          setClickedHref(el.href);
+        };
+        
+        const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+          // Ensure clicked state is set
+          setClickedHref(el.href);
+          
           if (el.href === "/workspaces") {
             navigate(el.href);
           } else if (currentWorkspace && currentWorkspace.id) {
@@ -41,10 +59,17 @@ export const SidebarNav = ({
           } else {
             navigate(el.href);
           }
+          // Blur button after click to remove focus state
+          e.currentTarget.blur();
         };
         return <Button key={el.href}
         variant={isActive ? "outline" : "ghost"}
-        className={cn("justify-start", isActive && "bg-blue-800/20 text-blue-600 font-medium")}
+        data-active={isActive}
+        className={cn(
+          "justify-start",
+          isActive && "!bg-blue-800/20 !text-blue-600 font-medium hover:!bg-blue-800/20 hover:!text-blue-600 focus-visible:!bg-blue-800/20 focus-visible:!text-blue-600"
+        )}
+        onMouseDown={handleMouseDown}
         onClick={handleClick}
         >
             <Icon className="mr-2 size-4"/>

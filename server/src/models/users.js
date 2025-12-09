@@ -46,6 +46,20 @@ module.exports = (sequelize, DataTypes) => {
         as: 'assignedTasks'
       });
 
+      // User watches many Tasks
+      Users.belongsToMany(models.Task, {
+        through: models.Task_Watcher,
+        foreignKey: 'user_id',
+        otherKey: 'task_id',
+        as: 'watchingTasks'
+      });
+
+      // User has many Task Activities
+      Users.hasMany(models.Task_Activity, {
+        foreignKey: 'user_id',
+        as: 'taskActivities'
+      });
+
       // User has many Notifications
       Users.hasMany(models.Notification, {
         foreignKey: 'user_id',

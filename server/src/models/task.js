@@ -22,6 +22,26 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'assigned_to',
         as: 'assignedUser'
       });
+
+      // Task has many activities
+      Task.hasMany(models.Task_Activity, {
+        foreignKey: 'task_id',
+        as: 'activities'
+      });
+
+      // Task watchers (many-to-many Users)
+      Task.belongsToMany(models.Users, {
+        through: models.Task_Watcher,
+        foreignKey: 'task_id',
+        otherKey: 'user_id',
+        as: 'watchers'
+      });
+
+      // Task has many Comments
+      Task.hasMany(models.Comment, {
+        foreignKey: 'task_id',
+        as: 'comments'
+      });
     }
   }
   Task.init({
@@ -65,6 +85,11 @@ module.exports = (sequelize, DataTypes) => {
     dueDate: {
       type: DataTypes.DATE,
       allowNull: true
+    },
+    isArchived: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
     },
     createdAt: {
       type: DataTypes.DATE,

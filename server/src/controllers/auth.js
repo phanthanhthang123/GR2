@@ -163,6 +163,22 @@ export const verifyEmail = async (req, res) => {
     }   
 }
 
+export const getAllUsers = async (req, res) => {
+    try {
+        const { search } = req.query;
+        const response = await services.getAllUsersService(search);
+        if(response.err === 1) {
+            return res.status(400).json(response);
+        }
+        return res.status(200).json(response);
+    } catch (error) {
+        return res.status(500).json({
+            err: -1,
+            msg: 'Failed at get all users controller: ' + error
+        })
+    }
+}
+
 // export const sendResetPasswordEmail = async (req, res) => {
 //     try {
 //         const { email } = req.body
