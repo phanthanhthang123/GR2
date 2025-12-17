@@ -335,3 +335,287 @@ export const removeMemberFromWorkspaceService = (workspaceId, targetUserId, curr
         });
     }
 })
+
+//GET WORKSPACE STATS
+export const getWorkspaceStatsService = (workspaceId) => new Promise(async (resolve, reject) => {
+    try {
+        // Check if workspace exists
+        const workspace = await db.Workspaces.findOne({
+            where: { id: workspaceId }
+        });
+
+        if (!workspace) {
+            return resolve({
+                err: 1,
+                msg: 'WORKSPACE NOT FOUND'
+            });
+        }
+
+        // Get all projects in workspace
+        const projects = await db.Project.findAll({
+            where: { workspace_id: workspaceId },
+            include: [
+                {
+                    model: db.Task,
+                    as: 'tasks',
+                    where: { isArchived: false },
+                    required: false
+                }
+            ]
+        });
+
+        // Get all tasks in workspace (through projects)
+        // Đảm bảo project_id được include trong kết quả
+        const allTasks = await db.Task.findAll({
+            include: [
+                {
+                    model: db.Project,
+                    as: 'project',
+                    where: { workspace_id: workspaceId },
+                    required: true,
+                    attributes: ['id', 'name'] // Include project id và name để có thể sử dụng
+                }
+            ],
+            where: { isArchived: false }
+            // project_id sẽ tự động được include vì nó là field của Task model
+        });
+
+        // Calculate stats
+        const totalProjects = projects.length;
+        const totalTasks = allTasks.length;
+        const totalProjectInProgress = projects.filter(p => p.status === 'In Progress').length;
+        const totalTaskCompleted = allTasks.filter(t => t.status === 'Done').length;
+        const totalTaskToDo = allTasks.filter(t => t.status === 'To Do').length;
+        const totalTaskInProgress = allTasks.filter(t => t.status === 'In Progress').length;
+
+        const stats = {
+            totalProjects,
+            totalTasks,
+            totalProjectInProgress,
+            totalTaskCompleted,
+            totalTaskToDo,
+            totalTaskInProgress
+        };
+
+        // Task Trends Data (last 7 days)
+        const taskTrendsData = [];
+        const today = new Date();
+        // Normalize today to UTC midnight
+        const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+        
+        // Debug: Log total tasks and today's date
+        console.log(`[Task Trends] Total tasks in workspace: ${allTasks.length}`);
+        console.log(`[Task Trends] Today's date (local): ${today.toISOString().split('T')[0]}`);
+        console.log(`[Task Trends] Today's date (UTC): ${todayUTC.toISOString().split('T')[0]}`);
+        
+        // Helper function to normalize date to UTC date string (YYYY-MM-DD)
+        const getUTCDateString = (dateValue) => {
+            if (!dateValue) return null;
+            const date = new Date(dateValue);
+            // Get UTC date components
+            const year = date.getUTCFullYear();
+            const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+            const day = String(date.getUTCDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        };
+        
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date(todayUTC);
+            date.setUTCDate(date.getUTCDate() - i);
+            const dateStr = date.toISOString().split('T')[0];
+
+            // Count tasks created on this day
+            const tasksCreated = allTasks.filter(t => {
+                if (!t.createdAt) return false;
+                const createdDateStr = getUTCDateString(t.createdAt);
+                if (createdDateStr === dateStr) {
+                    console.log(`[Task Trends] Match found! Task ${t.id} created on ${createdDateStr} matches ${dateStr}`);
+                    return true;
+                }
+                return false;
+            }).length;
+
+            // Count tasks completed on this day (status = 'Done' and updated on this day)
+            const tasksCompleted = allTasks.filter(t => {
+                if (t.status !== 'Done') return false;
+                if (!t.updatedAt) return false;
+                const updatedDateStr = getUTCDateString(t.updatedAt);
+                if (updatedDateStr === dateStr) {
+                    console.log(`[Task Trends] Match found! Task ${t.id} completed on ${updatedDateStr} matches ${dateStr}`);
+                    return true;
+                }
+                return false;
+            }).length;
+
+            taskTrendsData.push({
+                date: dateStr,
+                created: tasksCreated,
+                completed: tasksCompleted
+            });
+            
+            // Debug: Log all dates being checked
+            console.log(`[Task Trends] Checking date ${dateStr}: Created=${tasksCreated}, Completed=${tasksCompleted}`);
+        }
+        
+        // Debug: Log all task dates for comparison
+        console.log('[Task Trends] All task dates:');
+        allTasks.forEach(t => {
+            const createdStr = getUTCDateString(t.createdAt);
+            const updatedStr = getUTCDateString(t.updatedAt);
+            console.log(`  Task ${t.id}: createdAt=${createdStr}, updatedAt=${updatedStr}, status=${t.status}`);
+        });
+        
+        // Debug: Log sample task dates
+        if (allTasks.length > 0) {
+            const sampleTasks = allTasks.slice(0, 3);
+            console.log('[Task Trends] Sample tasks:', sampleTasks.map(t => ({
+                id: t.id,
+                title: t.title,
+                status: t.status,
+                createdAt: t.createdAt ? new Date(t.createdAt).toISOString().split('T')[0] : null,
+                updatedAt: t.updatedAt ? new Date(t.updatedAt).toISOString().split('T')[0] : null
+            })));
+        }
+
+        // Project Status Data
+        const projectStatusData = [
+            { status: 'Pending', count: projects.filter(p => p.status === 'Pending').length },
+            { status: 'In Progress', count: projects.filter(p => p.status === 'In Progress').length },
+            { status: 'Completed', count: projects.filter(p => p.status === 'Completed').length }
+        ];
+
+        // Task Priority Data
+        const taskPriorityData = [
+            { priority: 'High', count: allTasks.filter(t => t.priority === 'High').length },
+            { priority: 'Medium', count: allTasks.filter(t => t.priority === 'Medium').length },
+            { priority: 'Low', count: allTasks.filter(t => t.priority === 'Low').length }
+        ];
+
+        // Workspace Productivity Data (task completion by project)
+        // Sử dụng trực tiếp tasks từ project association thay vì filter từ allTasks
+        const workspaceProductivityData = projects.map(project => {
+            // Lấy tasks từ project association (đã được load với include)
+            // Nếu không có trong association, fallback về filter từ allTasks
+            let projectTasks = [];
+            
+            if (project.tasks && project.tasks.length > 0) {
+                // Sử dụng tasks từ association (đã được filter isArchived: false trong include)
+                projectTasks = project.tasks;
+            } else {
+                // Fallback: filter từ allTasks
+                projectTasks = allTasks.filter(t => {
+                    const taskProjectId = t.project_id || (t.project && t.project.id);
+                    return taskProjectId === project.id;
+                });
+            }
+            
+            const completedTasks = projectTasks.filter(t => t.status === 'Done').length;
+            const totalTasks = projectTasks.length;
+            
+            // Debug log để kiểm tra
+            console.log(`[Workspace Productivity] Project: ${project.name} (${project.id})`);
+            console.log(`  - Using ${project.tasks ? 'association' : 'filtered'} tasks`);
+            console.log(`  - Total tasks: ${totalTasks}, Completed: ${completedTasks}`);
+            if (totalTasks === 0 && allTasks.length > 0) {
+                const sampleTask = allTasks.find(t => {
+                    const taskProjectId = t.project_id || (t.project && t.project.id);
+                    return taskProjectId === project.id;
+                });
+                if (sampleTask) {
+                    console.log(`  - Found task but not counted: project_id=${sampleTask.project_id}, project.id=${sampleTask.project?.id}`);
+                }
+            }
+            
+            return {
+                projectName: project.name,
+                completed: completedTasks,
+                total: totalTasks
+            };
+        });
+
+        // Upcoming Tasks (tasks with dueDate in next 7 days)
+        const upcomingDate = new Date();
+        upcomingDate.setDate(upcomingDate.getDate() + 7);
+        const upcomingTasks = await db.Task.findAll({
+            include: [
+                {
+                    model: db.Project,
+                    as: 'project',
+                    where: { workspace_id: workspaceId },
+                    required: true,
+                    attributes: ['id', 'name']
+                },
+                {
+                    model: db.Users,
+                    as: 'assignedUser',
+                    attributes: ['id', 'username', 'email'],
+                    required: false
+                }
+            ],
+            where: {
+                isArchived: false,
+                dueDate: {
+                    [db.Sequelize.Op.between]: [new Date(), upcomingDate]
+                },
+                status: {
+                    [db.Sequelize.Op.ne]: 'Done'
+                }
+            },
+            order: [['dueDate', 'ASC']],
+            limit: 10
+        });
+
+        // Recent Tasks (last 10 tasks created)
+        const recentTasks = await db.Task.findAll({
+            include: [
+                {
+                    model: db.Project,
+                    as: 'project',
+                    where: { workspace_id: workspaceId },
+                    required: true,
+                    attributes: ['id', 'name']
+                },
+                {
+                    model: db.Users,
+                    as: 'assignedUser',
+                    attributes: ['id', 'username', 'email'],
+                    required: false
+                }
+            ],
+            where: { isArchived: false },
+            order: [['createdAt', 'DESC']],
+            limit: 10
+        });
+
+        // Recent Projects (last 5 projects created)
+        const recentProjects = projects
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .slice(0, 5)
+            .map(project => ({
+                id: project.id,
+                name: project.name,
+                description: project.description,
+                status: project.status,
+                start_date: project.start_date,
+                end_date: project.end_date,
+                createdAt: project.createdAt
+            }));
+
+        resolve({
+            err: 0,
+            msg: 'OK',
+            response: {
+                stats,
+                taskTrendsData,
+                projectStatusData,
+                taskPriorityData,
+                workspaceProductivityData,
+                upcomingTasks,
+                recentTasks,
+                recentProjects
+            }
+        });
+    } catch (error) {
+        reject(error);
+    }
+})

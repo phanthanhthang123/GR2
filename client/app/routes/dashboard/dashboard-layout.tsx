@@ -9,12 +9,17 @@ import { CreateWorkspace } from "@/components/workspace/create-workspace";
 import { postData } from "@/lib/fetch-utlis";
 
 export const clientLoader = async () => {
-  const userInfo= JSON.parse(localStorage.getItem("user") || "{}");
-  if(!userInfo) {
-    return {error: "User not authenticated"};
+  try {
+    const userInfo = JSON.parse(localStorage.getItem("user") || "{}");
+    if (!userInfo || !userInfo.id) {
+      return { workspaces: [] };
+    }
+    const workspaces = await postData<Workspace[]>("/workspace/list-workspace-by-user", {user_id: userInfo.id});
+    return { workspaces: workspaces || [] };
+  } catch (error) {
+    console.error("Error loading workspaces:", error);
+    return { workspaces: [] };
   }
-  const workspaces = await postData<Workspace[]>("/workspace/list-workspace-by-user", {user_id: userInfo.id});
-  return {workspaces};
 }
 
 const DashBoardLayout = () => {

@@ -49,7 +49,7 @@ z.object({
 
 export enum ProjectStatus {
   PENDING = "Pending",
-  IN_PROGRESS = "IN Progress",
+  IN_PROGRESS = "In Progress",
   COMPLETED = "Completed",
 }
 

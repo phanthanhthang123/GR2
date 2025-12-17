@@ -93,3 +93,13 @@ export const useRemoveMemberFromWorkspaceMutation = () => {
         },
     });
 }
+
+export const useGetWorkspaceStatsQuery = (workspace_id: string)=>{
+    return useQuery({
+        queryKey: ["workspace-stats", workspace_id],
+        queryFn: async ()=> {
+            return fetchData(`/workspace/${workspace_id}/stats`);
+        },
+        enabled: !!workspace_id
+    })
+}

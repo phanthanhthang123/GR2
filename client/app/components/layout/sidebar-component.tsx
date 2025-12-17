@@ -7,7 +7,7 @@ import {
   Wrench,
 } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "../ui/scroll-area";
@@ -22,6 +22,20 @@ export const SidebarComponent = ({
 }) => {
   const { user, logout } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleLogoClick = () => {
+    // Lấy workspaceId từ query string hiện tại hoặc từ currentWorkspace
+    const searchParams = new URLSearchParams(location.search);
+    const workspaceId = searchParams.get('workspaceId') || currentWorkspace?.id;
+    
+    if (workspaceId) {
+      navigate(`/dashboard?workspaceId=${workspaceId}`);
+    } else {
+      navigate('/dashboard');
+    }
+  };
 
   return (
     <div
@@ -31,7 +45,10 @@ export const SidebarComponent = ({
       )}
     >
       <div className="flex h-14 items-center justify-center border-b px-4 mb-4">
-        <Link to="/dashboard" className="flex items-center">
+        <button 
+          onClick={handleLogoClick}
+          className="flex items-center cursor-pointer hover:opacity-80 transition-opacity"
+        >
           {!isCollapsed && (
             <div className="flex items-center gap-2">
               <Wrench className="size-6 text-blue-600" />
@@ -41,7 +58,7 @@ export const SidebarComponent = ({
             </div>
           )}
           {isCollapsed && <Wrench className="size-6 text-blue-600" />}
-        </Link>
+        </button>
 
         <Button
           variant={"ghost"}
@@ -66,7 +83,10 @@ export const SidebarComponent = ({
       </ScrollArea>
 
       <div>
-            <Button variant={"ghost"} size={isCollapsed ? "icon": "default"} onClick={logout}>
+            <Button variant={"ghost"} size={isCollapsed ? "icon": "default"} onClick={() => {
+              logout();
+              navigate("/sign-in");
+            }}>
                   <LogOut className={cn("size-4",isCollapsed ? "" : "mr-2")}/>
                   <span className="hidden mb:block">{t("header.signOut")}</span>
             </Button>

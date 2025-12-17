@@ -88,13 +88,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             }
       }
       const logout = async () => {
-            localStorage.removeItem("token");
-            localStorage.removeItem("user");
+            try {
+                  // Clear state first
+                  setUser(null);
+                  setIsAuthenticated(false);
+                  
+                  // Clear localStorage
+                  localStorage.removeItem("token");
+                  localStorage.removeItem("user");
+                  localStorage.removeItem("selectedWorkspaceId");
 
-            setUser(null);
-            setIsAuthenticated(false);
-
-            queryClient.clear();
+                  // Clear query cache
+                  queryClient.clear();
+            } catch (error) {
+                  console.error("Logout error:", error);
+            }
       }
       const values = {
             user,

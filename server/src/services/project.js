@@ -52,6 +52,7 @@ export const createProjectService = (workspaceId, projectData, createdBy) => new
         const statusMapping = {
             'Pending': 'Pending',
             'In Progress': 'In Progress',
+            'IN Progress': 'In Progress', // Support both formats for backward compatibility
             'Completed': 'Completed'
         };
 

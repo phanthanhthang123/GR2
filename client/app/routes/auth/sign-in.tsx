@@ -13,6 +13,8 @@ import { useSignInMutation } from '@/hooks/use-auth'
 import { toast } from 'sonner'
 import { Loader2, type Loader } from 'lucide-react'
 import { useAuth } from '@/provider/auth-context'
+import { postData } from '@/lib/fetch-utlis'
+import type { Workspace } from '@/type'
 
 
 const SignIn = () => {
@@ -43,8 +45,39 @@ const SignIn = () => {
             // Small delay to ensure all state is updated and queries are invalidated
             await new Promise(resolve => setTimeout(resolve, 150));
             toast.success(t("signIn.successMessage"));
-            // Navigate after everything is ready
-            navigate('/dashboard');
+            
+            // Fetch workspaces and navigate with workspaceId if available
+            try {
+              const userInfo = JSON.parse(localStorage.getItem("user") || "{}");
+              if (userInfo?.id) {
+                const workspaces = await postData<Workspace[]>("/workspace/list-workspace-by-user", { user_id: userInfo.id });
+                
+                // Check for saved workspaceId in localStorage first
+                const savedWorkspaceId = localStorage.getItem('selectedWorkspaceId');
+                let workspaceId = null;
+                
+                if (savedWorkspaceId && workspaces.find((ws: Workspace) => ws.id === savedWorkspaceId)) {
+                  workspaceId = savedWorkspaceId;
+                } else if (workspaces && workspaces.length > 0) {
+                  // Use first workspace if no saved workspace
+                  workspaceId = workspaces[0].id;
+                  localStorage.setItem('selectedWorkspaceId', workspaceId);
+                }
+                
+                // Navigate with workspaceId if available
+                if (workspaceId) {
+                  navigate(`/dashboard?workspaceId=${workspaceId}`);
+                } else {
+                  navigate('/dashboard');
+                }
+              } else {
+                navigate('/dashboard');
+              }
+            } catch (workspaceError) {
+              console.error('Failed to fetch workspaces:', workspaceError);
+              // Navigate to dashboard anyway
+              navigate('/dashboard');
+            }
           } catch (error) {
             console.error('Login failed', error);
             toast.error(t("signIn.signInFailed"));

@@ -177,3 +177,26 @@ export const removeMemberFromWorkspace = async (req,res)=>{
         })
     }
 }
+
+export const getWorkspaceStats = async (req,res)=>{
+    try {
+        const {workspaceId} = req.params;
+        if(!workspaceId) {
+            return res.status(400).json({
+                err : 1,
+                msg : 'Missing required parameter: workspaceId'
+            })
+        }
+        const response = await services.getWorkspaceStatsService(workspaceId);
+        if(response.err === 1) {
+            return res.status(404).json(response);
+        }
+        return res.status(200).json(response?.response);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            err : -1,
+            msg : 'Internal server error'
+        })
+    }
+}
