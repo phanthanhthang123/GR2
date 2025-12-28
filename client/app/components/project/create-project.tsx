@@ -72,7 +72,7 @@ export const CreateProjectDiaLog = ({
         form.reset();
       },
       onError: (error: any) => {
-        const errorMessage = (error as any)?.response?.data?.message || "Failed to create project";
+        const errorMessage = (error as any)?.response?.data?.message || "Không thể tạo dự án";
         toast.error(errorMessage);
       }
     });
@@ -82,9 +82,9 @@ export const CreateProjectDiaLog = ({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[540px]">
         <DialogHeader>
-          <DialogTitle>Create Project</DialogTitle>
+          <DialogTitle>Tạo Dự Án Mới</DialogTitle>
           <DialogDescription>
-            Create a new project in this workspace.
+            Tạo một dự án mới trong không gian làm việc này.
           </DialogDescription>
         </DialogHeader>
 
@@ -98,9 +98,9 @@ export const CreateProjectDiaLog = ({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Project Name</FormLabel>
+                  <FormLabel>Tên Dự Án</FormLabel>
                   <FormControl>
-                    <Input placeholder="Project Title" {...field} />
+                    <Input placeholder="Tên dự án" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -112,9 +112,9 @@ export const CreateProjectDiaLog = ({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Project Description</FormLabel>
+                  <FormLabel>Mô Tả Dự Án</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Project Description" {...field} />
+                    <Textarea placeholder="Mô tả dự án" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -126,11 +126,11 @@ export const CreateProjectDiaLog = ({
               name="status"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Project Status</FormLabel>
+                  <FormLabel>Trạng Thái Dự Án</FormLabel>
                   <FormControl>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select Project Status" />
+                        <SelectValue placeholder="Chọn trạng thái dự án" />
                       </SelectTrigger>
                       <SelectContent>
                         {Object.values(ProjectStatus).map((status) => (
@@ -152,7 +152,7 @@ export const CreateProjectDiaLog = ({
                 name="startDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Start Date</FormLabel>
+                    <FormLabel>Ngày Bắt Đầu</FormLabel>
                     <FormControl>
                       <Popover>
                         <PopoverTrigger asChild>
@@ -167,7 +167,7 @@ export const CreateProjectDiaLog = ({
                             {field.value ? (
                               format(new Date(field.value), "PPP")
                             ) : (
-                              <span>Pick a date</span>
+                              <span>Chọn ngày</span>
                             )}
                           </Button>
                         </PopoverTrigger>
@@ -191,7 +191,7 @@ export const CreateProjectDiaLog = ({
                 name="dueDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Due Date</FormLabel>
+                    <FormLabel>Ngày Kết Thúc</FormLabel>
                     <FormControl>
                       <Popover>
                         <PopoverTrigger asChild>
@@ -206,7 +206,7 @@ export const CreateProjectDiaLog = ({
                             {field.value ? (
                               format(new Date(field.value), "PPP")
                             ) : (
-                              <span>Pick a date</span>
+                              <span>Chọn ngày</span>
                             )}
                           </Button>
                         </PopoverTrigger>
@@ -232,9 +232,9 @@ export const CreateProjectDiaLog = ({
               name="tags"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Tags</FormLabel>
+                  <FormLabel>Thẻ</FormLabel>
                   <FormControl>
-                    <Input placeholder="Tags separated by comma" {...field} />
+                    <Input placeholder="Thẻ phân cách bởi dấu phẩy" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -249,7 +249,7 @@ export const CreateProjectDiaLog = ({
 
                 const getMemberDisplay = () => {
                   if (selectedMembers.length === 0) {
-                    return <span className="text-muted-foreground">Select Members</span>;
+                    return <span className="text-muted-foreground">Chọn thành viên</span>;
                   }
                   
                   if (selectedMembers.length <= 2) {
@@ -263,7 +263,7 @@ export const CreateProjectDiaLog = ({
                     }).filter(Boolean).join(", ");
                   }
                   
-                  return `${selectedMembers.length} members selected`;
+                  return `${selectedMembers.length} thành viên đã chọn`;
                 };
 
                 const toggleMember = (userId: string, role: "Leader" | "member") => {
@@ -306,7 +306,7 @@ export const CreateProjectDiaLog = ({
 
                 return (
                   <FormItem>
-                    <FormLabel>Members</FormLabel>
+                    <FormLabel>Thành Viên</FormLabel>
                     <FormControl>
                       <Popover>
                         <PopoverTrigger asChild>
@@ -321,7 +321,7 @@ export const CreateProjectDiaLog = ({
                           <div className="p-2 max-h-60 overflow-y-auto">
                             {workspaceMembers.length === 0 ? (
                               <div className="text-sm text-muted-foreground p-2">
-                                No members available
+                                Không có thành viên nào
                               </div>
                             ) : (
                               workspaceMembers.map((workspaceMember) => {
@@ -366,11 +366,11 @@ export const CreateProjectDiaLog = ({
                                           className="w-[140px] h-8"
                                           onClick={(e) => e.stopPropagation()}
                                         >
-                                          <SelectValue placeholder="Select Role" />
+                                          <SelectValue placeholder="Chọn vai trò" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                          <SelectItem value="Leader">Leader</SelectItem>
-                                          <SelectItem value="member">Member</SelectItem>
+                                          <SelectItem value="Leader">Trưởng nhóm</SelectItem>
+                                          <SelectItem value="member">Thành viên</SelectItem>
                                         </SelectContent>
                                       </Select>
                                     )}
@@ -394,12 +394,12 @@ export const CreateProjectDiaLog = ({
                type="submit" 
                disabled={isPending}
                onClick={() => form.handleSubmit(onSubmit)}
-               >{isPending ? "Creating..." : "Create Project"}</Button>
+               >{isPending ? "Đang tạo..." : "Tạo Dự Án"}</Button>
               <Button
                type="button" variant="outline"
                onClick={() => onOpenChange(false)}
                disabled={isPending}
-               >{isPending ? "Cancelling..." : "Cancel"}</Button>
+               >{isPending ? "Đang hủy..." : "Hủy"}</Button>
 
             </DialogFooter>
           </form>

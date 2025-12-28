@@ -41,9 +41,9 @@ export const createForgotPasswordSchema = (t: (key: string) => string) =>
 
 export const CreateWorkspaceSchema = (t : (key: string) => string) =>
 z.object({
-  name: z.string().min(3, "Workspace name must be at least 3 characters long"),
-  description: z.string().max(500, "Description cannot exceed 500 characters").optional(),
-  color: z.string().regex(/^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})$/, "Invalid color format"),
+  name: z.string().min(3, "Tên không gian làm việc phải có ít nhất 3 ký tự"),
+  description: z.string().max(500, "Mô tả không được vượt quá 500 ký tự").optional(),
+  color: z.string().regex(/^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})$/, "Định dạng màu không hợp lệ"),
   // owner_id sẽ được thêm tự động từ user hiện tại
 });
 
@@ -54,11 +54,11 @@ export enum ProjectStatus {
 }
 
 export const ProjectSchema = z.object({
-  name: z.string().min(3, "Project name must be at least 3 characters long"),
-  description: z.string().max(1000, "Description cannot exceed 1000 characters").optional(),
+  name: z.string().min(3, "Tên dự án phải có ít nhất 3 ký tự"),
+  description: z.string().max(1000, "Mô tả không được vượt quá 1000 ký tự").optional(),
   status : z.nativeEnum(ProjectStatus),
-  startDate: z.string().min(10, "Start date is required"),
-  dueDate : z.string().min(10, "Due date is required"),
+  startDate: z.string().min(10, "Ngày bắt đầu là bắt buộc"),
+  dueDate : z.string().min(10, "Ngày kết thúc là bắt buộc"),
   members: z.array(
     z.object({
       user: z.string(),
@@ -69,10 +69,10 @@ export const ProjectSchema = z.object({
 });
 
 export const CreateTaskSchema = z.object({
-  title: z.string().min(3, "Task title must be at least 3 characters long"),
-  description: z.string().max(1000, "Description cannot exceed 1000 characters").optional(),
+  title: z.string().min(3, "Tiêu đề task phải có ít nhất 3 ký tự"),
+  description: z.string().max(1000, "Mô tả không được vượt quá 1000 ký tự").optional(),
   status: z.nativeEnum(TaskStatus).default(TaskStatus.TO_DO),
   priority: z.enum(["Low", "Medium", "High"]).default("Medium"),
-  dueDate: z.string().min(10, "Due date is required"),
-  assignees: z.array(z.string()).min(1, "At least one assignee is required"),
+  dueDate: z.string().min(10, "Ngày hết hạn là bắt buộc"),
+  assignees: z.array(z.string()).min(1, "Cần ít nhất một người được giao"),
 });

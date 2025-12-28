@@ -24,7 +24,7 @@ export const TaskActivity = ({ resourceId }: { resourceId: string }) => {
     if (isPending) {
         return (
             <div className="bg-card rounded-lg p-6 shadow-sm">
-                <h3 className="text-lg text-muted-foreground mb-4">Activity</h3>
+                <h3 className="text-lg text-muted-foreground mb-4">Hoạt động</h3>
                 <Loader />
             </div>
         )
@@ -33,8 +33,8 @@ export const TaskActivity = ({ resourceId }: { resourceId: string }) => {
     if (error) {
         return (
             <div className="bg-card rounded-lg p-6 shadow-sm">
-                <h3 className="text-lg text-muted-foreground mb-4">Activity</h3>
-                <p className="text-sm text-muted-foreground">Failed to load activities</p>
+                <h3 className="text-lg text-muted-foreground mb-4">Hoạt động</h3>
+                <p className="text-sm text-muted-foreground">Không thể tải hoạt động</p>
             </div>
         )
     }
@@ -43,11 +43,11 @@ export const TaskActivity = ({ resourceId }: { resourceId: string }) => {
 
     return (
         <div className="bg-card rounded-lg p-6 shadow-sm">
-            <h3 className="text-lg text-muted-foreground mb-4">Activity</h3>
+            <h3 className="text-lg text-muted-foreground mb-4">Hoạt động</h3>
 
             {activities.length === 0 ? (
                 <div className="text-center py-8">
-                    <p className="text-sm text-muted-foreground">No activity yet</p>
+                    <p className="text-sm text-muted-foreground">Chưa có hoạt động nào</p>
                 </div>
             ) : (
                 <ScrollArea className="h-[400px]">
@@ -62,7 +62,7 @@ export const TaskActivity = ({ resourceId }: { resourceId: string }) => {
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm">
-                                        <span className="font-medium">{activity.user?.username || 'Unknown'}</span> {" "}
+                                        <span className="font-medium">{activity.user?.username || 'Không xác định'}</span> {" "}
                                         {getActivityMessage(activity.action)}
                                     </p>
                                     {activity.createdAt && (

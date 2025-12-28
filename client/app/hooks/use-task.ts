@@ -13,14 +13,14 @@ export const UseCreateTaskMutation = () => {
             return await postData(`/task/${data.projectId}/create-task`, data.taskData);
         },
         onSuccess: (response: any, variables: { projectId: string, taskData: CreateTaskDialogFormData }) => {
-            toast.success("Task created successfully");
+            toast.success("Tạo task thành công");
             // Invalidate project query to refresh the task list
             queryClient.invalidateQueries({
                 queryKey: ["project", variables.projectId],
             })
         },
         onError: (error: any) => {
-            const errorMessage = (error as any)?.response?.data?.message || "Failed to create task";
+            const errorMessage = (error as any)?.response?.data?.msg || "Không thể tạo task";
             toast.error(errorMessage);
         }
     });
@@ -68,6 +68,10 @@ export const useUpdateTaskTitleMutation = () => {
                 queryKey: ["task-activity", String(variables.taskId)],
                 type: 'active'
             });
+        },
+        onError: (error: any) => {
+            const errorMessage = (error as any)?.response?.data?.msg || "Không thể cập nhật tiêu đề task";
+            toast.error(errorMessage);
         }
     })
 }
@@ -166,7 +170,7 @@ export const useUpdateTaskAssigneesMutation = () => {
             });
         },
         onError: (error: any) => {
-            const errorMessage = (error as any)?.response?.data?.message || "Failed to update assignees";
+            const errorMessage = (error as any)?.response?.data?.message || "Không thể cập nhật người được giao";
             toast.error(errorMessage);
         }
     })
@@ -200,7 +204,7 @@ export const useUpdateTaskPriorityMutation = () => {
             });
         },
         onError: (error: any) => {
-            const errorMessage = (error as any)?.response?.data?.message || "Failed to update priority";
+            const errorMessage = (error as any)?.response?.data?.message || "Không thể cập nhật độ ưu tiên";
             toast.error(errorMessage);
         }
     })
@@ -243,10 +247,10 @@ export const useAddCommentMutation = () => {
                 queryKey: ["task-activity", variables.taskId],
                 type: 'active'
             });
-            toast.success("Comment added successfully");
+            toast.success("Thêm bình luận thành công");
         },
         onError: (error: any) => {
-            const errorMessage = (error as any)?.response?.data?.msg || "Failed to add comment";
+            const errorMessage = (error as any)?.response?.data?.msg || "Không thể thêm bình luận";
             toast.error(errorMessage);
         }
     });
@@ -265,10 +269,15 @@ export const useEditCommentMutation = () => {
                 queryKey: ["comments", variables.taskId],
                 type: 'active'
             });
-            toast.success("Comment updated successfully");
+            // Refetch activity to show new comment edit activity
+            await queryClient.refetchQueries({
+                queryKey: ["task-activity", variables.taskId],
+                type: 'active'
+            });
+            toast.success("Cập nhật bình luận thành công");
         },
         onError: (error: any) => {
-            const errorMessage = (error as any)?.response?.data?.msg || "Failed to update comment";
+            const errorMessage = (error as any)?.response?.data?.msg || "Không thể cập nhật bình luận";
             toast.error(errorMessage);
         }
     });
@@ -287,10 +296,10 @@ export const useDeleteCommentMutation = () => {
                 queryKey: ["comments", variables.taskId],
                 type: 'active'
             });
-            toast.success("Comment deleted successfully");
+            toast.success("Xóa bình luận thành công");
         },
         onError: (error: any) => {
-            const errorMessage = (error as any)?.response?.data?.msg || "Failed to delete comment";
+            const errorMessage = (error as any)?.response?.data?.msg || "Không thể xóa bình luận";
             toast.error(errorMessage);
         }
     });
@@ -328,10 +337,10 @@ export const useWatchTaskMutation = () => {
             
             // Show success message based on watch status
             const isWatching = response?.isWatching;
-            toast.success(isWatching ? "You are now watching this task" : "You are no longer watching this task");
+            toast.success(isWatching ? "Bạn đang theo dõi task này" : "Bạn đã dừng theo dõi task này");
         },
         onError: (error: any) => {
-            const errorMessage = (error as any)?.response?.data?.msg || "Failed to update watch status";
+            const errorMessage = (error as any)?.response?.data?.msg || "Không thể cập nhật trạng thái theo dõi";
             toast.error(errorMessage);
         }
     })
@@ -368,10 +377,10 @@ export const useAchievedTaskMutation = () => {
                 queryKey: ["task-activity", taskIdStr],
             });
             
-            toast.success("Task marked as achieved!");
+            toast.success("Task đã được đánh dấu hoàn thành!");
         },
         onError: (error: any) => {
-            const errorMessage = (error as any)?.response?.data?.msg || "Failed to mark task as achieved";
+            const errorMessage = (error as any)?.response?.data?.msg || "Không thể đánh dấu task là hoàn thành";
             toast.error(errorMessage);
         }
     })
@@ -426,10 +435,10 @@ export const useArchiveTaskMutation = () => {
             
             // Show success message based on archive status
             const isArchived = response?.isArchived ?? response?.response?.isArchived;
-            toast.success(isArchived ? "Task archived successfully" : "Task unarchived successfully");
+            toast.success(isArchived ? "Lưu trữ task thành công" : "Bỏ lưu trữ task thành công");
         },
         onError: (error: any) => {
-            const errorMessage = (error as any)?.response?.data?.msg || "Failed to archive/unarchive task";
+            const errorMessage = (error as any)?.response?.data?.msg || "Không thể lưu trữ/bỏ lưu trữ task";
             toast.error(errorMessage);
         }
     })

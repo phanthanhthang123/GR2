@@ -38,10 +38,10 @@ export const TaskCard = ({ task, onClick }: { task: Task; onClick: () => void })
                                     onClick={() => {
                                         console.log("mark as to do")
                                     }}
-                                    title='Mark as To Do'
+                                    title='Đánh dấu là Chưa Làm'
                                 >
                                     <AlertCircle className={cn("size-4")} />
-                                    <span className='sr-only'>Mark as To Do</span>
+                                    <span className='sr-only'>Đánh dấu là Chưa Làm</span>
                                 </Button>
                             )
                         }
@@ -54,10 +54,10 @@ export const TaskCard = ({ task, onClick }: { task: Task; onClick: () => void })
                                     onClick={() => {
                                         console.log("mark as In Progress")
                                     }}
-                                    title='Mark as In Progress'
+                                    title='Đánh dấu là Đang Làm'
                                 >
                                     <Clock className={cn("size-4")} />
-                                    <span className='sr-only'>Mark as In Progress</span>
+                                    <span className='sr-only'>Đánh dấu là Đang Làm</span>
                                 </Button>
                             )
                         }
@@ -70,10 +70,10 @@ export const TaskCard = ({ task, onClick }: { task: Task; onClick: () => void })
                                     onClick={() => {
                                         console.log("mark as Done")
                                     }}
-                                    title='Mark as Done'
+                                    title='Đánh dấu là Hoàn Thành'
                                 >
                                     <CheckCircle className={cn("size-4")} />
-                                    <span className='sr-only'>Mark as Done</span>
+                                    <span className='sr-only'>Đánh dấu là Hoàn Thành</span>
                                 </Button>
                             )
                         }
@@ -127,7 +127,7 @@ export const TaskCard = ({ task, onClick }: { task: Task; onClick: () => void })
                     task.subtasks && task.subtasks.length > 0 && (
                         <div className='mt-2 text-xs text-muted-foreground'>
                             {task.subtasks.filter((subtask) => subtask.completed).length} / {" "}
-                            {task.subtasks.length} subtasks
+                            {task.subtasks.length} công việc con
                         </div>
                     )
                 }

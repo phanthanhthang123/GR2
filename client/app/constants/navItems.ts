@@ -9,27 +9,27 @@ export interface NavItem {
 
 export const NAV_ITEMS: NavItem[] = [
   {
-    title: "Dashboard",
+    title: "Bảng Điều Khiển",
     href: "/dashboard",
     icon: LayoutDashboard,
   },
   {
-    title: "Workspaces",
+    title: "Không Gian Làm Việc",
     href: "/workspaces",
     icon: User,
   },
   {
-    title: "My Tasks",
+    title: "Task Của Tôi",
     href: "/my-tasks",
     icon: ListCheck,
   },
   {
-    title: "Achieved",
+    title: "Đã Hoàn Thành",
     href: "/achieved",
     icon: CheckCircle2,
   },
   {
-    title: "Settings",
+    title: "Cài Đặt",
     href: "/settings",
     icon: Settings,
   },

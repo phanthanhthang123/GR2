@@ -25,51 +25,53 @@ import {
 export const getActivityMessage = (action: ActionType): string => {
     switch (action) {
         case "TITLE_UPDATED":
-            return "updated the title";
+            return "đã cập nhật tiêu đề";
         case "STATUS_UPDATED":
-            return "updated the status";
+            return "đã cập nhật trạng thái";
         case "DESCRIPTION_UPDATED":
-            return "updated the description";
+            return "đã cập nhật mô tả";
         case "ASSIGNEES_UPDATED":
-            return "updated the assignees";
+            return "đã cập nhật người được giao";
         case "PRIORITY_UPDATED":
-            return "updated the priority";
+            return "đã cập nhật độ ưu tiên";
         case "created_task":
-            return "created this task";
+            return "đã tạo task này";
         case "updated_task":
-            return "updated this task";
+            return "đã cập nhật task này";
         case "completed_task":
-            return "completed this task";
+            return "đã hoàn thành task này";
         case "created_project":
-            return "created this project";
+            return "đã tạo dự án này";
         case "updated_project":
-            return "updated this project";
+            return "đã cập nhật dự án này";
         case "completed_project":
-            return "completed this project";
+            return "đã hoàn thành dự án này";
         case "created_workspace":
-            return "created this workspace";
+            return "đã tạo không gian làm việc này";
         case "added_comment":
-            return "added a comment";
+            return "đã thêm bình luận";
+        case "edited_comment":
+            return "đã sửa bình luận";
         case "added_member":
-            return "added a member";
+            return "đã thêm thành viên";
         case "removed_member":
-            return "removed a member";
+            return "đã xóa thành viên";
         case "joined_workspace":
-            return "joined the workspace";
+            return "đã tham gia không gian làm việc";
         case "added_attachment":
-            return "added an attachment";
+            return "đã thêm tệp đính kèm";
         case "WATCHED":
-            return "started watching this task";
+            return "đã bắt đầu theo dõi task này";
         case "UNWATCHED":
-            return "stopped watching this task";
+            return "đã dừng theo dõi task này";
         case "TASK_ACHIEVED":
-            return "marked this task as achieved";
+            return "đã đánh dấu task này là hoàn thành";
         case "TASK_ARCHIVED":
-            return "archived this task";
+            return "đã lưu trữ task này";
         case "TASK_UNARCHIVED":
-            return "unarchived this task";
+            return "đã bỏ lưu trữ task này";
         default:
-            return "performed an action";
+            return "đã thực hiện một hành động";
     }
 }
 
@@ -121,6 +123,12 @@ export const getActivityIcon = (action: ActionType) => {
             return (
                 <div className="bg-blue-600/10 p-2 rounded-md">
                     <MessageSquare className="h-5 w-5 text-blue-600 rounded-full" />
+                </div>
+            )
+        case "edited_comment":
+            return (
+                <div className="bg-purple-600/10 p-2 rounded-md">
+                    <FileEdit className="h-5 w-5 text-purple-600 rounded-full" />
                 </div>
             )
         case "added_member":

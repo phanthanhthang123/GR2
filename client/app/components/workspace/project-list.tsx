@@ -12,13 +12,13 @@ const ProjectList = (props: {
   console.log(props);
   return (
     <div>
-      <h3 className="text-xl font-semibold mb-4">Projects</h3>
+      <h3 className="text-xl font-semibold mb-4">Dự Án</h3>
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {props.projects && props.projects.length === 0 ? (
           <NoDataFound
-            title="No projects found"
-            description="Create a new project to get started"
-            buttonText="Create Project"
+            title="Không tìm thấy dự án"
+            description="Tạo một dự án mới để bắt đầu"
+            buttonText="Tạo Dự Án"
             buttonAction={props.onCreateProject}
           />
         ) : (

@@ -7,4 +7,8 @@ router.get('/all',controllers.getAllProjects);
 router.get('/',controllers.getProjectById);
 router.post('/:workspaceId/create-project',controllers.createProject);       
 router.get('/:projectId/tasks',controllers.getProjectTasks);
+router.put('/:projectId/update-title', controllers.updateProjectTitle);
+router.put('/:projectId/update-description', controllers.updateProjectDescription);
+router.post('/:projectId/add-member', controllers.addMemberToProject);
+router.delete('/:projectId/remove-member/:userId', controllers.removeMemberFromProject);
 export default router;

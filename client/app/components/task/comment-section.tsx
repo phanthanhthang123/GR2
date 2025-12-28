@@ -52,21 +52,21 @@ export const CommentSection = ({ taskId, members }: { taskId: string, members: {
     }
 
     const handleDelete = (commentId: string | number) => {
-        if (confirm("Are you sure you want to delete this comment?")) {
+        if (confirm("Bạn có chắc chắn muốn xóa bình luận này?")) {
             deleteComment({ commentId, taskId });
         }
     }
     
     return (
         <div className="bg-card rounded-lg p-6 shadow-sm">
-            <h3 className="text-lg font-medium mb-4">Comments ({comments.length})</h3>
+            <h3 className="text-lg font-medium mb-4">Bình luận ({comments.length})</h3>
 
             <ScrollArea className="h-[400px] mb-4">
                 {isLoading ? (
                     <Loader />
                 ) : comments.length === 0 ? (
                     <div className="text-center py-8">
-                        <p className="text-sm text-muted-foreground">No comments yet</p>
+                        <p className="text-sm text-muted-foreground">Chưa có bình luận nào</p>
                     </div>
                 ) : (
                     <div className="space-y-4 pr-4">
@@ -80,7 +80,7 @@ export const CommentSection = ({ taskId, members }: { taskId: string, members: {
                                 </Avatar>
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 mb-1">
-                                        <span className="font-medium text-sm">{comment.user?.username || 'Unknown'}</span>
+                                        <span className="font-medium text-sm">{comment.user?.username || 'Không xác định'}</span>
                                         <span className="text-xs text-muted-foreground">
                                             {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
                                         </span>
@@ -98,7 +98,7 @@ export const CommentSection = ({ taskId, members }: { taskId: string, members: {
                                                     onClick={handleSaveEdit}
                                                     disabled={!editContent.trim() || isEditingComment}
                                                 >
-                                                    Save
+                                                    Lưu
                                                 </Button>
                                                 <Button
                                                     size="sm"
@@ -106,7 +106,7 @@ export const CommentSection = ({ taskId, members }: { taskId: string, members: {
                                                     onClick={handleCancelEdit}
                                                     disabled={isEditingComment}
                                                 >
-                                                    Cancel
+                                                    Hủy
                                                 </Button>
                                             </div>
                                         </div>
@@ -120,7 +120,7 @@ export const CommentSection = ({ taskId, members }: { taskId: string, members: {
                                                         className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
                                                     >
                                                         <Edit className="size-3" />
-                                                        Edit
+                                                        Sửa
                                                     </button>
                                                     <button
                                                         onClick={() => handleDelete(comment.id)}
@@ -128,7 +128,7 @@ export const CommentSection = ({ taskId, members }: { taskId: string, members: {
                                                         disabled={isDeletingComment}
                                                     >
                                                         <Trash2 className="size-3" />
-                                                        Delete
+                                                        Xóa
                                                     </button>
                                                 </div>
                                             )}
@@ -145,7 +145,7 @@ export const CommentSection = ({ taskId, members }: { taskId: string, members: {
 
             <div className="mt-4">
                 <Textarea
-                    placeholder="Add a comment..."
+                    placeholder="Thêm bình luận..."
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                     onKeyDown={(e) => {
@@ -161,7 +161,7 @@ export const CommentSection = ({ taskId, members }: { taskId: string, members: {
                         onClick={handleAddComment}
                         disabled={!newComment.trim() || isPending}
                     >
-                        {isPending ? "Posting..." : "Post Comment"}
+                        {isPending ? "Đang đăng..." : "Đăng bình luận"}
                     </Button>
                 </div>
             </div>

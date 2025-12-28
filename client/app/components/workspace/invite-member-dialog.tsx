@@ -37,7 +37,7 @@ import { Loader } from "../loader";
 import type { User } from "@/type";
 
 const InviteMemberSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
+  email: z.string().email("Vui lòng nhập địa chỉ email hợp lệ"),
   role: z.enum(["Leader", "Manager", "Developer"]),
 });
 
@@ -90,12 +90,12 @@ export const InviteMemberDialog = ({
         onSuccess: () => {
           onOpenChange(false);
           form.reset();
-          toast.success("Member added successfully!");
+          toast.success("Thêm thành viên thành công!");
         },
         onError: (error: any) => {
           const errorMessage =
             (error as any)?.response?.data?.msg ||
-            "Failed to add member to workspace";
+            "Không thể thêm thành viên vào không gian làm việc";
           toast.error(errorMessage);
         },
       }
@@ -104,7 +104,7 @@ export const InviteMemberDialog = ({
 
   const onSubmitList = async () => {
     if (selectedUserIds.length === 0) {
-      toast.error("Please select at least one user");
+      toast.error("Vui lòng chọn ít nhất một người dùng");
       return;
     }
     
@@ -118,7 +118,7 @@ export const InviteMemberDialog = ({
           .catch((error: any) => {
             const errorMessage =
               (error as any)?.response?.data?.msg ||
-              "Failed to add member";
+              "Không thể thêm thành viên";
             return { success: false, error: errorMessage, userId };
           })
       );
@@ -141,11 +141,11 @@ export const InviteMemberDialog = ({
         // Show toast
         if (errorCount > 0) {
           toast.warning(
-            `Added ${successCount} member(s) successfully. ${errorCount} failed.`
+            `Đã thêm ${successCount} thành viên thành công. ${errorCount} thất bại.`
           );
         } else {
           toast.success(
-            `Successfully added ${successCount} member(s)!`
+            `Đã thêm ${successCount} thành viên thành công!`
           );
         }
         
@@ -154,11 +154,11 @@ export const InviteMemberDialog = ({
           onOpenChange(false);
         }, 100);
       } else {
-        toast.error("Failed to add members. " + (errors[0] || ""));
+        toast.error("Không thể thêm thành viên. " + (errors[0] || ""));
       }
     } catch (error) {
       console.error("Error adding members:", error);
-      toast.error("Failed to add members");
+      toast.error("Không thể thêm thành viên");
     } finally {
       setIsPending(false);
     }
@@ -168,16 +168,16 @@ export const InviteMemberDialog = ({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Invite Member</DialogTitle>
+          <DialogTitle>Mời Thành Viên</DialogTitle>
           <DialogDescription>
-            Add a new member to this workspace.
+            Thêm thành viên mới vào không gian làm việc này.
           </DialogDescription>
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "email" | "list")} className="mt-4">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="email">By Email</TabsTrigger>
-            <TabsTrigger value="list">From List</TabsTrigger>
+            <TabsTrigger value="email">Theo Email</TabsTrigger>
+            <TabsTrigger value="list">Từ Danh Sách</TabsTrigger>
           </TabsList>
 
           <TabsContent value="email" className="space-y-4 mt-4">
@@ -209,20 +209,20 @@ export const InviteMemberDialog = ({
                   name="role"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Role</FormLabel>
+                      <FormLabel>Vai Trò</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select a role" />
+                            <SelectValue placeholder="Chọn vai trò" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="Developer">Developer</SelectItem>
-                          <SelectItem value="Manager">Manager</SelectItem>
-                          <SelectItem value="Leader">Leader</SelectItem>
+                          <SelectItem value="Developer">Thành viên</SelectItem>
+                          <SelectItem value="Manager">Quản lý</SelectItem>
+                          <SelectItem value="Leader">Trưởng nhóm</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -237,10 +237,10 @@ export const InviteMemberDialog = ({
                     onClick={() => onOpenChange(false)}
                     disabled={isPending}
                   >
-                    Cancel
+                    Hủy
                   </Button>
                   <Button type="submit" disabled={isPending}>
-                    {isPending ? "Adding..." : "Add Member"}
+                    {isPending ? "Đang thêm..." : "Thêm Thành Viên"}
                   </Button>
                 </DialogFooter>
               </form>
@@ -250,10 +250,10 @@ export const InviteMemberDialog = ({
           <TabsContent value="list" className="space-y-4 mt-4">
             <div className="space-y-4">
               <div>
-                <Label htmlFor="search-user">Search User</Label>
+                <Label htmlFor="search-user">Tìm Người Dùng</Label>
                 <Input
                   id="search-user"
-                  placeholder="Search by name or email..."
+                  placeholder="Tìm theo tên hoặc email..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="mt-2"
@@ -261,28 +261,28 @@ export const InviteMemberDialog = ({
               </div>
 
               <div>
-                <Label htmlFor="role-select">Role</Label>
+                <Label htmlFor="role-select">Vai Trò</Label>
                 <Select
                   value={selectedRole}
                   onValueChange={setSelectedRole}
                 >
                   <SelectTrigger id="role-select" className="mt-2">
-                    <SelectValue placeholder="Select a role" />
+                    <SelectValue placeholder="Chọn vai trò" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Developer">Developer</SelectItem>
-                    <SelectItem value="Manager">Manager</SelectItem>
-                    <SelectItem value="Leader">Leader</SelectItem>
+                    <SelectItem value="Developer">Thành viên</SelectItem>
+                    <SelectItem value="Manager">Quản lý</SelectItem>
+                    <SelectItem value="Leader">Trưởng nhóm</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <Label>Select User</Label>
+                  <Label>Chọn Người Dùng</Label>
                   {selectedUserIds.length > 0 && (
                     <span className="text-sm text-muted-foreground">
-                      {selectedUserIds.length} user{selectedUserIds.length > 1 ? 's' : ''} selected
+                      {selectedUserIds.length} người dùng đã chọn
                     </span>
                   )}
                 </div>
@@ -293,7 +293,7 @@ export const InviteMemberDialog = ({
                     </div>
                   ) : availableUsers.length === 0 ? (
                     <div className="text-center py-8 text-sm text-muted-foreground">
-                      {searchQuery ? "No users found" : "Start typing to search users"}
+                      {searchQuery ? "Không tìm thấy người dùng" : "Bắt đầu nhập để tìm kiếm"}
                     </div>
                   ) : (
                     <div className="p-2 space-y-2">
@@ -346,7 +346,7 @@ export const InviteMemberDialog = ({
                   onClick={() => onOpenChange(false)}
                   disabled={isPending}
                 >
-                  Cancel
+                  Hủy
                 </Button>
                 <Button
                   type="button"
@@ -354,8 +354,8 @@ export const InviteMemberDialog = ({
                   disabled={isPending || selectedUserIds.length === 0}
                 >
                   {isPending 
-                    ? `Adding ${selectedUserIds.length} member${selectedUserIds.length > 1 ? 's' : ''}...` 
-                    : `Add ${selectedUserIds.length > 0 ? `${selectedUserIds.length} ` : ''}Member${selectedUserIds.length > 1 ? 's' : ''}`}
+                    ? `Đang thêm ${selectedUserIds.length} thành viên...` 
+                    : `Thêm ${selectedUserIds.length > 0 ? `${selectedUserIds.length} ` : ''}Thành Viên`}
                 </Button>
               </DialogFooter>
             </div>

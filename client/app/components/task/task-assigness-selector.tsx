@@ -101,7 +101,7 @@ export const TaskAssignessSelector = ({
         }, {
             onSuccess: () => {
                 setDropDownOpen(false);
-                toast.success("Assignees updated successfully");
+                toast.success("Cập nhật người được giao thành công");
                 // Keep selectedIds as is, don't reset from backend response
                 // because backend only stores first user but we want to show all selected
             }
@@ -114,11 +114,11 @@ export const TaskAssignessSelector = ({
 
     return (
         <div className="mb-6">
-            <h3 className="text-sm font-medium text-muted-foreground mb-2">Assignees</h3>
+            <h3 className="text-sm font-medium text-muted-foreground mb-2">Người được giao</h3>
 
             <div className="flex flex-wrap gap-2 mb-2">
                 {displayUsers.length === 0 ? (
-                    <span className="text-sx text-muted-foreground">No assignees</span>
+                    <span className="text-sx text-muted-foreground">Chưa có người được giao</span>
                 ) : (
                     displayUsers.map((user) => (
                         <div
@@ -141,7 +141,7 @@ export const TaskAssignessSelector = ({
                     className="text-sm text-muted-foreground w-full border rounded px-3 py-2 text-left bg-white"
                     onClick={() => setDropDownOpen(!dropDownOpen)}
                 >
-                    {selectedIds.length === 0 ? "Select assigness" : `${selectedIds.length} selected`}
+                    {selectedIds.length === 0 ? "Chọn người được giao" : `${selectedIds.length} người đã chọn`}
                 </button>
 
                 {
@@ -151,12 +151,12 @@ export const TaskAssignessSelector = ({
                                 <button
                                     className="text-xs text-blue-600"
                                     onClick={handleSelectAll}
-                                >Select all</button>
+                                >Chọn tất cả</button>
 
                                 <button
                                     className="text-xs text-red-600"
                                     onClick={handleUnSelectAll}
-                                >Unselect all</button>
+                                >Bỏ chọn tất cả</button>
                             </div>
                             {
                                 projectMembers?.map((m) => {
@@ -197,7 +197,7 @@ export const TaskAssignessSelector = ({
                                     onClick={() => setDropDownOpen(false)}
                                     disabled={isPending}
                                 >
-                                    Cancel
+                                    Hủy
                                 </Button>
                                 <Button
                                     variant={"default"}
@@ -206,7 +206,7 @@ export const TaskAssignessSelector = ({
                                     onClick={handleSave}
                                     disabled={isPending}
                                 >
-                                    {isPending ? "Saving..." : "Save"}
+                                    {isPending ? "Đang lưu..." : "Lưu"}
                                 </Button>
 
                             </div>

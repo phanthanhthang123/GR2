@@ -14,10 +14,11 @@ import { useProjectQueryById } from "@/hooks/use-project";
 import { TaskAssignessSelector } from "@/components/task/task-assigness-selector";
 import { TaskPrioritySelector } from "@/components/task/task-priority-selector";
 import { Watchers } from "@/components/task/watchers";
-import { Archive, Eye, EyeOff } from "lucide-react";
+import { Archive, Eye, EyeOff, Folder } from "lucide-react";
 import { TaskActivity } from "@/components/task/task-activity";
 import { CommentSection } from "@/components/task/comment-section";
 import { toast } from "sonner";
+import type { Project } from "@/type";
 
 const TaskDetails = () => {
     const { user } = useAuth();
@@ -28,6 +29,7 @@ const TaskDetails = () => {
     }>();
     const navigate = useNavigate();
 
+    // All hooks must be called before any conditional returns
     const { data: task, isLoading } = useTaskByIdQuery(taskId! as any);
     const { data: projectData } = useProjectQueryById(projectId!);
 
@@ -37,6 +39,7 @@ const TaskDetails = () => {
 
     console.log("task", task)
 
+    // Early returns after all hooks are called
     if (isLoading) {
         return (
             <div>
@@ -49,13 +52,33 @@ const TaskDetails = () => {
         return (
             <div className="flex items-center justify-center h-screen">
                 <div className="text-2xl font-bold">
-                    Task not found
+                        Không tìm thấy task
                 </div>
             </div>
         )
     }
 
     const goBack = () => navigate(-1);
+
+    // Get project information - prefer from task object, fallback to projectData query
+    const project: Project | null = (() => {
+        if (task?.project && typeof task.project === 'object') {
+            return task.project as Project;
+        }
+        if (projectData?.project) {
+            return projectData.project;
+        }
+        return null;
+    })();
+
+    const projectIdFromTask = project?.id || projectId;
+    const projectName = project?.name || 'Unknown Project';
+
+    const handleNavigateToProject = () => {
+        if (projectIdFromTask && workspaceId) {
+            navigate(`/workspaces/${workspaceId}/projects/${projectIdFromTask}`);
+        }
+    };
 
     const members = task?.assigned_to || [];
     const isUserWatching = task?.watchers?.some((watcher) => {
@@ -98,6 +121,7 @@ const TaskDetails = () => {
     return (
         <div className="container mx-auto p-0 py-4 md:px-4">
             <div className="flex flex-col md:flex-row items-center justify-between mb-6">
+                <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-3">
                     <BackButton />
                     <h1 className="text-xl md:text-2xl font-bold">{task?.title}</h1>
@@ -107,10 +131,24 @@ const TaskDetails = () => {
                                 className="ml-2"
                                 variant={"outline"}
                             >
-                                Archived
+                                    Đã lưu trữ
                             </Badge>
                         )
                     }
+                    </div>
+                    {project && (
+                        <div className="flex items-center gap-2 ml-12">
+                            <Folder className="size-4 text-muted-foreground" />
+                            <span className="text-sm text-muted-foreground">Dự án:</span>
+                            <Button
+                                variant="link"
+                                className="h-auto p-0 text-sm font-medium text-primary hover:underline"
+                                onClick={handleNavigateToProject}
+                            >
+                                {projectName}
+                            </Button>
+                        </div>
+                    )}
                 </div>
 
                 <div className="flex space-x-2 mt-4 md:mt-0">
@@ -123,11 +161,11 @@ const TaskDetails = () => {
                     >
                         {isUserWatching ? (
                             <>
-                                <EyeOff className="mr-2 size-4" /> Unwatch
+                                <EyeOff className="mr-2 size-4" /> Bỏ theo dõi
                             </>
                         ) : (
                             <>
-                                <Eye className="mr-2 size-4" /> Watch
+                                <Eye className="mr-2 size-4" /> Theo dõi
                             </>
                         )}
                     </Button>
@@ -140,7 +178,7 @@ const TaskDetails = () => {
                             className="w-fit"
                             disabled={isAchived}
                         >
-                            <Archive className="mr-2 size-4" /> Mark as Done
+                            <Archive className="mr-2 size-4" /> Đánh dấu hoàn thành
                         </Button>
                     )}
                     <Button
@@ -152,11 +190,11 @@ const TaskDetails = () => {
                     >
                         {task.isArchived ? (
                             <>
-                                <Archive className="mr-2 size-4" /> Unarchive
+                                <Archive className="mr-2 size-4" /> Bỏ lưu trữ
                             </>
                         ) : (
                             <>
-                                <Archive className="mr-2 size-4" /> Archive
+                                <Archive className="mr-2 size-4" /> Lưu trữ
                             </>
                         )}
                     </Button>
@@ -167,6 +205,7 @@ const TaskDetails = () => {
                     <div className="bg-card p-6 rounded-lg shadow-sm mb-6">
                         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between mb-4">
                             <div className="flex flex-col gap-2">
+                                <div className="flex items-center gap-2 flex-wrap">
                                 <Badge
                                     className={
                                         task?.priority === "High"
@@ -176,13 +215,20 @@ const TaskDetails = () => {
                                                 : "bg-slate-500 text-white"
                                     }
                                 >
-                                    {task?.priority} Priority
+                                        Ưu tiên {task?.priority === "High" ? "Cao" : task?.priority === "Medium" ? "Trung bình" : "Thấp"}
+                                    </Badge>
+                                    {project && (
+                                        <Badge variant="outline" className="flex items-center gap-1">
+                                            <Folder className="size-3" />
+                                            {projectName}
                                 </Badge>
+                                    )}
+                                </div>
 
                                 <TaskTitle title={task?.title} taskId={String(task?.id || taskId)} />
 
                                 <div className="text-sm md:text-base text-muted-foreground">
-                                    Created at:{" "}
+                                    Tạo lúc:{" "}
                                     {task?.createdAt ? formatDistanceToNow(new Date(task.createdAt), { addSuffix: true }) : 'N/A'}
                                 </div>
                             </div>
@@ -195,14 +241,14 @@ const TaskDetails = () => {
                                     onClick={() => { }}
                                     className="hidden md:block"
                                 >
-                                    Delete Task
+                                    Xóa Task
                                 </Button>
                             </div>
                         </div>
 
                         <div className="mb-6">
-                            <h3 className="text-sm font-medium text-muted-foreground mb-0">Description</h3>
-                            <TaskDescription description={task?.description || 'No description'} taskId={String(task?.id || taskId)} />
+                            <h3 className="text-sm font-medium text-muted-foreground mb-0">Mô tả</h3>
+                            <TaskDescription description={task?.description || 'Chưa có mô tả'} taskId={String(task?.id || taskId)} />
                         </div>
 
                         <TaskAssignessSelector

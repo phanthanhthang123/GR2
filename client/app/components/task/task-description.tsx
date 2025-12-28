@@ -25,10 +25,10 @@ export const TaskDescription = ({ description, taskId }: { description: string, 
                 if (response?.response?.description) {
                     setNewDescription(response.response.description);
                 }
-                toast.success("Task description updated successfully");
+                toast.success("Cập nhật mô tả task thành công");
             },
             onError: (error: any) => {
-                const errorMessage = (error as any)?.response?.data?.msg || "Failed to update task description";
+                const errorMessage = (error as any)?.response?.data?.msg || "Không thể cập nhật mô tả task";
                 toast.error(errorMessage);
             }
         });
@@ -61,7 +61,7 @@ export const TaskDescription = ({ description, taskId }: { description: string, 
                             onClick={updateDescription}
                             disabled={isPending}
                         >
-                            Save
+                            Lưu
                         </Button>
                     ) : (
                         <Edit className="size-4 cursor-pointer" onClick={() => setIsEditing(true)} />

@@ -68,13 +68,13 @@ export const WorkspaceMembersDialog = ({
         workspaceId: workspace.id,
         userId: memberToRemove.id,
       });
-      toast.success("Member removed successfully!");
+      toast.success("Xóa thành viên thành công!");
       setConfirmDialogOpen(false);
       setMemberToRemove(null);
     } catch (error: any) {
       const errorMessage =
         (error as any)?.response?.data?.msg ||
-        "Failed to remove member from workspace";
+        "Không thể xóa thành viên khỏi không gian làm việc";
       toast.error(errorMessage);
     }
   };
@@ -86,16 +86,16 @@ export const WorkspaceMembersDialog = ({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Workspace Members</DialogTitle>
+          <DialogTitle>Thành Viên Không Gian Làm Việc</DialogTitle>
           <DialogDescription>
-            View and manage members of this workspace.
+            Xem và quản lý thành viên của không gian làm việc này.
           </DialogDescription>
         </DialogHeader>
 
         <ScrollArea className="h-[400px] mt-4">
           {members.length === 0 ? (
             <div className="text-center py-8 text-sm text-muted-foreground">
-              No members found
+              Không tìm thấy thành viên
             </div>
           ) : (
             <div className="space-y-2 pr-4">
@@ -123,11 +123,11 @@ export const WorkspaceMembersDialog = ({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <p className="text-sm font-medium truncate">
-                          {member.user?.username || "Unknown User"}
+                          {member.user?.username || "Người dùng không xác định"}
                         </p>
                         {isOwner && (
                           <Badge variant="secondary" className="text-xs">
-                            Owner
+                            Chủ Sở Hữu
                           </Badge>
                         )}
                         {!isOwner && member.role && (
@@ -137,14 +137,14 @@ export const WorkspaceMembersDialog = ({
                         )}
                       </div>
                       <p className="text-xs text-muted-foreground truncate">
-                        {member.user?.email || "No email"}
+                        {member.user?.email || "Không có email"}
                       </p>
                     </div>
                     {canDelete && (
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => handleRemoveClick(memberUserId, member.user?.username || "Unknown User")}
+                        onClick={() => handleRemoveClick(memberUserId, member.user?.username || "Người dùng không xác định")}
                         disabled={isPending}
                         className="text-destructive hover:text-destructive hover:bg-destructive/10"
                       >
@@ -163,9 +163,9 @@ export const WorkspaceMembersDialog = ({
       <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Confirm Removal</DialogTitle>
+            <DialogTitle>Xác Nhận Xóa</DialogTitle>
             <DialogDescription>
-              Are you sure you want to remove <strong>{memberToRemove?.username}</strong> from this workspace? This action cannot be undone.
+              Bạn có chắc chắn muốn xóa <strong>{memberToRemove?.username}</strong> khỏi không gian làm việc này? Hành động này không thể hoàn tác.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -177,14 +177,14 @@ export const WorkspaceMembersDialog = ({
               }}
               disabled={isPending}
             >
-              Cancel
+              Hủy
             </Button>
             <Button
               variant="destructive"
               onClick={handleConfirmRemove}
               disabled={isPending}
             >
-              {isPending ? "Removing..." : "Remove Member"}
+              {isPending ? "Đang xóa..." : "Xóa Thành Viên"}
             </Button>
           </DialogFooter>
         </DialogContent>

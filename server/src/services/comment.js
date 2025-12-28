@@ -151,6 +151,22 @@ export const updateCommentService = (commentId, content, userId) => new Promise(
             ]
         });
 
+        // Create activity log
+        try {
+            const numericTaskId = typeof comment.task_id === 'string' && !isNaN(comment.task_id) 
+                ? parseInt(comment.task_id, 10) 
+                : comment.task_id;
+            await db.Task_Activity.create({
+                task_id: numericTaskId,
+                user_id: userId,
+                action: 'edited_comment',
+                payload: { commentId: comment.id }
+            });
+        } catch (activityError) {
+            console.error('Failed to create activity:', activityError);
+            // Don't fail the whole operation if activity creation fails
+        }
+
         resolve({
             err: 0,
             msg: 'OK',

@@ -34,9 +34,9 @@ export const StatisticsCharts = ({
     // Transform projectStatusData to match PieChart format
     // Map status display names: "Pending" -> "Planning"
     const statusDisplayMap: { [key: string]: string } = {
-        'Pending': 'Planning',
-        'In Progress': 'In Progress',
-        'Completed': 'Completed'
+        'Pending': 'Lên Kế Hoạch',
+        'In Progress': 'Đang Thực Hiện',
+        'Completed': 'Hoàn Thành'
     };
     
     const statusColorMap: { [key: string]: string } = {
@@ -79,6 +79,12 @@ export const StatisticsCharts = ({
         'Medium': '#f59e0b',    // amber-500 (orange)
         'Low': '#6b7280',       // gray-500 (dark grey)
     };
+    
+    const priorityDisplayMap: { [key: string]: string } = {
+        'High': 'Cao',
+        'Medium': 'Trung Bình',
+        'Low': 'Thấp'
+    };
 
     const defaultPriorities = ['High', 'Medium', 'Low'];
     const priorityDataMap = new Map();
@@ -87,7 +93,7 @@ export const StatisticsCharts = ({
     taskPriorityData?.forEach((item: any) => {
         const priority = item.priority || item.name;
         priorityDataMap.set(priority, {
-            name: priority,
+            name: priorityDisplayMap[priority] || priority,
             value: item.count || item.value || 0,
             color: item.color || priorityColorMap[priority] || '#888888'
         });
@@ -97,7 +103,7 @@ export const StatisticsCharts = ({
     defaultPriorities.forEach(priority => {
         if (!priorityDataMap.has(priority)) {
             priorityDataMap.set(priority, {
-                name: priority,
+                name: priorityDisplayMap[priority] || priority,
                 value: 0,
                 color: priorityColorMap[priority] || '#888888'
             });
@@ -122,31 +128,32 @@ export const StatisticsCharts = ({
             <Card className="lg:col-span-2">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <div className="space-y-0.5 ">
-                        <CardTitle className="text-base font-medium">Task Trends</CardTitle>
+                        <CardTitle className="text-base font-medium">Xu Hướng Task</CardTitle>
                         <CardDescription className="text-sm text-muted-foreground">
-                            Daily task status changes
+                            Thay đổi trạng thái task theo ngày
                         </CardDescription>
                     </div>
                     <ChartLine className="size-5 text-muted-foreground" />
                 </CardHeader>
 
                 <CardContent className="w-full overflow-x-auto md:overflow-x-hidden">
-                    <div className="min-w-[350px]">
+                    <div className="min-w-[350px] w-full flex items-center justify-center">
                         <ChartContainer
-                            className="h-[300px]"
+                            className="h-[300px] w-[80%]"
                             config={{
                                 completed: {
-                                    label: "Completed",
+                                    label: "Hoàn Thành",
                                     color: "#10b981", // green-500
                                 },
                                 created: {
-                                    label: "Created",
+                                    label: "Đã Tạo",
                                     color: "#3b82f6", // blue-500
                                 },
                             }}>
 
                             <LineChart
                                 data={transformedData}
+                                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                             >
                                 <XAxis
                                     dataKey="name"
@@ -160,6 +167,8 @@ export const StatisticsCharts = ({
                                     fontSize={12}
                                     tickLine={false}
                                     axisLine={false}
+                                    domain={[0, 'dataMax + 1']}
+                                    allowDecimals={false}
                                 />
 
                                 <CartesianGrid
@@ -171,20 +180,20 @@ export const StatisticsCharts = ({
                                 <Legend />
 
                                 <Line
-                                    type="monotone"
+                                    type="linear"
                                     dataKey="completed"
                                     stroke="#10b981"
                                     strokeWidth={2}
                                     dot={{ r: 4 }}
-                                    name="Completed"
+                                    name="Hoàn Thành"
                                 />
                                 <Line
-                                    type="monotone"
+                                    type="linear"
                                     dataKey="created"
                                     stroke="#3b82f6"
                                     strokeWidth={2}
                                     dot={{ r: 4 }}
-                                    name="Created"
+                                    name="Đã Tạo"
                                 />
                             </LineChart>
                         </ChartContainer>
@@ -196,9 +205,9 @@ export const StatisticsCharts = ({
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <div className="space-y-0.5">
-                        <CardTitle className="text-base font-medium">Project Status</CardTitle>
+                        <CardTitle className="text-base font-medium">Trạng Thái Dự Án</CardTitle>
                         <CardDescription className="text-sm text-muted-foreground">
-                            Project status breakdown
+                            Phân tích trạng thái dự án
                         </CardDescription>
                     </div>
 
@@ -211,15 +220,15 @@ export const StatisticsCharts = ({
                             className="h-[300px]"
                             config={{
                                 planning: {
-                                    label: "Planning",
+                                    label: "Lên Kế Hoạch",
                                     color: "#f59e0b", // amber-500 (orange)
                                 },
                                 inProgress: {
-                                    label: "In Progress",
+                                    label: "Đang Thực Hiện",
                                     color: "#3b82f6", // blue-500
                                 },
                                 completed: {
-                                    label: "Completed",
+                                    label: "Hoàn Thành",
                                     color: "#10b981", // green-500
                                 },
                             }}>
@@ -266,7 +275,7 @@ export const StatisticsCharts = ({
                                 );
                             })() : (
                                 <div className="flex items-center justify-center h-[300px] text-muted-foreground">
-                                    No project data available
+                                    Không có dữ liệu dự án
                                 </div>
                             )}
                         </ChartContainer>
@@ -281,9 +290,9 @@ export const StatisticsCharts = ({
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <div className="space-y-0.5">
-                        <CardTitle className="text-base font-medium">Task Priority</CardTitle>
+                        <CardTitle className="text-base font-medium">Độ Ưu Tiên Task</CardTitle>
                         <CardDescription className="text-sm text-muted-foreground">
-                            Task priority breakdown
+                            Phân tích độ ưu tiên task
                         </CardDescription>
                     </div>
 
@@ -296,15 +305,15 @@ export const StatisticsCharts = ({
                             className="h-[300px]"
                             config={{
                                 high: {
-                                    label: "High",
+                                    label: "Cao",
                                     color: "#ef4444", // red-500
                                 },
                                 medium: {
-                                    label: "Medium",
+                                    label: "Trung Bình",
                                     color: "#f59e0b", // amber-500 (orange)
                                 },
                                 low: {
-                                    label: "Low",
+                                    label: "Thấp",
                                     color: "#6b7280", // gray-500 (dark grey)
                                 },
                             }}>
@@ -351,7 +360,7 @@ export const StatisticsCharts = ({
                                 );
                             })() : (
                                 <div className="flex items-center justify-center h-[300px] text-muted-foreground">
-                                    No task priority data available
+                                    Không có dữ liệu độ ưu tiên task
                                 </div>
                             )}
                         </ChartContainer>
@@ -363,9 +372,9 @@ export const StatisticsCharts = ({
             <Card className="lg:col-span-2">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <div className="space-y-0.5">
-                        <CardTitle className="text-base font-medium">Workspace Productivity</CardTitle>
+                        <CardTitle className="text-base font-medium">Năng Suất Không Gian Làm Việc</CardTitle>
                         <CardDescription className="text-sm text-muted-foreground">
-                            Task completion by project
+                            Hoàn thành task theo dự án
                         </CardDescription>
                     </div>
 
@@ -378,11 +387,11 @@ export const StatisticsCharts = ({
                             className="h-[300px]"
                             config={{
                                 completed: {
-                                    label: "Completed",
+                                    label: "Hoàn Thành",
                                     color: "#000000", // black
                                 },
                                 total: {
-                                    label: "Total",
+                                    label: "Tổng",
                                     color: "#3b82f6", // blue-500
                                 },
                             }}>
@@ -418,9 +427,9 @@ export const StatisticsCharts = ({
                                         formatter={(value: number, name: string) => {
                                             // Hiển thị rõ ràng trong tooltip
                                             if (name === 'Completed') {
-                                                return [`${value} tasks completed`, 'Completed'];
+                                                return [`${value} task đã hoàn thành`, 'Hoàn Thành'];
                                             }
-                                            return [`${value} total tasks`, 'Total'];
+                                            return [`${value} tổng task`, 'Tổng'];
                                         }}
                                     />
                                     <Legend />
@@ -429,7 +438,7 @@ export const StatisticsCharts = ({
                                     <Bar
                                         dataKey="completed"
                                         fill="#000000"
-                                        name="Completed"
+                                        name="Hoàn Thành"
                                         radius={[4, 4, 0, 0]}
                                         maxBarSize={60}
                                     />
@@ -438,14 +447,14 @@ export const StatisticsCharts = ({
                                     <Bar
                                         dataKey="total"
                                         fill="#3b82f6"
-                                        name="Total"
+                                        name="Tổng"
                                         radius={[4, 4, 0, 0]}
                                         maxBarSize={60}
                                     />
                                 </BarChart>
                             ) : (
                                 <div className="flex items-center justify-center h-[300px] text-muted-foreground">
-                                    No productivity data available
+                                    Không có dữ liệu năng suất
                                 </div>
                             )}
                         </ChartContainer>

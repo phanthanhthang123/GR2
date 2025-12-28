@@ -28,14 +28,14 @@ const ProjectCard = ({
             <CardTitle>{project.name}</CardTitle>
             <span className={cn("text-xs rounded-full px-2 py-1", getTaskStatusColor(project.status))}>{project.status}</span>
           </div>
-          <CardDescription className="line-clamp-2">{project.description || "No description"}</CardDescription>
+          <CardDescription className="line-clamp-2">{project.description || "Chưa có mô tả"}</CardDescription>
         </CardHeader>
 
         <CardContent>
           <div className="space-y-4">
             <div className="space-y-1">
               <div className="flex justify-between text-xs">
-                <span>Progress</span>
+                <span>Tiến độ</span>
                 <span className="text-muted-foreground">{progressValue}%</span>
               </div>
               <Progress
@@ -49,13 +49,14 @@ const ProjectCard = ({
                 <span className="text-sm font-medium">
                   {project?.tasks?.length || 0}
                 </span>
-                <span>Tasks</span>
+                <span>Task</span>
               </div>
 
               {project?.end_date && (
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <CalendarDays className="w-4 h-4" />
-                  <span>{format(project.end_date, "MMM d, yyyy")}</span>
+                  <span className="text-xs font-medium">Kết thúc:</span>
+                  <span className="text-xs">{format(new Date(project.end_date), "MMM d, yyyy")}</span>
                 </div>
               )}
             </div>

@@ -25,9 +25,9 @@ const Workspaces = () => {
     return <>
         <div className="space-y-8">
             <div className="flex items-center justify-between">
-                <h2 className="text-xl md:text-3xl font-bold">Workspaces</h2>
+                <h2 className="text-xl md:text-3xl font-bold">Không Gian Làm Việc</h2>
                 <Button onClick={() => setIsCreatingWorkspace(true)}>
-                    <PlusCircle className="size-4 mr-2" /> New Workspace
+                    <PlusCircle className="size-4 mr-2" /> Không Gian Mới
                 </Button>
             </div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -37,9 +37,9 @@ const Workspaces = () => {
                     ))
                 ) : (
                     <NoDataFound
-                        title="No workspaces found"
-                        description="Create a new workspace to get started"
-                        buttonText="Create Workspace"
+                        title="Không tìm thấy không gian làm việc"
+                        description="Tạo một không gian làm việc mới để bắt đầu"
+                        buttonText="Tạo Không Gian Làm Việc"
                         buttonAction={() => setIsCreatingWorkspace(true)}
                     />
                 )}
@@ -65,7 +65,7 @@ const WorkspaceCard = ({ workspace }: { workspace: Workspace }) => {
                             />
                             <div className="text-xs text-muted-foreground">
                                 <CardTitle>{workspace.name}</CardTitle>
-                                <span>Created at {workspace?.createdAt ? format(workspace.createdAt,"MM d,yyyy h:mm a") : "Unknown"}</span>
+                                <span>Tạo lúc {workspace?.createdAt ? format(workspace.createdAt,"MM d,yyyy h:mm a") : "Không xác định"}</span>
                             </div>
                         </div>
                         <div className="flex items-center text-muted-foreground">
@@ -75,12 +75,12 @@ const WorkspaceCard = ({ workspace }: { workspace: Workspace }) => {
                     </div>
 
                     <CardDescription>
-                        {workspace.description || "No description"}
+                        {workspace.description || "Chưa có mô tả"}
                     </CardDescription>
 
                     <CardContent>
                         <div className="text-sm text-muted-foreground">
-                            View Workspace details and projects
+                            Xem chi tiết không gian làm việc và dự án
                         </div>
                     </CardContent>
                 </CardHeader>

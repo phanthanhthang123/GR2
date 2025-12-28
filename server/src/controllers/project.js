@@ -108,3 +108,206 @@ export const getProjectTasks = async (req,res)=>{
         })
     }
 }
+
+export const updateProjectTitle = async (req, res) => {
+    try {
+        const { projectId } = req.params;
+        const { title } = req.body;
+
+        if (!projectId || !title || title.trim() === '') {
+            return res.status(400).json({
+                err: 1,
+                msg: 'Missing required parameters: projectId and title'
+            });
+        }
+
+        // Get userId from token
+        const authHeader = req.headers.authorization;
+        const token = authHeader?.startsWith('Bearer ') 
+            ? authHeader.replace('Bearer ', '') 
+            : (req.cookies?.accessToken || null);
+        
+        let userId = null;
+        if (token) {
+            try {
+                const jwt = require('jsonwebtoken');
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                userId = decoded.id;
+            } catch (error) {
+                return res.status(401).json({
+                    err: 1,
+                    msg: 'UNAUTHORIZED: Invalid or expired token'
+                });
+            }
+        } else {
+            return res.status(401).json({
+                err: 1,
+                msg: 'UNAUTHORIZED: No token provided'
+            });
+        }
+
+        const response = await services.updateProjectTitleService(projectId, title, userId);
+        if (response.err === 1) {
+            const statusCode = response.msg === 'PROJECT NOT FOUND' ? 404 : 403;
+            return res.status(statusCode).json(response);
+        }
+        return res.status(200).json(response);
+    } catch (error) {
+        return res.status(500).json({
+            err: -1,
+            msg: 'Failed at update project title controller: ' + error
+        });
+    }
+}
+
+export const updateProjectDescription = async (req, res) => {
+    try {
+        const { projectId } = req.params;
+        const { description } = req.body;
+
+        if (!projectId) {
+            return res.status(400).json({
+                err: 1,
+                msg: 'Missing required parameter: projectId'
+            });
+        }
+
+        // Get userId from token
+        const authHeader = req.headers.authorization;
+        const token = authHeader?.startsWith('Bearer ') 
+            ? authHeader.replace('Bearer ', '') 
+            : (req.cookies?.accessToken || null);
+        
+        let userId = null;
+        if (token) {
+            try {
+                const jwt = require('jsonwebtoken');
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                userId = decoded.id;
+            } catch (error) {
+                return res.status(401).json({
+                    err: 1,
+                    msg: 'UNAUTHORIZED: Invalid or expired token'
+                });
+            }
+        } else {
+            return res.status(401).json({
+                err: 1,
+                msg: 'UNAUTHORIZED: No token provided'
+            });
+        }
+
+        const response = await services.updateProjectDescriptionService(projectId, description, userId);
+        if (response.err === 1) {
+            const statusCode = response.msg === 'PROJECT NOT FOUND' ? 404 : 403;
+            return res.status(statusCode).json(response);
+        }
+        return res.status(200).json(response);
+    } catch (error) {
+        return res.status(500).json({
+            err: -1,
+            msg: 'Failed at update project description controller: ' + error
+        });
+    }
+}
+
+export const addMemberToProject = async (req, res) => {
+    try {
+        const { projectId } = req.params;
+        const { userId, role } = req.body;
+
+        if (!projectId || !userId) {
+            return res.status(400).json({
+                err: 1,
+                msg: 'Missing required parameters: projectId and userId'
+            });
+        }
+
+        // Get currentUserId from token
+        const authHeader = req.headers.authorization;
+        const token = authHeader?.startsWith('Bearer ') 
+            ? authHeader.replace('Bearer ', '') 
+            : (req.cookies?.accessToken || null);
+        
+        let currentUserId = null;
+        if (token) {
+            try {
+                const jwt = require('jsonwebtoken');
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                currentUserId = decoded.id;
+            } catch (error) {
+                return res.status(401).json({
+                    err: 1,
+                    msg: 'UNAUTHORIZED: Invalid or expired token'
+                });
+            }
+        } else {
+            return res.status(401).json({
+                err: 1,
+                msg: 'UNAUTHORIZED: No token provided'
+            });
+        }
+
+        const response = await services.addMemberToProjectService(projectId, userId, role || 'Developer', currentUserId);
+        if (response.err === 1) {
+            const statusCode = response.msg === 'PROJECT NOT FOUND' || response.msg === 'USER NOT FOUND' ? 404 : 403;
+            return res.status(statusCode).json(response);
+        }
+        return res.status(200).json(response);
+    } catch (error) {
+        return res.status(500).json({
+            err: -1,
+            msg: 'Failed at add member to project controller: ' + error
+        });
+    }
+}
+
+export const removeMemberFromProject = async (req, res) => {
+    try {
+        const { projectId, userId } = req.params;
+
+        if (!projectId || !userId) {
+            return res.status(400).json({
+                err: 1,
+                msg: 'Missing required parameters: projectId and userId'
+            });
+        }
+
+        // Get currentUserId from token
+        const authHeader = req.headers.authorization;
+        const token = authHeader?.startsWith('Bearer ') 
+            ? authHeader.replace('Bearer ', '') 
+            : (req.cookies?.accessToken || null);
+        
+        let currentUserId = null;
+        if (token) {
+            try {
+                const jwt = require('jsonwebtoken');
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                currentUserId = decoded.id;
+            } catch (error) {
+                return res.status(401).json({
+                    err: 1,
+                    msg: 'UNAUTHORIZED: Invalid or expired token'
+                });
+            }
+        } else {
+            return res.status(401).json({
+                err: 1,
+                msg: 'UNAUTHORIZED: No token provided'
+            });
+        }
+
+        const response = await services.removeMemberFromProjectService(projectId, userId, currentUserId);
+        if (response.err === 1) {
+            const statusCode = response.msg === 'PROJECT NOT FOUND' || response.msg === 'USER IS NOT A MEMBER OF THIS PROJECT' ? 404 : 403;
+            return res.status(statusCode).json(response);
+        }
+        return res.status(200).json(response);
+    } catch (error) {
+        return res.status(500).json({
+            err: -1,
+            msg: 'Failed at remove member from project controller: ' + error
+        });
+    }
+}

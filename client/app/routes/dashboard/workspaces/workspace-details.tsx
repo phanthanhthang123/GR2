@@ -14,7 +14,7 @@ const WorkspaceDetails = () => {
   const { data, isLoading } = useGetWorkspaceQueryById(workspaceId || "");
   
   if (!workspaceId) {
-    return <div>No workspace ID provided.</div>;
+    return <div>Không có ID không gian làm việc.</div>;
   }
 
   if (isLoading || !data) {

@@ -57,10 +57,10 @@ const WorkspaceHeader = (workspace: any) => {
             {isCurrentUserLeader && (
               <>
                 <Button variant={"outline"} onClick={workspace.onInviteMember}>
-                  <UserPlus className="size-4 mr-2" /> Invite
+                  <UserPlus className="size-4 mr-2" /> Mời
                 </Button>
                 <Button onClick={workspace.onCreateProject}>
-                  <Plus className="size-4 mr-2" /> Create Project
+                  <Plus className="size-4 mr-2" /> Tạo Dự Án
                 </Button>
               </>
             )}
@@ -74,7 +74,7 @@ const WorkspaceHeader = (workspace: any) => {
       </div>
       {workspaceData?.members && workspaceData?.members?.length > 0 && (
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Members</span>
+          <span className="text-sm text-muted-foreground">Thành Viên</span>
           <div 
             className="flex -space-x-2 cursor-pointer"
             onClick={() => setIsMembersDialogOpen(true)}
@@ -85,7 +85,7 @@ const WorkspaceHeader = (workspace: any) => {
                 <Avatar
                   key={member.user_id || memberUserId}
                   className="w-8 h-8 rounded-full border-2 border-background overflow-hidden hover:z-10 transition-transform hover:scale-110"
-                  title={member.user?.username || "Unknown User"}
+                  title={member.user?.username || "Người dùng không xác định"}
                   style={{ zIndex: (workspaceData.members?.length || 0) - index }}
                 >
                   <AvatarImage

@@ -224,3 +224,248 @@ export const getProjectTasksService = async (projectId, userId) => {
         };
     }
 };
+
+// UPDATE PROJECT TITLE
+export const updateProjectTitleService = (projectId, title, userId) => new Promise(async (resolve, reject) => {
+    try {
+        const project = await db.Project.findOne({
+            where: { id: projectId }
+        });
+
+        if (!project) {
+            return resolve({
+                err: 1,
+                msg: 'PROJECT NOT FOUND'
+            });
+        }
+
+        // Check if user is leader or creator
+        const isLeader = project.leader_id === userId || project.created_by === userId;
+        if (!isLeader) {
+            const member = await db.Project_Member.findOne({
+                where: {
+                    project_id: projectId,
+                    user_id: userId,
+                    role: 'Leader'
+                }
+            });
+            if (!member) {
+                return resolve({
+                    err: 1,
+                    msg: 'ONLY LEADER CAN UPDATE PROJECT TITLE'
+                });
+            }
+        }
+
+        await project.update({
+            name: title.trim(),
+            updatedAt: new Date()
+        });
+
+        resolve({
+            err: 0,
+            msg: 'OK',
+            response: project
+        });
+    } catch (error) {
+        reject(error);
+    }
+});
+
+// UPDATE PROJECT DESCRIPTION
+export const updateProjectDescriptionService = (projectId, description, userId) => new Promise(async (resolve, reject) => {
+    try {
+        const project = await db.Project.findOne({
+            where: { id: projectId }
+        });
+
+        if (!project) {
+            return resolve({
+                err: 1,
+                msg: 'PROJECT NOT FOUND'
+            });
+        }
+
+        // Check if user is leader or creator
+        const isLeader = project.leader_id === userId || project.created_by === userId;
+        if (!isLeader) {
+            const member = await db.Project_Member.findOne({
+                where: {
+                    project_id: projectId,
+                    user_id: userId,
+                    role: 'Leader'
+                }
+            });
+            if (!member) {
+                return resolve({
+                    err: 1,
+                    msg: 'ONLY LEADER CAN UPDATE PROJECT DESCRIPTION'
+                });
+            }
+        }
+
+        await project.update({
+            description: description?.trim() || null,
+            updatedAt: new Date()
+        });
+
+        resolve({
+            err: 0,
+            msg: 'OK',
+            response: project
+        });
+    } catch (error) {
+        reject(error);
+    }
+});
+
+// ADD MEMBER TO PROJECT
+export const addMemberToProjectService = (projectId, userId, role, currentUserId) => new Promise(async (resolve, reject) => {
+    try {
+        const project = await db.Project.findOne({
+            where: { id: projectId }
+        });
+
+        if (!project) {
+            return resolve({
+                err: 1,
+                msg: 'PROJECT NOT FOUND'
+            });
+        }
+
+        // Check if current user is leader
+        const isLeader = project.leader_id === currentUserId || project.created_by === currentUserId;
+        if (!isLeader) {
+            const member = await db.Project_Member.findOne({
+                where: {
+                    project_id: projectId,
+                    user_id: currentUserId,
+                    role: 'Leader'
+                }
+            });
+            if (!member) {
+                return resolve({
+                    err: 1,
+                    msg: 'ONLY LEADER CAN ADD MEMBERS TO PROJECT'
+                });
+            }
+        }
+
+        // Check if user exists
+        const user = await db.Users.findOne({
+            where: { id: userId }
+        });
+
+        if (!user) {
+            return resolve({
+                err: 1,
+                msg: 'USER NOT FOUND'
+            });
+        }
+
+        // Check if user is already a member
+        const existingMember = await db.Project_Member.findOne({
+            where: {
+                project_id: projectId,
+                user_id: userId
+            }
+        });
+
+        if (existingMember) {
+            return resolve({
+                err: 1,
+                msg: 'USER IS ALREADY A MEMBER OF THIS PROJECT'
+            });
+        }
+
+        // Add member
+        await db.Project_Member.create({
+            id: v4(),
+            project_id: projectId,
+            user_id: userId,
+            role: role || 'Developer',
+            joined_at: new Date(),
+            createdAt: new Date(),
+            updatedAt: new Date()
+        });
+
+        resolve({
+            err: 0,
+            msg: 'OK'
+        });
+    } catch (error) {
+        reject(error);
+    }
+});
+
+// REMOVE MEMBER FROM PROJECT
+export const removeMemberFromProjectService = (projectId, targetUserId, currentUserId) => new Promise(async (resolve, reject) => {
+    try {
+        const project = await db.Project.findOne({
+            where: { id: projectId }
+        });
+
+        if (!project) {
+            return resolve({
+                err: 1,
+                msg: 'PROJECT NOT FOUND'
+            });
+        }
+
+        // Check if current user is leader
+        const isLeader = project.leader_id === currentUserId || project.created_by === currentUserId;
+        if (!isLeader) {
+            const member = await db.Project_Member.findOne({
+                where: {
+                    project_id: projectId,
+                    user_id: currentUserId,
+                    role: 'Leader'
+                }
+            });
+            if (!member) {
+                return resolve({
+                    err: 1,
+                    msg: 'ONLY LEADER CAN REMOVE MEMBERS FROM PROJECT'
+                });
+            }
+        }
+
+        // Check if target user is a member
+        const targetMember = await db.Project_Member.findOne({
+            where: {
+                project_id: projectId,
+                user_id: targetUserId
+            }
+        });
+
+        if (!targetMember) {
+            return resolve({
+                err: 1,
+                msg: 'USER IS NOT A MEMBER OF THIS PROJECT'
+            });
+        }
+
+        // Prevent removing leader
+        if (targetMember.role === 'Leader' && project.leader_id === targetUserId) {
+            return resolve({
+                err: 1,
+                msg: 'CANNOT REMOVE PROJECT LEADER'
+            });
+        }
+
+        // Remove member
+        await db.Project_Member.destroy({
+            where: {
+                project_id: projectId,
+                user_id: targetUserId
+            }
+        });
+
+        resolve({
+            err: 0,
+            msg: 'OK'
+        });
+    } catch (error) {
+        reject(error);
+    }
+});

@@ -23,10 +23,10 @@ export const TaskTitle = ({ title, taskId }: { title: string, taskId: string }) 
                 if (response?.response?.title) {
                     setNewTitle(response.response.title);
                 }
-                toast.success("Task title updated successfully");
+                toast.success("Cập nhật tiêu đề task thành công");
             },
             onError: (error: any) => {
-                const errorMessage = (error as any)?.response?.data?.msg || "Failed to update task title";
+                const errorMessage = (error as any)?.response?.data?.msg || "Không thể cập nhật tiêu đề task";
                 toast.error(errorMessage);
             }
         });
@@ -53,7 +53,7 @@ export const TaskTitle = ({ title, taskId }: { title: string, taskId: string }) 
                         className="inline-flex items-center rounded-md border border-input px-2 py-1 text-xs text-muted-foreground hover:bg-accent"
                     >
                         <Edit className="mr-1 size-3" />
-                        Edit
+                        Sửa
                     </button>
                 )}
             </div>
@@ -65,7 +65,7 @@ export const TaskTitle = ({ title, taskId }: { title: string, taskId: string }) 
                         onClick={updateTitle}
                         disabled={isPending}
                     >
-                        Save
+                        Lưu
                     </Button>
                     <Button
                         variant="ghost"
@@ -76,7 +76,7 @@ export const TaskTitle = ({ title, taskId }: { title: string, taskId: string }) 
                         }}
                         disabled={isPending}
                     >
-                        Cancel
+                        Hủy
                     </Button>
                 </div>
             )}

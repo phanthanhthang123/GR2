@@ -380,6 +380,11 @@ export const getWorkspaceStatsService = (workspaceId) => new Promise(async (reso
             // project_id sẽ tự động được include vì nó là field của Task model
         });
 
+        // Get total members in workspace
+        const workspaceMembers = await db.Workspace_Members.findAll({
+            where: { workspace_id: workspaceId }
+        });
+
         // Calculate stats
         const totalProjects = projects.length;
         const totalTasks = allTasks.length;
@@ -387,6 +392,7 @@ export const getWorkspaceStatsService = (workspaceId) => new Promise(async (reso
         const totalTaskCompleted = allTasks.filter(t => t.status === 'Done').length;
         const totalTaskToDo = allTasks.filter(t => t.status === 'To Do').length;
         const totalTaskInProgress = allTasks.filter(t => t.status === 'In Progress').length;
+        const totalMembers = workspaceMembers.length;
 
         const stats = {
             totalProjects,
@@ -394,7 +400,8 @@ export const getWorkspaceStatsService = (workspaceId) => new Promise(async (reso
             totalProjectInProgress,
             totalTaskCompleted,
             totalTaskToDo,
-            totalTaskInProgress
+            totalTaskInProgress,
+            totalMembers
         };
 
         // Task Trends Data (last 7 days)
@@ -614,6 +621,234 @@ export const getWorkspaceStatsService = (workspaceId) => new Promise(async (reso
                 recentTasks,
                 recentProjects
             }
+        });
+    } catch (error) {
+        reject(error);
+    }
+})
+
+// GET WORKSPACE PROJECTS DETAIL
+export const getWorkspaceProjectsDetailService = (workspaceId) => new Promise(async (resolve, reject) => {
+    try {
+        const workspace = await db.Workspaces.findOne({
+            where: { id: workspaceId }
+        });
+
+        if (!workspace) {
+            return resolve({
+                err: 1,
+                msg: 'WORKSPACE NOT FOUND'
+            });
+        }
+
+        const projects = await db.Project.findAll({
+            where: { workspace_id: workspaceId },
+            include: [
+                {
+                    model: db.Users,
+                    as: 'leader',
+                    attributes: ['id', 'username', 'email']
+                },
+                {
+                    model: db.Project_Member,
+                    as: 'members',
+                    include: [
+                        {
+                            model: db.Users,
+                            as: 'user',
+                            attributes: ['id', 'username', 'email']
+                        }
+                    ]
+                }
+            ],
+            order: [['createdAt', 'DESC']]
+        });
+
+        resolve({
+            err: 0,
+            msg: 'OK',
+            response: projects
+        });
+    } catch (error) {
+        reject(error);
+    }
+})
+
+// GET WORKSPACE TASKS DETAIL
+export const getWorkspaceTasksDetailService = (workspaceId) => new Promise(async (resolve, reject) => {
+    try {
+        const workspace = await db.Workspaces.findOne({
+            where: { id: workspaceId }
+        });
+
+        if (!workspace) {
+            return resolve({
+                err: 1,
+                msg: 'WORKSPACE NOT FOUND'
+            });
+        }
+
+        const allTasks = await db.Task.findAll({
+            include: [
+                {
+                    model: db.Project,
+                    as: 'project',
+                    where: { workspace_id: workspaceId },
+                    required: true,
+                    attributes: ['id', 'name']
+                },
+                {
+                    model: db.Users,
+                    as: 'assignedUser',
+                    attributes: ['id', 'username', 'email']
+                }
+            ],
+            where: { isArchived: false },
+            order: [['createdAt', 'DESC']]
+        });
+
+        resolve({
+            err: 0,
+            msg: 'OK',
+            response: allTasks
+        });
+    } catch (error) {
+        reject(error);
+    }
+})
+
+// GET WORKSPACE MEMBERS DETAIL
+export const getWorkspaceMembersDetailService = (workspaceId) => new Promise(async (resolve, reject) => {
+    try {
+        // First, get workspace basic info
+        const workspace = await db.Workspaces.findOne({
+            where: { id: workspaceId },
+            attributes: ['id', 'name', 'description', 'owner_id', 'createdAt']
+        });
+
+        if (!workspace) {
+            return resolve({
+                err: 1,
+                msg: 'WORKSPACE NOT FOUND'
+            });
+        }
+
+        // Get owner separately
+        let owner = null;
+        if (workspace.owner_id) {
+            owner = await db.Users.findOne({
+                where: { id: workspace.owner_id },
+                attributes: ['id', 'username', 'email']
+            });
+        }
+
+        // Get workspace members
+        const workspaceMembers = await db.Workspace_Members.findAll({
+            where: { workspace_id: workspaceId },
+            include: [
+                {
+                    model: db.Users,
+                    as: 'user',
+                    attributes: ['id', 'username', 'email'],
+                    required: false
+                }
+            ],
+            order: [['joined_at', 'DESC']],
+            raw: false
+        });
+
+        // Map workspace members
+        const members = workspaceMembers
+            .filter(member => member.user) // Filter out members without user data
+            .map(member => ({
+                user_id: member.user_id,
+                user: {
+                    id: member.user.id,
+                    username: member.user.username || 'Unknown',
+                    email: member.user.email || ''
+                },
+                role: member.role || 'Developer',
+                joined_at: member.joined_at || member.createdAt
+            }));
+
+        // Check if owner is already in members list
+        const ownerInMembers = owner ? members.some(member => 
+            member.user_id === workspace.owner_id
+        ) : false;
+
+        // Include owner in members list if not already there
+        if (owner && !ownerInMembers) {
+            members.unshift({
+                user_id: owner.id,
+                user: {
+                    id: owner.id,
+                    username: owner.username || 'Unknown',
+                    email: owner.email || ''
+                },
+                role: 'Owner',
+                joined_at: workspace.createdAt
+            });
+        } else if (owner && ownerInMembers) {
+            // If owner is in members, update their role to Owner
+            const ownerMemberIndex = members.findIndex(m => m.user_id === workspace.owner_id);
+            if (ownerMemberIndex !== -1) {
+                members[ownerMemberIndex].role = 'Owner';
+            }
+        }
+
+        resolve({
+            err: 0,
+            msg: 'OK',
+            response: members
+        });
+    } catch (error) {
+        console.error('Error in getWorkspaceMembersDetailService:', error);
+        console.error('Error stack:', error.stack);
+        console.error('WorkspaceId:', workspaceId);
+        reject(error);
+    }
+})
+
+// GET WORKSPACE TASKS BY STATUS
+export const getWorkspaceTasksByStatusService = (workspaceId, status) => new Promise(async (resolve, reject) => {
+    try {
+        const workspace = await db.Workspaces.findOne({
+            where: { id: workspaceId }
+        });
+
+        if (!workspace) {
+            return resolve({
+                err: 1,
+                msg: 'WORKSPACE NOT FOUND'
+            });
+        }
+
+        const tasks = await db.Task.findAll({
+            include: [
+                {
+                    model: db.Project,
+                    as: 'project',
+                    where: { workspace_id: workspaceId },
+                    required: true,
+                    attributes: ['id', 'name']
+                },
+                {
+                    model: db.Users,
+                    as: 'assignedUser',
+                    attributes: ['id', 'username', 'email']
+                }
+            ],
+            where: { 
+                isArchived: false,
+                status: status
+            },
+            order: [['createdAt', 'DESC']]
+        });
+
+        resolve({
+            err: 0,
+            msg: 'OK',
+            response: tasks
         });
     } catch (error) {
         reject(error);

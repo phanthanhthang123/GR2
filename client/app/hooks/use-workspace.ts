@@ -103,3 +103,49 @@ export const useGetWorkspaceStatsQuery = (workspace_id: string)=>{
         enabled: !!workspace_id
     })
 }
+
+export const useGetWorkspaceProjectsDetailQuery = (workspaceId: string, enabled: boolean = false) => {
+    return useQuery({
+        queryKey: ["workspace-projects-detail", workspaceId],
+        queryFn: async () => {
+            return await fetchData(`/workspace/${workspaceId}/projects-detail`);
+        },
+        enabled: !!workspaceId && enabled
+    });
+}
+
+export const useGetWorkspaceTasksDetailQuery = (workspaceId: string, enabled: boolean = false) => {
+    return useQuery({
+        queryKey: ["workspace-tasks-detail", workspaceId],
+        queryFn: async () => {
+            return await fetchData(`/workspace/${workspaceId}/tasks-detail`);
+        },
+        enabled: !!workspaceId && enabled
+    });
+}
+
+export const useGetWorkspaceMembersDetailQuery = (workspaceId: string, enabled: boolean = false) => {
+    return useQuery({
+        queryKey: ["workspace-members-detail", workspaceId],
+        queryFn: async () => {
+            try {
+                return await fetchData(`/workspace/${workspaceId}/members-detail`);
+            } catch (error) {
+                console.error('Error fetching workspace members detail:', error);
+                throw error;
+            }
+        },
+        enabled: !!workspaceId && enabled,
+        retry: 1
+    });
+}
+
+export const useGetWorkspaceTasksByStatusQuery = (workspaceId: string, status: string, enabled: boolean = false) => {
+    return useQuery({
+        queryKey: ["workspace-tasks-by-status", workspaceId, status],
+        queryFn: async () => {
+            return await fetchData(`/workspace/${workspaceId}/tasks-by-status/${status}`);
+        },
+        enabled: !!workspaceId && !!status && enabled
+    });
+}

@@ -34,7 +34,7 @@ const DashBoard = () => {
   return (
     <div className='space-y-8 2xl:space-y-12'>
       <div className='flex items-center justify-between'>
-        <h1 className='text-2xl md:text-4xl font-bold'>Dashboard</h1>
+        <h1 className='text-2xl md:text-4xl font-bold'>Bảng Điều Khiển</h1>
       </div>
 
       <StatCard data={statsData?.stats}/>

@@ -200,3 +200,92 @@ export const getWorkspaceStats = async (req,res)=>{
         })
     }
 }
+
+export const getWorkspaceProjectsDetail = async (req, res) => {
+    try {
+        const { workspaceId } = req.params;
+        if (!workspaceId) {
+            return res.status(400).json({
+                err: 1,
+                msg: 'Missing required parameter: workspaceId'
+            });
+        }
+        const response = await services.getWorkspaceProjectsDetailService(workspaceId);
+        if (response.err === 1) {
+            return res.status(404).json(response);
+        }
+        return res.status(200).json(response);
+    } catch (error) {
+        return res.status(500).json({
+            err: -1,
+            msg: 'Internal server error'
+        });
+    }
+}
+
+export const getWorkspaceTasksDetail = async (req, res) => {
+    try {
+        const { workspaceId } = req.params;
+        if (!workspaceId) {
+            return res.status(400).json({
+                err: 1,
+                msg: 'Missing required parameter: workspaceId'
+            });
+        }
+        const response = await services.getWorkspaceTasksDetailService(workspaceId);
+        if (response.err === 1) {
+            return res.status(404).json(response);
+        }
+        return res.status(200).json(response);
+    } catch (error) {
+        return res.status(500).json({
+            err: -1,
+            msg: 'Internal server error'
+        });
+    }
+}
+
+export const getWorkspaceMembersDetail = async (req, res) => {
+    try {
+        const { workspaceId } = req.params;
+        if (!workspaceId) {
+            return res.status(400).json({
+                err: 1,
+                msg: 'Missing required parameter: workspaceId'
+            });
+        }
+        const response = await services.getWorkspaceMembersDetailService(workspaceId);
+        if (response.err === 1) {
+            return res.status(404).json(response);
+        }
+        return res.status(200).json(response);
+    } catch (error) {
+        console.error('Error in getWorkspaceMembersDetail controller:', error);
+        return res.status(500).json({
+            err: -1,
+            msg: 'Internal server error: ' + error.message
+        });
+    }
+}
+
+export const getWorkspaceTasksByStatus = async (req, res) => {
+    try {
+        const { workspaceId, status } = req.params;
+        if (!workspaceId || !status) {
+            return res.status(400).json({
+                err: 1,
+                msg: 'Missing required parameters: workspaceId and status'
+            });
+        }
+        const response = await services.getWorkspaceTasksByStatusService(workspaceId, status);
+        if (response.err === 1) {
+            return res.status(404).json(response);
+        }
+        return res.status(200).json(response);
+    } catch (error) {
+        return res.status(500).json({
+            err: -1,
+            msg: 'Internal server error'
+        });
+    }
+}

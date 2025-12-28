@@ -10,10 +10,10 @@ export const TaskPrioritySelector = ({ priority, taskId }: { priority: TaskPrior
     const handleStatusChange = (value: string) => {
         mutate({ taskId, priority: value as TaskPriority | undefined }, {
             onSuccess: () => {
-            toast.success("Task priority updated successfully");
+            toast.success("Cập nhật độ ưu tiên task thành công");
         },
         onError: (error: any) => {
-            const errorMessage = (error as any)?.response?.data?.message || "Failed to update task priority";
+            const errorMessage = (error as any)?.response?.data?.message || "Không thể cập nhật độ ưu tiên task";
             toast.error(errorMessage);
         }
     });
@@ -23,13 +23,13 @@ export const TaskPrioritySelector = ({ priority, taskId }: { priority: TaskPrior
     return (
         <Select value={priority || ""} onValueChange={handleStatusChange}>
             <SelectTrigger className="w-[180px]" disabled={isPending}>
-                <SelectValue placeholder="Select Priority" />
+                <SelectValue placeholder="Chọn độ ưu tiên" />
             </SelectTrigger>
 
             <SelectContent>
-                <SelectItem value="Low">Low</SelectItem>
-                <SelectItem value="Medium">Medium</SelectItem>
-                <SelectItem value="High">High</SelectItem>
+                <SelectItem value="Low">Thấp</SelectItem>
+                <SelectItem value="Medium">Trung bình</SelectItem>
+                <SelectItem value="High">Cao</SelectItem>
             </SelectContent>
         </Select>
     )

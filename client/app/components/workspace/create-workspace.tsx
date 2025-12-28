@@ -52,7 +52,7 @@ export const CreateWorkspace = ({
     console.log(data);
     console.log(user?.id);
     if (!user?.id) {
-      toast.error("User not authenticated");
+          toast.error("Người dùng chưa được xác thực");
       return;
     }
     
@@ -65,11 +65,11 @@ export const CreateWorkspace = ({
           console.log(data);
           setIsCreatingWorkspace(false);
           form.reset();
-          toast.success("Workspace created successfully");
+          toast.success("Tạo không gian làm việc thành công");
           navigate(`/workspaces/${data.response.id}`);
         },
         onError: (error: any) => {
-          const errorMessage = (error as any)?.response?.data?.message || "Failed to create workspace";
+          const errorMessage = (error as any)?.response?.data?.message || "Không thể tạo không gian làm việc";
           toast.error(errorMessage);
         }
       });
@@ -86,7 +86,7 @@ export const CreateWorkspace = ({
     >
       <DialogContent className="max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create Workspace</DialogTitle>
+          <DialogTitle>Tạo Không Gian Làm Việc</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -96,9 +96,9 @@ export const CreateWorkspace = ({
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>Tên</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Workspace Name" />
+                      <Input {...field} placeholder="Tên không gian làm việc" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -109,11 +109,11 @@ export const CreateWorkspace = ({
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Description</FormLabel>
+                    <FormLabel>Mô Tả</FormLabel>
                     <FormControl>
                       <Textarea
                         {...field}
-                        placeholder="Workspace Description"
+                        placeholder="Mô tả không gian làm việc"
                         rows={3}
                       />
                     </FormControl>
@@ -126,7 +126,7 @@ export const CreateWorkspace = ({
                 name="color"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Color</FormLabel>
+                    <FormLabel>Màu Sắc</FormLabel>
                     <FormControl>
                       <div className="flex gap-3 flex-wrap">
                         {COLOR_OPTION.map((color) => (
@@ -147,7 +147,7 @@ export const CreateWorkspace = ({
             </div>
             <DialogFooter>
                   <Button type="submit" disabled={isPending}>
-                        {isPending ? "Createing..." : "Create"}
+                        {isPending ? "Đang tạo..." : "Tạo"}
                   </Button>
             </DialogFooter>
           </form>

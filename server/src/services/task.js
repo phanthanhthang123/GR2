@@ -4,6 +4,21 @@ import { v4 } from 'uuid';
 //CREATE TASK
 export const createTaskService = (projectId, taskData) => new Promise(async (resolve, reject) => {
     try {
+        // Check if a task with the same title already exists in this project
+        const existingTask = await db.Task.findOne({
+            where: {
+                project_id: projectId,
+                title: taskData.title.trim()
+            }
+        });
+
+        if (existingTask) {
+            return resolve({
+                err: 1,
+                msg: 'A task with this title already exists in this project'
+            });
+        }
+
         const taskId = v4();
         // Handle assignees - if it's an array, take the first one (or you can create a separate Task_Assignees table for multiple assignees)
         const assignedTo = Array.isArray(taskData.assignees) && taskData.assignees.length > 0 
@@ -14,7 +29,7 @@ export const createTaskService = (projectId, taskData) => new Promise(async (res
             id: taskId,
             project_id: projectId,
             assigned_to: assignedTo,
-            title: taskData.title,
+            title: taskData.title.trim(),
             description: taskData.description,
             status: taskData.status,
             priority: taskData.priority || 'Medium',
@@ -151,8 +166,24 @@ export const updateTaskTitleService = (taskId, title, userId) => new Promise(asy
             });
         }
 
+        // Check if another task with the same title already exists in this project (excluding current task)
+        const existingTask = await db.Task.findOne({
+            where: {
+                project_id: task.project_id,
+                title: title.trim(),
+                id: { [db.Sequelize.Op.ne]: taskId } // Exclude current task
+            }
+        });
+
+        if (existingTask) {
+            return resolve({
+                err: 1,
+                msg: 'A task with this title already exists in this project'
+            });
+        }
+
         await task.update({
-            title: title,
+            title: title.trim(),
             updatedAt: new Date()
         });
 

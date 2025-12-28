@@ -2,7 +2,7 @@ import React from 'react'
 
 const Achieved = () => {
   return (
-    <div>Achieved</div>
+    <div>Đã Hoàn Thành</div>
   )
 }
 

@@ -118,6 +118,7 @@ export type ActionType =
   | "created_workspace"
   | "updated_workspace"
   | "added_comment"
+  | "edited_comment"
   | "added_member"
   | "removed_member"
   | "joined_workspace"

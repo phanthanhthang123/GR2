@@ -10,10 +10,10 @@ export const TaskStatusSelector = ({ status, taskId }: { status: TaskStatus, tas
     const handleStatusChange = (value: string) => {
         mutate({ taskId, status: value as TaskStatus }, {
             onSuccess: () => {
-                toast.success("Task status updated successfully");
+                toast.success("Cập nhật trạng thái task thành công");
             },
             onError: (error: any) => {
-                const errorMessage = (error as any)?.response?.data?.message || "Failed to update task status";
+                const errorMessage = (error as any)?.response?.data?.message || "Không thể cập nhật trạng thái task";
                 toast.error(errorMessage);
             }
         });
@@ -23,13 +23,13 @@ export const TaskStatusSelector = ({ status, taskId }: { status: TaskStatus, tas
     return (
         <Select value={status} onValueChange={handleStatusChange}>
             <SelectTrigger className="w-[180px]" disabled={isPending}>
-                <SelectValue placeholder="Select Status" />
+                <SelectValue placeholder="Chọn trạng thái" />
             </SelectTrigger>
 
             <SelectContent>
-                <SelectItem value="To Do">To Do</SelectItem>
-                <SelectItem value="In Progress">In Progress</SelectItem>
-                <SelectItem value="Done">Done</SelectItem>
+                <SelectItem value="To Do">Chưa làm</SelectItem>
+                <SelectItem value="In Progress">Đang làm</SelectItem>
+                <SelectItem value="Done">Hoàn thành</SelectItem>
             </SelectContent>
         </Select>
     )
