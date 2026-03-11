@@ -67,33 +67,35 @@ function PaginationLink({
 
 function PaginationPrevious({
   className,
+  children,
   ...props
-}: React.ComponentProps<typeof PaginationLink>) {
+}: React.ComponentProps<typeof PaginationLink> & { children?: React.ReactNode }) {
   return (
     <PaginationLink
-      aria-label="Go to previous page"
+      aria-label="Đi đến trang trước"
       size="default"
       className={cn("gap-1 px-2.5 sm:pl-2.5", className)}
       {...props}
     >
       <ChevronLeftIcon />
-      <span className="hidden sm:block">Previous</span>
+      <span className="hidden sm:block">{children || "Trước"}</span>
     </PaginationLink>
   )
 }
 
 function PaginationNext({
   className,
+  children,
   ...props
-}: React.ComponentProps<typeof PaginationLink>) {
+}: React.ComponentProps<typeof PaginationLink> & { children?: React.ReactNode }) {
   return (
     <PaginationLink
-      aria-label="Go to next page"
+      aria-label="Đi đến trang sau"
       size="default"
       className={cn("gap-1 px-2.5 sm:pr-2.5", className)}
       {...props}
     >
-      <span className="hidden sm:block">Next</span>
+      <span className="hidden sm:block">{children || "Sau"}</span>
       <ChevronRightIcon />
     </PaginationLink>
   )

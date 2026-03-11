@@ -170,7 +170,17 @@ export const StatCard = ({ data }: { data: any }) => {
                                         <p className="text-sm font-medium truncate">{project.name}</p>
                                         <div className="flex items-center gap-2 mt-1">
                                             <Badge variant="outline" className="text-xs">
-                                                {project.status === 'Pending' ? 'Lên Kế Hoạch' : project.status === 'In Progress' ? 'Đang Thực Hiện' : 'Hoàn Thành'}
+                                                {(() => {
+                                                    const statusLabels: Record<string, string> = {
+                                                        'Pending': 'Đang chờ',
+                                                        'In Progress': 'Đang tiến hành',
+                                                        'Completed': 'Hoàn thành',
+                                                        'Active': 'Đang hoạt động',
+                                                        'Archived': 'Đã lưu trữ',
+                                                        'Deleted': 'Đã xóa'
+                                                    };
+                                                    return statusLabels[project.status] || project.status;
+                                                })()}
                                             </Badge>
                                             {project.members && (
                                                 <span className="text-xs text-muted-foreground">

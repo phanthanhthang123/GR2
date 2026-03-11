@@ -50,7 +50,18 @@ export const CreateTaskDialog = ({
 
     const onSubmit = (data: CreateTaskDialogFormData) => {
         console.log("data Task", data);
-        mutate({projectId, taskData: data}, 
+        
+        // Prepare data for API - ensure optional fields are handled correctly
+        const taskData = {
+            title: data.title,
+            description: data.description || "",
+            status: data.status,
+            priority: data.priority,
+            dueDate: data.dueDate || null,
+            assignees: data.assignees || []
+        };
+        
+        mutate({projectId, taskData}, 
         {
             onSuccess: () => {
                 form.reset();
@@ -60,6 +71,7 @@ export const CreateTaskDialog = ({
             onError: (error: any) => {
                 const errorMessage = (error as any)?.response?.data?.msg || "Không thể tạo task";
                 toast.error(errorMessage);
+                console.error("Create task error:", error);
             }
         });
     }

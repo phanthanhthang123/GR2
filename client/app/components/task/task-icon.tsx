@@ -1,25 +1,26 @@
 import type { ActionType } from "@/type";
 
 import {
-  Building2,
-  CheckCircle,
-  CheckCircle2,
-  CheckSquare,
-  FileEdit,
-  FolderEdit,
-  FolderPlus,
-  LogIn,
-  MessageSquare,
-  Upload,
-  UserMinus,
-  UserPlus,
-  Type,
-  Flag,
-  FileText,
-  Users,
-  Eye,
-  EyeOff,
-  Archive,
+    Building2,
+    CheckCircle,
+    CheckCircle2,
+    CheckSquare,
+    FileEdit,
+    FolderEdit,
+    FolderPlus,
+    LogIn,
+    MessageSquare,
+    Upload,
+    UserMinus,
+    UserPlus,
+    Type,
+    Flag,
+    FileText,
+    Users,
+    Eye,
+    EyeOff,
+    Archive,
+    Calendar,
 } from "lucide-react";
 
 export const getActivityMessage = (action: ActionType): string => {
@@ -34,6 +35,8 @@ export const getActivityMessage = (action: ActionType): string => {
             return "đã cập nhật người được giao";
         case "PRIORITY_UPDATED":
             return "đã cập nhật độ ưu tiên";
+        case "DUE_DATE_UPDATED":
+            return "đã sửa hạn chót";
         case "created_task":
             return "đã tạo task này";
         case "updated_task":
@@ -50,6 +53,8 @@ export const getActivityMessage = (action: ActionType): string => {
             return "đã tạo không gian làm việc này";
         case "added_comment":
             return "đã thêm bình luận";
+        case "added_reply":
+            return "đã trả lời bình luận";
         case "edited_comment":
             return "đã sửa bình luận";
         case "added_member":
@@ -125,6 +130,12 @@ export const getActivityIcon = (action: ActionType) => {
                     <MessageSquare className="h-5 w-5 text-blue-600 rounded-full" />
                 </div>
             )
+        case "added_reply":
+            return (
+                <div className="bg-blue-600/10 p-2 rounded-md">
+                    <MessageSquare className="h-5 w-5 text-blue-600 rounded-full" />
+                </div>
+            )
         case "edited_comment":
             return (
                 <div className="bg-purple-600/10 p-2 rounded-md">
@@ -183,6 +194,12 @@ export const getActivityIcon = (action: ActionType) => {
             return (
                 <div className="bg-orange-600/10 p-2 rounded-md">
                     <Flag className="h-5 w-5 text-orange-600 rounded-full" />
+                </div>
+            )
+        case "DUE_DATE_UPDATED":
+            return (
+                <div className="bg-blue-600/10 p-2 rounded-md">
+                    <Calendar className="h-5 w-5 text-blue-600 rounded-full" />
                 </div>
             )
         case "WATCHED":

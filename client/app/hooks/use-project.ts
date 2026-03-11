@@ -25,7 +25,7 @@ export const UseCreateProject = () => {
             queryClient.invalidateQueries({ queryKey: ["workspace", data.workspaceId] });
         },
         onError: (error: any) => {
-            const errorMessage = (error as any)?.response?.data?.message || error?.message || "Không thể tạo dự án";
+            const errorMessage = (error as any)?.response?.data?.msg || error?.message || "Không thể tạo dự án";
             toast.error(errorMessage);
         }
     })

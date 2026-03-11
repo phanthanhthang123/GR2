@@ -32,11 +32,11 @@ export const StatisticsCharts = ({
     }) || [];
 
     // Transform projectStatusData to match PieChart format
-    // Map status display names: "Pending" -> "Planning"
+    // Map status display names to Vietnamese
     const statusDisplayMap: { [key: string]: string } = {
-        'Pending': 'Lên Kế Hoạch',
-        'In Progress': 'Đang Thực Hiện',
-        'Completed': 'Hoàn Thành'
+        'Pending': 'Đang chờ',
+        'In Progress': 'Đang tiến hành',
+        'Completed': 'Hoàn thành'
     };
     
     const statusColorMap: { [key: string]: string } = {
@@ -120,7 +120,7 @@ export const StatisticsCharts = ({
         total: item.total || 0
     })) || [];
     
-    console.log("transformedWorkspaceProductivityData", transformedWorkspaceProductivityData);
+    // console.log("transformedWorkspaceProductivityData", transformedWorkspaceProductivityData);
 
     return (
         <div className="space-y-6">

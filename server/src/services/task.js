@@ -1,5 +1,5 @@
 import db from '../models';
-import { v4 } from 'uuid';  
+import { v4 } from 'uuid';
 
 //CREATE TASK
 export const createTaskService = (projectId, taskData) => new Promise(async (resolve, reject) => {
@@ -21,24 +21,24 @@ export const createTaskService = (projectId, taskData) => new Promise(async (res
 
         const taskId = v4();
         // Handle assignees - if it's an array, take the first one (or you can create a separate Task_Assignees table for multiple assignees)
-        const assignedTo = Array.isArray(taskData.assignees) && taskData.assignees.length > 0 
-            ? taskData.assignees[0] 
-            : taskData.assignees;
-        
+        const assignedTo = Array.isArray(taskData.assignees) && taskData.assignees.length > 0
+            ? taskData.assignees[0]
+            : (taskData.assignees || null);
+
         const task = await db.Task.create({
             id: taskId,
             project_id: projectId,
             assigned_to: assignedTo,
             title: taskData.title.trim(),
-            description: taskData.description,
+            description: taskData.description || "",
             status: taskData.status,
             priority: taskData.priority || 'Medium',
-            dueDate : taskData.dueDate,
+            dueDate: taskData.dueDate || null,
             createdAt: new Date(),
             updatedAt: new Date()
         });
-        
-        if(!task) {
+
+        if (!task) {
             return resolve({
                 err: 1,
                 msg: 'FAILED TO CREATE TASK'
@@ -96,7 +96,7 @@ export const getTaskByIdService = (taskId) => new Promise(async (resolve, reject
             ]
         });
 
-        if(!task) {
+        if (!task) {
             return resolve({
                 err: 1,
                 msg: 'TASK NOT FOUND'
@@ -159,7 +159,7 @@ export const updateTaskTitleService = (taskId, title, userId) => new Promise(asy
             where: { id: taskId }
         });
 
-        if(!task) {
+        if (!task) {
             return resolve({
                 err: 1,
                 msg: 'TASK NOT FOUND'
@@ -204,10 +204,10 @@ export const updateTaskTitleService = (taskId, title, userId) => new Promise(asy
 
         await task.reload({
             include: [
-                { model: db.Users, as: 'assignedUser', attributes: ['id','username','email'] },
-                { model: db.Project, as: 'project', attributes: ['id','name','description'] },
-                { model: db.Users, as: 'watchers', attributes: ['id','username','email'], through: { attributes: [] } },
-                { model: db.Task_Activity, as: 'activities', include: [{ model: db.Users, as: 'user', attributes: ['id','username','email'] }], order: [['createdAt','DESC']] }
+                { model: db.Users, as: 'assignedUser', attributes: ['id', 'username', 'email'] },
+                { model: db.Project, as: 'project', attributes: ['id', 'name', 'description'] },
+                { model: db.Users, as: 'watchers', attributes: ['id', 'username', 'email'], through: { attributes: [] } },
+                { model: db.Task_Activity, as: 'activities', include: [{ model: db.Users, as: 'user', attributes: ['id', 'username', 'email'] }], order: [['createdAt', 'DESC']] }
             ]
         });
 
@@ -228,8 +228,8 @@ export const updateTaskTitleService = (taskId, title, userId) => new Promise(asy
 export const updateTaskStatusService = (taskId, status, userId) => new Promise(async (resolve, reject) => {
     try {
         const validStatuses = ['To Do', 'In Progress', 'Done'];
-        
-        if(!validStatuses.includes(status)) {
+
+        if (!validStatuses.includes(status)) {
             return resolve({
                 err: 1,
                 msg: 'INVALID STATUS. Must be one of: To Do, In Progress, Done'
@@ -240,7 +240,7 @@ export const updateTaskStatusService = (taskId, status, userId) => new Promise(a
             where: { id: taskId }
         });
 
-        if(!task) {
+        if (!task) {
             return resolve({
                 err: 1,
                 msg: 'TASK NOT FOUND'
@@ -268,10 +268,10 @@ export const updateTaskStatusService = (taskId, status, userId) => new Promise(a
 
         await task.reload({
             include: [
-                { model: db.Users, as: 'assignedUser', attributes: ['id','username','email'] },
-                { model: db.Project, as: 'project', attributes: ['id','name','description'] },
-                { model: db.Users, as: 'watchers', attributes: ['id','username','email'], through: { attributes: [] } },
-                { model: db.Task_Activity, as: 'activities', include: [{ model: db.Users, as: 'user', attributes: ['id','username','email'] }], order: [['createdAt','DESC']] }
+                { model: db.Users, as: 'assignedUser', attributes: ['id', 'username', 'email'] },
+                { model: db.Project, as: 'project', attributes: ['id', 'name', 'description'] },
+                { model: db.Users, as: 'watchers', attributes: ['id', 'username', 'email'], through: { attributes: [] } },
+                { model: db.Task_Activity, as: 'activities', include: [{ model: db.Users, as: 'user', attributes: ['id', 'username', 'email'] }], order: [['createdAt', 'DESC']] }
             ]
         });
 
@@ -295,7 +295,7 @@ export const updateTaskDescriptionService = (taskId, description, userId) => new
             where: { id: taskId }
         });
 
-        if(!task) {
+        if (!task) {
             return resolve({
                 err: 1,
                 msg: 'TASK NOT FOUND'
@@ -323,10 +323,10 @@ export const updateTaskDescriptionService = (taskId, description, userId) => new
 
         await task.reload({
             include: [
-                { model: db.Users, as: 'assignedUser', attributes: ['id','username','email'] },
-                { model: db.Project, as: 'project', attributes: ['id','name','description'] },
-                { model: db.Users, as: 'watchers', attributes: ['id','username','email'], through: { attributes: [] } },
-                { model: db.Task_Activity, as: 'activities', include: [{ model: db.Users, as: 'user', attributes: ['id','username','email'] }], order: [['createdAt','DESC']] }
+                { model: db.Users, as: 'assignedUser', attributes: ['id', 'username', 'email'] },
+                { model: db.Project, as: 'project', attributes: ['id', 'name', 'description'] },
+                { model: db.Users, as: 'watchers', attributes: ['id', 'username', 'email'], through: { attributes: [] } },
+                { model: db.Task_Activity, as: 'activities', include: [{ model: db.Users, as: 'user', attributes: ['id', 'username', 'email'] }], order: [['createdAt', 'DESC']] }
             ]
         });
 
@@ -350,7 +350,7 @@ export const updateTaskAssigneesService = (taskId, assignees, userId) => new Pro
             where: { id: taskId }
         });
 
-        if(!task) {
+        if (!task) {
             return resolve({
                 err: 1,
                 msg: 'TASK NOT FOUND'
@@ -359,8 +359,8 @@ export const updateTaskAssigneesService = (taskId, assignees, userId) => new Pro
 
         // Since assigned_to is a single STRING field, we'll use the first assignee
         // If assignees array is empty, set to null
-        const assignedTo = Array.isArray(assignees) && assignees.length > 0 
-            ? assignees[0] 
+        const assignedTo = Array.isArray(assignees) && assignees.length > 0
+            ? assignees[0]
             : null;
 
         await task.update({
@@ -381,8 +381,8 @@ export const updateTaskAssigneesService = (taskId, assignees, userId) => new Pro
                     as: 'project',
                     attributes: ['id', 'name', 'description']
                 },
-                { model: db.Users, as: 'watchers', attributes: ['id','username','email'], through: { attributes: [] } },
-                { model: db.Task_Activity, as: 'activities', include: [{ model: db.Users, as: 'user', attributes: ['id','username','email'] }], order: [['createdAt','DESC']] }
+                { model: db.Users, as: 'watchers', attributes: ['id', 'username', 'email'], through: { attributes: [] } },
+                { model: db.Task_Activity, as: 'activities', include: [{ model: db.Users, as: 'user', attributes: ['id', 'username', 'email'] }], order: [['createdAt', 'DESC']] }
             ]
         });
 
@@ -409,6 +409,67 @@ export const updateTaskAssigneesService = (taskId, assignees, userId) => new Pro
         resolve({
             err: 1,
             msg: 'FAILED TO UPDATE TASK ASSIGNEES: ' + error.message
+        });
+    }
+});
+
+//UPDATE TASK DUE DATE
+export const updateTaskDueDateService = (taskId, dueDate, userId) => new Promise(async (resolve, reject) => {
+    try {
+        const task = await db.Task.findOne({
+            where: { id: taskId }
+        });
+
+        if (!task) {
+            return resolve({
+                err: 1,
+                msg: 'TASK NOT FOUND'
+            });
+        }
+
+        // Convert dueDate to Date object if it's a string
+        const dueDateValue = dueDate ? new Date(dueDate) : null;
+
+        await task.update({
+            dueDate: dueDateValue,
+            updatedAt: new Date()
+        });
+
+        try {
+            const numericTaskId = typeof taskId === 'string' && !isNaN(taskId) ? parseInt(taskId, 10) : taskId;
+            await db.Task_Activity.create({
+                task_id: numericTaskId,
+                user_id: userId,
+                action: 'DUE_DATE_UPDATED',
+                payload: { 
+                    oldDueDate: task.dueDate ? task.dueDate.toISOString() : null,
+                    newDueDate: dueDateValue ? dueDateValue.toISOString() : null
+                }
+            });
+            console.log('Activity created for DUE_DATE_UPDATED:', { taskId: numericTaskId, userId });
+        } catch (activityError) {
+            console.error('Failed to create activity:', activityError);
+            // Don't fail the whole operation if activity creation fails
+        }
+
+        await task.reload({
+            include: [
+                { model: db.Users, as: 'assignedUser', attributes: ['id', 'username', 'email'] },
+                { model: db.Project, as: 'project', attributes: ['id', 'name', 'description'] },
+                { model: db.Users, as: 'watchers', attributes: ['id', 'username', 'email'], through: { attributes: [] } },
+                { model: db.Task_Activity, as: 'activities', include: [{ model: db.Users, as: 'user', attributes: ['id', 'username', 'email'] }], order: [['createdAt', 'DESC']] }
+            ]
+        });
+
+        resolve({
+            err: 0,
+            msg: 'OK',
+            response: task
+        });
+    } catch (error) {
+        resolve({
+            err: 1,
+            msg: 'FAILED TO UPDATE TASK DUE DATE: ' + error.message
         });
     }
 });
@@ -457,10 +518,10 @@ export const updateTaskPriorityService = (taskId, priority, userId) => new Promi
 
         await task.reload({
             include: [
-                { model: db.Users, as: 'assignedUser', attributes: ['id','username','email'] },
-                { model: db.Project, as: 'project', attributes: ['id','name','description'] },
-                { model: db.Users, as: 'watchers', attributes: ['id','username','email'], through: { attributes: [] } },
-                { model: db.Task_Activity, as: 'activities', include: [{ model: db.Users, as: 'user', attributes: ['id','username','email'] }], order: [['createdAt','DESC']] }
+                { model: db.Users, as: 'assignedUser', attributes: ['id', 'username', 'email'] },
+                { model: db.Project, as: 'project', attributes: ['id', 'name', 'description'] },
+                { model: db.Users, as: 'watchers', attributes: ['id', 'username', 'email'], through: { attributes: [] } },
+                { model: db.Task_Activity, as: 'activities', include: [{ model: db.Users, as: 'user', attributes: ['id', 'username', 'email'] }], order: [['createdAt', 'DESC']] }
             ]
         });
 
@@ -649,7 +710,7 @@ export const archiveTaskService = (taskId, userId) => new Promise(async (resolve
 
         // Toggle archive status
         const newArchiveStatus = !task.isArchived;
-        
+
         await task.update({
             isArchived: newArchiveStatus,
             updatedAt: new Date()
@@ -689,6 +750,57 @@ export const archiveTaskService = (taskId, userId) => new Promise(async (resolve
         resolve({
             err: 1,
             msg: 'FAILED TO ARCHIVE/UNARCHIVE TASK: ' + error.message
+        });
+    }
+});
+
+export const getMyTasksService = (userId, workspaceId) => new Promise(async (resolve, reject) => {
+    try {
+        // First, verify userId and workspaceId are valid
+        if (!userId || !workspaceId) {
+            return resolve({
+                err: 1,
+                msg: 'Missing required parameters: userId or workspaceId'
+            });
+        }
+
+        // Convert userId to string if it's a number (to match database type)
+        const userIdStr = String(userId);
+
+        const tasks = await db.Task.findAll({
+            where: {
+                assigned_to: userIdStr,
+                isArchived: false // Only non-archived tasks
+            },
+            include: [
+                {
+                    model: db.Project,
+                    as: 'project',
+                    where: { workspace_id: workspaceId },
+                    required: true, // INNER JOIN - only tasks with projects in this workspace
+                    attributes: ['id', 'name', 'workspace_id']
+                },
+                {
+                    model: db.Users,
+                    as: 'assignedUser',
+                    required: false, // LEFT JOIN - task may not have assigned user
+                    attributes: ['id', 'username', 'email']
+                }
+            ],
+            order: [['createdAt', 'DESC']]
+        });
+
+        // Return empty array if no tasks found (this is not an error)
+        resolve({
+            err: 0,
+            msg: 'OK',
+            response: tasks || []
+        });
+    } catch (error) {
+        console.error('Error getting my tasks:', error);
+        resolve({
+            err: 1,
+            msg: 'FAILED TO GET MY TASKS: ' + error.message
         });
     }
 });

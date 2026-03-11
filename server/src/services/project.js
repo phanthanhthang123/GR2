@@ -41,6 +41,22 @@ export const getProjectByIdService = (id)=> new Promise(async (resolve, reject)=
 export const createProjectService = (workspaceId, projectData, createdBy) => new Promise(async (resolve, reject) => {
     const transaction = await db.sequelize.transaction();
     try {
+        // Check if project name already exists in this workspace
+        const existingProject = await db.Project.findOne({
+            where: {
+                workspace_id: workspaceId,
+                name: projectData.name.trim()
+            }
+        });
+
+        if (existingProject) {
+            await transaction.rollback();
+            return resolve({
+                err: 1,
+                msg: 'Tên dự án đã tồn tại trong workspace này'
+            });
+        }
+
         // Map client roles to database roles
         const roleMapping = {
             'Admin': 'Leader',
@@ -72,7 +88,7 @@ export const createProjectService = (workspaceId, projectData, createdBy) => new
         const project = await db.Project.create({
             id: projectId,
             workspace_id: workspaceId,
-            name: projectData.name,
+            name: projectData.name.trim(),
             description: projectData.description || null,
             start_date: new Date(projectData.startDate),
             end_date: new Date(projectData.dueDate),
@@ -255,6 +271,22 @@ export const updateProjectTitleService = (projectId, title, userId) => new Promi
                     msg: 'ONLY LEADER CAN UPDATE PROJECT TITLE'
                 });
             }
+        }
+
+        // Check if project name already exists in this workspace (excluding current project)
+        const existingProject = await db.Project.findOne({
+            where: {
+                workspace_id: project.workspace_id,
+                name: title.trim(),
+                id: { [db.Sequelize.Op.ne]: projectId } // Exclude current project
+            }
+        });
+
+        if (existingProject) {
+            return resolve({
+                err: 1,
+                msg: 'Tên dự án đã tồn tại trong workspace này'
+            });
         }
 
         await project.update({

@@ -93,7 +93,7 @@ const DashBoardLayout = () => {
   }
 
   return (
-    <div className="flex h-screen w-full">
+  <div className="flex min-h-screen w-full">
       {/* <Sidebar Components */}
       <SidebarComponent currentWorkspace={currentWorkspace}/>
       <div className="flex flex-1 flex-col h-full">
@@ -103,8 +103,10 @@ const DashBoardLayout = () => {
           selectedWorkspace = {currentWorkspace}
           onCreateWorkspace = {() => setIsCreatingWorkspace(true)}
         />
-        <main className="flex-1 overflow-y-auto p-4 h-full w-full">
-          <div className="mx-auto container px-2 sm:px-6 lg:px-8 py-0 md:py-8 w-full h-full">
+        {/* Để tránh xuất hiện 2 thanh scroll (trình duyệt + nội bộ),
+            bỏ overflow riêng của main và để trang cuộn theo trình duyệt */}
+        <main className="flex-1 p-4 h-full w-full">
+          <div className="mx-auto container px-2 sm:px-6 lg:px-8 py-0 md:py-8 w-full">
             <Outlet />
             </div>
         </main>

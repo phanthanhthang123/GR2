@@ -19,6 +19,7 @@ import { TaskActivity } from "@/components/task/task-activity";
 import { CommentSection } from "@/components/task/comment-section";
 import { toast } from "sonner";
 import type { Project } from "@/type";
+import { TaskDueDate } from "@/components/task/task-due-date";
 
 const TaskDetails = () => {
     const { user } = useAuth();
@@ -231,6 +232,12 @@ const TaskDetails = () => {
                                     Tạo lúc:{" "}
                                     {task?.createdAt ? formatDistanceToNow(new Date(task.createdAt), { addSuffix: true }) : 'N/A'}
                                 </div>
+
+                                {/* Deadline với chức năng chỉnh sửa */}
+                                <TaskDueDate 
+                                    dueDate={task?.dueDate || null} 
+                                    taskId={String(task?.id || taskId)} 
+                                />
                             </div>
 
                             <div className="flex items-center gap-2 mt-4 md:mt-0">

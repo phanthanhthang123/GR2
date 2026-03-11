@@ -70,9 +70,9 @@ export const ProjectSchema = z.object({
 
 export const CreateTaskSchema = z.object({
   title: z.string().min(3, "Tiêu đề task phải có ít nhất 3 ký tự"),
-  description: z.string().max(1000, "Mô tả không được vượt quá 1000 ký tự").optional(),
+  description: z.string().max(1000, "Mô tả không được vượt quá 1000 ký tự").optional().or(z.literal("")),
   status: z.nativeEnum(TaskStatus).default(TaskStatus.TO_DO),
   priority: z.enum(["Low", "Medium", "High"]).default("Medium"),
-  dueDate: z.string().min(10, "Ngày hết hạn là bắt buộc"),
-  assignees: z.array(z.string()).min(1, "Cần ít nhất một người được giao"),
+  dueDate: z.string().optional().or(z.literal("")).nullable(),
+  assignees: z.array(z.string()).default([]),
 });

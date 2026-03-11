@@ -4,6 +4,8 @@ import * as commentControllers from '../controllers/comment'
 
 //CRUD
 const router = express.Router();
+// Get my tasks - must be before /:taskId route to avoid conflict
+router.get('/my-tasks', controllers.getMyTasks);
 router.get('/:taskId', controllers.getTaskById);
 router.get('/:taskId/activity', controllers.getTaskActivities);
 router.post('/:projectId/create-task',controllers.createTask);
@@ -12,6 +14,7 @@ router.put('/:taskId/update-status', controllers.updateTaskStatus);
 router.put('/:taskId/update-description', controllers.updateTaskDescription);
 router.put('/:taskId/update-assignees', controllers.updateTaskAssignees);
 router.put('/:taskId/update-priority', controllers.updateTaskPriority);
+router.put('/:taskId/update-due-date', controllers.updateTaskDueDate);
 router.post('/:taskId/watch', controllers.watchTask);
 router.post('/:taskId/achieved', controllers.achievedTask);
 router.post('/:taskId/archive', controllers.archiveTask);

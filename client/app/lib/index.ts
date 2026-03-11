@@ -22,6 +22,26 @@ export const getTaskStatusColor = (status: string) => {
   }
 };
 
+// Helper function to translate project status to Vietnamese
+export const getProjectStatusLabel = (status: string): string => {
+  switch (status) {
+    case "Pending":
+      return "Đang chờ";
+    case "In Progress":
+      return "Đang tiến hành";
+    case "Completed":
+      return "Hoàn thành";
+    case "Active":
+      return "Đang hoạt động";
+    case "Archived":
+      return "Đã lưu trữ";
+    case "Deleted":
+      return "Đã xóa";
+    default:
+      return status;
+  }
+};
+
 export const getProjectProgress = (tasks: {status : TaskStatus | string}[]) => {
   if (!tasks || tasks.length === 0) {
     return 0;

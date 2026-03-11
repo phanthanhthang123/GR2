@@ -4,6 +4,7 @@ import { Loader } from "../loader";
 import type { ActivityLog } from "@/type";
 import { getActivityIcon, getActivityMessage } from "./task-icon";
 import { ScrollArea } from "../ui/scroll-area";
+import { format } from "date-fns";
 
 export const TaskActivity = ({ resourceId }: { resourceId: string }) => {
 
@@ -64,6 +65,25 @@ export const TaskActivity = ({ resourceId }: { resourceId: string }) => {
                                     <p className="text-sm">
                                         <span className="font-medium">{activity.user?.username || 'Không xác định'}</span> {" "}
                                         {getActivityMessage(activity.action)}
+                                        {activity.action === 'DUE_DATE_UPDATED' && activity.payload && (
+                                            <span className="text-muted-foreground">
+                                                {" "}
+                                                {(() => {
+                                                    const payload = activity.payload;
+                                                    const oldDate = payload.oldDueDate ? format(new Date(payload.oldDueDate), "dd/MM/yyyy") : "không có";
+                                                    const newDate = payload.newDueDate ? format(new Date(payload.newDueDate), "dd/MM/yyyy") : "không có";
+                                                    
+                                                    if (!payload.oldDueDate && payload.newDueDate) {
+                                                        return `(từ ${oldDate} thành ${newDate})`;
+                                                    } else if (payload.oldDueDate && !payload.newDueDate) {
+                                                        return `(từ ${oldDate} thành ${newDate})`;
+                                                    } else if (payload.oldDueDate && payload.newDueDate) {
+                                                        return `(từ ${oldDate} thành ${newDate})`;
+                                                    }
+                                                    return "";
+                                                })()}
+                                            </span>
+                                        )}
                                     </p>
                                     {activity.createdAt && (
                                         <p className="text-xs text-muted-foreground mt-1">

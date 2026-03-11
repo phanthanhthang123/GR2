@@ -15,7 +15,16 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useArchiveTaskMutation } from '@/hooks/use-task';
-import { Archive, CheckSquare, Users, Edit, Trash2, UserPlus } from 'lucide-react';
+import { Archive, CheckSquare, Users, Edit, Trash2, UserPlus, CalendarDays, Search, ChevronDown, ChevronRight } from 'lucide-react';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import { format } from 'date-fns';
 import { useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -44,7 +53,10 @@ const ProjectDetails = () => {
     const [newTitle, setNewTitle] = useState('');
     const [newDescription, setNewDescription] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
+    const [taskSearchQuery, setTaskSearchQuery] = useState('');
     const [selectedUserId, setSelectedUserId] = useState<string>('');
+    const [expandedStatuses, setExpandedStatuses] = useState<Record<string, boolean>>({});
+    const [statusPages, setStatusPages] = useState<Record<string, number>>({});
     const { user } = useAuth();
 
     // All hooks must be called before any conditional returns
@@ -57,6 +69,114 @@ const ProjectDetails = () => {
     const { mutate: removeMember, isPending: isRemovingMember } = useRemoveMemberFromProjectMutation();
     const { data: usersData, isLoading: isLoadingUsers } = useGetAllUsersQuery(searchQuery);
     
+    // Extract project and tasks early (before any hooks that depend on them)
+    const project = data?.project;
+    const tasks = data?.tasks || [];
+    
+    // Filter out archived tasks from main view
+    const activeTasks = useMemo(() => tasks?.filter(task => !task.isArchived) || [], [tasks]);
+    const archivedTasks = useMemo(() => tasks?.filter(task => task.isArchived) || [], [tasks]);
+    
+    // Filter tasks based on search query
+    const filteredActiveTasks = useMemo(() => {
+        if (!taskSearchQuery.trim()) {
+            return activeTasks;
+        }
+        const query = taskSearchQuery.toLowerCase();
+        return activeTasks.filter((task) => {
+            const title = (task.title || "").toLowerCase();
+            const description = (task.description || "").toLowerCase();
+            return title.includes(query) || description.includes(query);
+        });
+    }, [activeTasks, taskSearchQuery]);
+    
+    const filteredArchivedTasks = useMemo(() => {
+        if (!taskSearchQuery.trim()) {
+            return archivedTasks;
+        }
+        const query = taskSearchQuery.toLowerCase();
+        return archivedTasks.filter((task) => {
+            const title = (task.title || "").toLowerCase();
+            const description = (task.description || "").toLowerCase();
+            return title.includes(query) || description.includes(query);
+        });
+    }, [archivedTasks, taskSearchQuery]);
+
+    // Group tasks by status
+    const tasksByStatus = useMemo(() => {
+        const grouped: Record<string, Task[]> = {
+            'To Do': filteredActiveTasks.filter(task => task.status === 'To Do'),
+            'In Progress': filteredActiveTasks.filter(task => task.status === 'In Progress'),
+            'Done': filteredActiveTasks.filter(task => task.status === 'Done'),
+        };
+        return grouped;
+    }, [filteredActiveTasks]);
+
+    // Initialize expanded statuses and pages
+    React.useEffect(() => {
+        const initialExpanded: Record<string, boolean> = {};
+        const initialPages: Record<string, number> = {};
+        Object.keys(tasksByStatus).forEach((status) => {
+            initialExpanded[status] = true;
+            initialPages[status] = 1;
+        });
+        setExpandedStatuses(initialExpanded);
+        setStatusPages(initialPages);
+    }, [filteredActiveTasks.length]);
+
+    const toggleStatus = (status: string) => {
+        setExpandedStatuses(prev => ({
+            ...prev,
+            [status]: !prev[status]
+        }));
+    };
+
+    const setStatusPage = (status: string, page: number) => {
+        setStatusPages(prev => ({
+            ...prev,
+            [status]: page
+        }));
+    };
+    
+    const projectProgess = useMemo(() => getProjectProgress(activeTasks as { status: TaskStatus }[]), [activeTasks]);
+    
+    // Get project statistics
+    const totalTasksInProject = useMemo(() => tasks?.length || 0, [tasks]);
+    const totalMembersInProject = useMemo(() => (project as any)?.members?.length || 0, [project]);
+
+    // Check if current user is leader - must be called before early return
+    const isCurrentUserLeader = useMemo(() => {
+        if (!user || !project) return false;
+        const leaderId = typeof (project as any).leader_id === 'string' 
+            ? (project as any).leader_id 
+            : (project as any).leader?.id || (project as any).leader_id;
+        if (leaderId === user.id || (project as any).created_by === user.id) return true;
+        return (project as any)?.members?.some((member: any) => {
+            const memberUserId = typeof member.user === 'string' ? member.user : member.user?.id || member.user_id;
+            return memberUserId === user.id && member.role === 'Leader';
+        }) || false;
+    }, [user, project]);
+
+    // Filter available users (not already members) - must be called before early return
+    const availableUsers = useMemo(() => {
+        const users = (usersData as any)?.response || [];
+        if (!users || users.length === 0 || !project) return [];
+        const existingMemberIds = ((project as any)?.members || []).map((m: any) => 
+            typeof m.user === 'string' ? m.user : m.user?.id || m.user_id
+        );
+        return users.filter((user: any) => !existingMemberIds.includes(user.id));
+    }, [usersData, project]);
+
+    // Initialize title and description
+    useEffect(() => {
+        if (project && !isEditingTitle) {
+            setNewTitle(project.name || '');
+        }
+        if (project && !isEditingDescription) {
+            setNewDescription(project.description || '');
+        }
+    }, [project, isEditingTitle, isEditingDescription]);
+
     // Handle access denied error
     useEffect(() => {
         if (error && (error as any)?.response?.status === 403) {
@@ -94,42 +214,15 @@ const ProjectDetails = () => {
         )
     }
 
-    const { project, tasks } = data;
+    if (!project) {
+        return (
+            <div>
+                <p>Không tìm thấy dự án</p>
+            </div>
+        )
+    }
+
     console.log("task", tasks)
-    
-    // All hooks and memoized values must be called before any conditional returns
-    // Filter out archived tasks from main view
-    const activeTasks = tasks?.filter(task => !task.isArchived) || [];
-    const archivedTasks = tasks?.filter(task => task.isArchived) || [];
-    
-    const projectProgess = getProjectProgress(activeTasks as { status: TaskStatus }[]);
-    
-    // Get project statistics
-    const totalTasksInProject = tasks?.length || 0;
-    const totalMembersInProject = (project as any)?.members?.length || 0;
-
-    // Check if current user is leader - must be called before early return
-    const isCurrentUserLeader = useMemo(() => {
-        if (!user || !project) return false;
-        const leaderId = typeof (project as any).leader_id === 'string' 
-            ? (project as any).leader_id 
-            : (project as any).leader?.id || (project as any).leader_id;
-        if (leaderId === user.id || (project as any).created_by === user.id) return true;
-        return (project as any)?.members?.some((member: any) => {
-            const memberUserId = typeof member.user === 'string' ? member.user : member.user?.id || member.user_id;
-            return memberUserId === user.id && member.role === 'Leader';
-        }) || false;
-    }, [user, project]);
-
-    // Initialize title and description
-    useEffect(() => {
-        if (project && !isEditingTitle) {
-            setNewTitle(project.name || '');
-        }
-        if (project && !isEditingDescription) {
-            setNewDescription(project.description || '');
-        }
-    }, [project, isEditingTitle, isEditingDescription]);
 
     const handleEditTitle = () => {
         setIsEditingTitle(true);
@@ -201,25 +294,6 @@ const ProjectDetails = () => {
         }
     };
 
-    // Filter available users (not already members) - must be called before early return
-    const availableUsers = useMemo(() => {
-        const users = (usersData as any)?.response || [];
-        if (!users || users.length === 0 || !project) return [];
-        const existingMemberIds = ((project as any)?.members || []).map((m: any) => 
-            typeof m.user === 'string' ? m.user : m.user?.id || m.user_id
-        );
-        return users.filter((user: any) => !existingMemberIds.includes(user.id));
-    }, [usersData, project]);
-
-    // Early return after all hooks and memoized values
-    if (!project) {
-        return (
-            <div>
-                <p>Không tìm thấy dự án</p>
-            </div>
-        )
-    }
-
     const handleTaskClick = (taskId: string) => {
         navigate(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}`);
     }
@@ -238,15 +312,16 @@ const ProjectDetails = () => {
 
 
     return (
-        <div className='space-y-8'>
-            <div className='flex flex-col md:flex-row md:items-center justify-between gap-4'>
-                <div className='flex-1'>
-                    <BackButton />
-                    <div className='flex flex-col gap-2 mt-2'>
-                        <div className='flex items-center gap-2'>
+        <div className='space-y-6'>
+            {/* Header Section */}
+            <div className='bg-gradient-to-r from-background to-muted/30 rounded-lg border p-4 md:p-6 shadow-sm'>
+                <BackButton />
+                <div className='flex flex-col md:flex-row md:items-start justify-between gap-6 mt-4'>
+                    <div className='flex-1 space-y-4'>
+                        <div className='flex items-center gap-3'>
                             {isEditingTitle ? (
                                 <Input
-                                    className="text-xl md:text-2xl font-bold"
+                                    className="text-2xl md:text-3xl font-bold h-auto py-2"
                                     type="text"
                                     value={newTitle}
                                     onChange={(e) => setNewTitle(e.target.value)}
@@ -259,16 +334,16 @@ const ProjectDetails = () => {
                                 />
                             ) : (
                                 <>
-                                    <h1 className='text-xl md:text-2xl font-bold'>{project?.name}</h1>
+                                    <h1 className='text-2xl md:text-3xl font-bold text-foreground'>{project?.name}</h1>
                                     {isCurrentUserLeader && (
-                                        <button
-                                            type="button"
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
                                             onClick={handleEditTitle}
-                                            className="inline-flex items-center rounded-md border border-input px-2 py-1 text-xs text-muted-foreground hover:bg-accent"
+                                            className="h-8 w-8 p-0"
                                         >
-                                            <Edit className="mr-1 size-3" />
-                                            Sửa
-                                        </button>
+                                            <Edit className="size-4" />
+                                        </Button>
                                     )}
                                 </>
                             )}
@@ -276,7 +351,6 @@ const ProjectDetails = () => {
                         {isEditingTitle && (
                             <div className="flex items-center gap-2">
                                 <Button
-                                    className="py-0 px-3"
                                     size="sm"
                                     onClick={handleSaveTitle}
                                     disabled={isUpdatingTitle}
@@ -293,116 +367,166 @@ const ProjectDetails = () => {
                                 </Button>
                             </div>
                         )}
-                    </div>
-                    <div className='flex flex-col gap-2 mt-2'>
-                        {isEditingDescription ? (
-                            <>
-                                <Textarea
-                                    value={newDescription}
-                                    onChange={(e) => setNewDescription(e.target.value)}
-                                    className='text-sm text-gray-500 min-h-[60px]'
-                                    disabled={isUpdatingDescription}
-                                    placeholder="Nhập mô tả dự án..."
-                                    autoFocus
-                                />
-                                <div className="flex items-center gap-2">
-                                    <Button
-                                        className="py-0 px-3"
-                                        size="sm"
-                                        onClick={handleSaveDescription}
+                        
+                        <div className='space-y-2'>
+                            {isEditingDescription ? (
+                                <>
+                                    <Textarea
+                                        value={newDescription}
+                                        onChange={(e) => setNewDescription(e.target.value)}
+                                        className='text-sm min-h-[80px]'
                                         disabled={isUpdatingDescription}
-                                    >
-                                        Lưu
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={handleCancelDescription}
-                                        disabled={isUpdatingDescription}
-                                    >
-                                        Hủy
-                                    </Button>
+                                        placeholder="Nhập mô tả dự án..."
+                                        autoFocus
+                                    />
+                                    <div className="flex items-center gap-2">
+                                        <Button
+                                            size="sm"
+                                            onClick={handleSaveDescription}
+                                            disabled={isUpdatingDescription}
+                                        >
+                                            Lưu
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={handleCancelDescription}
+                                            disabled={isUpdatingDescription}
+                                        >
+                                            Hủy
+                                        </Button>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className='flex items-start gap-2'>
+                                    {project?.description ? (
+                                        <p className='text-sm text-muted-foreground leading-relaxed'>{project?.description}</p>
+                                    ) : (
+                                        <p className='text-sm text-muted-foreground/60 italic'>Chưa có mô tả</p>
+                                    )}
+                                    {isCurrentUserLeader && (
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={handleEditDescription}
+                                            className="h-8 w-8 p-0"
+                                        >
+                                            <Edit className="size-4" />
+                                        </Button>
+                                    )}
                                 </div>
-                            </>
-                        ) : (
-                            <div className='flex items-start gap-2'>
-                                {project?.description ? (
-                                    <p className='text-sm text-gray-500'>{project?.description}</p>
-                                ) : (
-                                    <p className='text-sm text-gray-400 italic'>Chưa có mô tả</p>
-                                )}
-                                {isCurrentUserLeader && (
-                                    <button
-                                        type="button"
-                                        onClick={handleEditDescription}
-                                        className="inline-flex items-center rounded-md border border-input px-2 py-1 text-xs text-muted-foreground hover:bg-accent"
-                                    >
-                                        <Edit className="mr-1 size-3" />
-                                        Sửa
-                                    </button>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                <div className='flex flex-col sm:flex-row gap-3'>
-                    <div className='flex items-center gap-2 min-w-32'>
-                        <div className='text-sm text-muted-foreground'>Tiến độ: </div>
-                        <div className='flex-1'>
-                            <Progress value={projectProgess ? projectProgess : 0} className='h-2' />
+                            )}
                         </div>
-                        <span className='text-sm text-muted-foreground'>{projectProgess ? projectProgess : 0}%</span>
                     </div>
 
-                    <div className='flex gap-2'>
-                        {isCurrentUserLeader && (
-                            <Button 
-                                variant="outline"
-                                onClick={() => setIsAddMemberDialogOpen(true)}
-                            >
-                                <UserPlus className="mr-2 size-4" />
-                                Thêm Thành Viên
+                    <div className='flex flex-col gap-4 md:min-w-[280px]'>
+                        {/* Progress Section */}
+                        <Card className="p-4">
+                            <div className='space-y-2'>
+                                <div className='flex items-center justify-between'>
+                                    <span className='text-sm font-medium'>Tiến độ dự án</span>
+                                    <span className='text-sm font-bold text-primary'>{projectProgess ? projectProgess : 0}%</span>
+                                </div>
+                                <Progress value={projectProgess ? projectProgess : 0} className='h-2.5' />
+                            </div>
+                        </Card>
+
+                        {/* Action Buttons */}
+                        <div className='flex flex-col gap-2'>
+                            {isCurrentUserLeader && (
+                                <Button 
+                                    variant="outline"
+                                    onClick={() => setIsAddMemberDialogOpen(true)}
+                                    className="w-full"
+                                >
+                                    <UserPlus className="mr-2 size-4" />
+                                    Thêm Thành Viên
+                                </Button>
+                            )}
+                            <Button onClick={() => setIsCreateTask(true)} className="w-full">
+                                <CheckSquare className="mr-2 size-4" />
+                                Thêm Task
                             </Button>
-                        )}
-                        <Button onClick={() => setIsCreateTask(true)}>Thêm Task</Button>
+                        </div>
                     </div>
                 </div>
             </div>
 
             {/* Project Statistics */}
-            <div className='grid grid-cols-2 gap-2'>
+            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
                 <Card 
-                    className="cursor-pointer hover:shadow-md transition-shadow"
+                    className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition-all group"
                     onClick={() => setIsTaskDialogOpen(true)}
                 >
-                    <CardHeader className="flex flex-row items-center justify-between pb-2 px-4 pt-4">
-                        <CardTitle className="text-xs font-medium">Tổng Task</CardTitle>
-                        <CheckSquare className="h-3.5 w-3.5 text-muted-foreground" />
+                    <CardHeader className="flex flex-row items-center justify-between pb-2 px-5 pt-5">
+                        <CardTitle className="text-sm font-semibold">Tổng Task</CardTitle>
+                        <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                            <CheckSquare className="h-4 w-4 text-primary" />
+                        </div>
                     </CardHeader>
-                    <CardContent className="px-4 pb-4">
-                        <div className="text-xl font-bold">{totalTasksInProject}</div>
-                        <p className="text-xs text-muted-foreground mt-1">
+                    <CardContent className="px-5 pb-5">
+                        <div className="text-2xl font-bold text-foreground">{totalTasksInProject}</div>
+                        <p className="text-xs text-muted-foreground mt-1.5">
                             Task trong dự án
                         </p>
                     </CardContent>
                 </Card>
 
                 <Card 
-                    className="cursor-pointer hover:shadow-md transition-shadow"
+                    className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition-all group"
                     onClick={() => setIsMemberDialogOpen(true)}
                 >
-                    <CardHeader className="flex flex-row items-center justify-between pb-2 px-4 pt-4">
-                        <CardTitle className="text-xs font-medium">Thành Viên</CardTitle>
-                        <Users className="h-3.5 w-3.5 text-muted-foreground" />
+                    <CardHeader className="flex flex-row items-center justify-between pb-2 px-5 pt-5">
+                        <CardTitle className="text-sm font-semibold">Thành Viên</CardTitle>
+                        <div className="p-2 rounded-lg bg-blue-500/10 group-hover:bg-blue-500/20 transition-colors">
+                            <Users className="h-4 w-4 text-blue-600" />
+                        </div>
                     </CardHeader>
-                    <CardContent className="px-4 pb-4">
-                        <div className="text-xl font-bold">{totalMembersInProject}</div>
-                        <p className="text-xs text-muted-foreground mt-1">
+                    <CardContent className="px-5 pb-5">
+                        <div className="text-2xl font-bold text-foreground">{totalMembersInProject}</div>
+                        <p className="text-xs text-muted-foreground mt-1.5">
                             Thành viên trong dự án
                         </p>
                     </CardContent>
                 </Card>
+
+                {(project as any)?.start_date && (
+                    <Card className="hover:shadow-lg hover:border-primary/50 transition-all">
+                        <CardHeader className="flex flex-row items-center justify-between pb-2 px-5 pt-5">
+                            <CardTitle className="text-sm font-semibold">Bắt Đầu</CardTitle>
+                            <div className="p-2 rounded-lg bg-green-500/10">
+                                <CalendarDays className="h-4 w-4 text-green-600" />
+                            </div>
+                        </CardHeader>
+                        <CardContent className="px-5 pb-5">
+                            <div className="text-lg font-bold text-foreground">
+                                {format(new Date((project as any).start_date), "MMM d, yyyy")}
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-1.5">
+                                Ngày bắt đầu dự án
+                            </p>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {(project as any)?.end_date && (
+                    <Card className="hover:shadow-lg hover:border-primary/50 transition-all">
+                        <CardHeader className="flex flex-row items-center justify-between pb-2 px-5 pt-5">
+                            <CardTitle className="text-sm font-semibold">Kết Thúc</CardTitle>
+                            <div className="p-2 rounded-lg bg-orange-500/10">
+                                <CalendarDays className="h-4 w-4 text-orange-600" />
+                            </div>
+                        </CardHeader>
+                        <CardContent className="px-5 pb-5">
+                            <div className="text-lg font-bold text-foreground">
+                                {format(new Date((project as any).end_date), "MMM d, yyyy")}
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-1.5">
+                                Ngày kết thúc dự án
+                            </p>
+                        </CardContent>
+                    </Card>
+                )}
             </div>
 
             {/* Task Details Dialog */}
@@ -665,120 +789,81 @@ const ProjectDetails = () => {
                 </DialogContent>
             </Dialog>
 
-            <div className='flex items-center justify-between'>
-                <Tabs defaultValue='all' className='w-full'>
-                    <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6'>
-                        <TabsList>
-                            <TabsTrigger value='all' onClick={() => setTaskFilter('All')}>
-                                Tất Cả
-                            </TabsTrigger>
-                            <TabsTrigger value='todo' onClick={() => setTaskFilter('To Do')}>
-                                Chưa Làm
-                            </TabsTrigger>
-                            <TabsTrigger value='in-progress' onClick={() => setTaskFilter('In Progress')}>
-                                Đang Làm
-                            </TabsTrigger>
-                            <TabsTrigger value='done' onClick={() => setTaskFilter('Done')}>
-                                Hoàn Thành
-                            </TabsTrigger>
-                            <TabsTrigger value='archived' onClick={() => setTaskFilter('Archived')}>
-                                Đã Lưu Trữ ({archivedTasks.length})
-                            </TabsTrigger>
-                        </TabsList>
+            {/* Tasks Section */}
+            <div className='space-y-4'>
+                {/* Search Bar */}
+                <div className='p-4 bg-muted/30 rounded-lg border'>
+                    <div className='relative'>
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground" />
+                        <Input
+                            placeholder="Tìm kiếm task..."
+                            value={taskSearchQuery}
+                            onChange={(e) => setTaskSearchQuery(e.target.value)}
+                            className="pl-9"
+                        />
+                    </div>
+                </div>
 
-                        <div className='flex items-center text-sm'>
-                            <span className='text-muted-foreground'>Trạng thái: </span>
-                            <div>
-                                <Badge
-                                    variant='outline'
-                                    className='bg-background'
-                                >
-                                    {activeTasks?.filter(task => task.status === 'To Do').length} Chưa Làm
+                {/* Task Status Groups - Similar to "Task Của Tôi" */}
+                <div className="space-y-2">
+                    {/* Chưa Làm */}
+                    <TaskStatusGroup
+                        status="To Do"
+                        statusLabel="Chưa Làm"
+                        tasks={tasksByStatus['To Do']}
+                        onTaskClick={handleTaskClick}
+                        expandedStatuses={expandedStatuses}
+                        statusPages={statusPages}
+                        onToggle={toggleStatus}
+                        onPageChange={setStatusPage}
+                    />
+
+                    {/* Đang Làm */}
+                    <TaskStatusGroup
+                        status="In Progress"
+                        statusLabel="Đang Làm"
+                        tasks={tasksByStatus['In Progress']}
+                        onTaskClick={handleTaskClick}
+                        expandedStatuses={expandedStatuses}
+                        statusPages={statusPages}
+                        onToggle={toggleStatus}
+                        onPageChange={setStatusPage}
+                    />
+
+                    {/* Hoàn Thành */}
+                    <TaskStatusGroup
+                        status="Done"
+                        statusLabel="Hoàn Thành"
+                        tasks={tasksByStatus['Done']}
+                        onTaskClick={handleTaskClick}
+                        expandedStatuses={expandedStatuses}
+                        statusPages={statusPages}
+                        onToggle={toggleStatus}
+                        onPageChange={setStatusPage}
+                    />
+
+                    {/* Archived Tasks */}
+                    {filteredArchivedTasks.length > 0 && (
+                        <div className="border rounded-lg overflow-hidden">
+                            <div className="flex items-center gap-2 px-4 py-3 bg-muted/50">
+                                <Archive className="size-4 text-muted-foreground" />
+                                <h2 className="text-lg font-semibold flex-1">Đã Lưu Trữ</h2>
+                                <Badge variant="outline" className="ml-auto">
+                                    {filteredArchivedTasks.length} {filteredArchivedTasks.length === 1 ? 'task' : 'tasks'}
                                 </Badge>
-
-                                <Badge
-                                    variant='outline'
-                                    className='bg-background'
-                                >
-                                    {activeTasks?.filter(task => task.status === 'In Progress').length} Đang Làm
-                                </Badge>
-
-                                <Badge
-                                    variant='outline'
-                                    className='bg-background'
-                                >
-                                    {activeTasks?.filter(task => task.status === 'Done').length} Hoàn Thành
-                                </Badge>
-
+                            </div>
+                            <div className="p-4">
+                                <ArchivedTaskColumn
+                                    title="Task Đã Lưu Trữ"
+                                    tasks={filteredArchivedTasks}
+                                    onTaskClick={handleTaskClick}
+                                    onUnarchive={handleUnarchiveTask}
+                                    isArchiving={isArchiving}
+                                />
                             </div>
                         </div>
-                    </div>
-
-                    <TabsContent value='all' className='m-0'>
-                        <div className='grid grid-cols-3 gap-4'>
-                            <TaskColumn
-                                title="Chưa Làm"
-                                tasks={activeTasks?.filter(task => task.status === 'To Do')}
-                                onTaskClick={handleTaskClick}
-                            />
-                            <TaskColumn
-                                title="Đang Làm"
-                                tasks={activeTasks?.filter(task => task.status === 'In Progress')}
-                                onTaskClick={handleTaskClick}
-                            />
-                            <TaskColumn
-                                title="Hoàn Thành"
-                                tasks={activeTasks?.filter(task => task.status === 'Done')}
-                                onTaskClick={handleTaskClick}
-                            />
-                        </div>
-                    </TabsContent>
-
-                    <TabsContent value='todo' className='m-0'>
-                        <div className='grid md:grid-cols-1 gap-4'>
-                            <TaskColumn
-                                title="Chưa Làm"
-                                tasks={activeTasks?.filter(task => task.status === 'To Do')}
-                                onTaskClick={handleTaskClick}
-                                isFullWidth
-                            />
-                        </div>
-                    </TabsContent>
-
-                    <TabsContent value='in-progress' className='m-0'>
-                        <div className='grid md:grid-cols-1 gap-4'>
-                            <TaskColumn
-                                title="Đang Làm"
-                                tasks={activeTasks?.filter(task => task.status === 'In Progress')}
-                                onTaskClick={handleTaskClick}
-                                isFullWidth
-                            />
-                        </div>
-                    </TabsContent>
-
-                    <TabsContent value='done' className='m-0'>
-                        <div className='grid md:grid-cols-1 gap-4'>
-                            <TaskColumn
-                                title="Hoàn Thành"
-                                tasks={activeTasks?.filter(task => task.status === 'Done')}
-                                onTaskClick={handleTaskClick}
-                                isFullWidth
-                            />
-                        </div>
-                    </TabsContent>
-
-                    <TabsContent value='archived' className='m-0'>
-                        <div className='grid md:grid-cols-1 gap-4'>
-                            <ArchivedTaskColumn
-                                title="Task Đã Lưu Trữ"
-                                tasks={archivedTasks}
-                                onTaskClick={handleTaskClick}
-                                onUnarchive={handleUnarchiveTask}
-                                isArchiving={isArchiving}
-                            />
-                        </div>
-                    </TabsContent>
-                </Tabs>
+                    )}
+                </div>
             </div>
 
 
@@ -802,50 +887,440 @@ interface TaskColumnProps {
     isFullWidth?: boolean;
 }
 
+const TASKS_PER_PAGE = 3; // Maximum 3 tasks per page
+
 const TaskColumn = ({ title, tasks, onTaskClick, isFullWidth = false }: TaskColumnProps) => {
-    return (
-        <div className={
-            isFullWidth ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'
-                : ''
-        }>
-            <div
-                className={cn(
-                    "space-y-4",
-                    !isFullWidth ? "h-full" : "col-span-full mb-4"
-                )}
-            >
-                <div className='flex items-center justify-between'>
-                    <h1 className='font-medium'>{title}</h1>
-                    <Badge variant="outline">{tasks?.length}</Badge>
+    const [currentPage, setCurrentPage] = useState(1);
+
+    // Paginate for both kanban and full width modes
+    const totalPages = Math.ceil(tasks.length / TASKS_PER_PAGE);
+    const startIndex = (currentPage - 1) * TASKS_PER_PAGE;
+    const endIndex = startIndex + TASKS_PER_PAGE;
+    const paginatedTasks = tasks.slice(startIndex, endIndex);
+
+    // Reset to page 1 when tasks change
+    React.useEffect(() => {
+        setCurrentPage(1);
+    }, [tasks.length]);
+
+    // Kanban mode: fixed width column with horizontal task layout and pagination
+    if (!isFullWidth) {
+        return (
+            <div className="flex-shrink-0 w-full sm:w-[320px] flex flex-col bg-muted/30 rounded-lg border shadow-sm">
+                {/* Column Header */}
+                <div className='flex items-center justify-between px-4 py-3 border-b bg-background/50 rounded-t-lg'>
+                    <h1 className='font-semibold text-sm'>{title}</h1>
+                    <Badge variant="outline" className="text-xs">{tasks?.length}</Badge>
                 </div>
 
-                <div
-                    className={cn(
-                        "space-y-3",
-                        isFullWidth && "grid grid-cols-2 lg:grid-cols-3 gap-4"
-                    )}
-                >
-                    {
-                        tasks.length === 0 ? (
-                            <div className='text-center text-sm text-muted-foreground'>
-                                Chưa có task nào
+                {/* Tasks Container - Horizontal Layout */}
+                <div className="flex-1 px-3 py-3 min-h-[400px] flex flex-col">
+                    {tasks.length === 0 ? (
+                        <div className='text-center text-sm text-muted-foreground py-8 flex-1 flex items-center justify-center'>
+                            Chưa có task nào
+                        </div>
+                    ) : (
+                        <>
+                            <div className="flex-1 overflow-x-auto pb-3 w-full" style={{ scrollbarWidth: 'thin' }}>
+                                <div className="flex gap-3 min-w-max">
+                                    {paginatedTasks.map((task) => (
+                                        <div key={task.id} className="w-[280px] flex-shrink-0">
+                                            <TaskCard
+                                                task={task}
+                                                onClick={() => onTaskClick(task.id)}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
-                        ) : (
-                            tasks.map((task) => (
-                                <TaskCard
-                                    key={task.id}
-                                    task={task}
-                                    onClick={() => onTaskClick(task.id)}
-                                />
-                            ))
-                        )
-                    }
-                </div>
 
+                            {/* Pagination */}
+                            {tasks.length > 0 && (
+                                <div className="mt-3 pt-3 border-t flex flex-col items-center gap-2">
+                                    <Pagination>
+                                        <PaginationContent className="gap-1">
+                                            <PaginationItem>
+                                                <PaginationPrevious
+                                                    href="#"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        if (currentPage > 1) {
+                                                            setCurrentPage(currentPage - 1);
+                                                        }
+                                                    }}
+                                                    className={cn(
+                                                        "min-w-[80px] h-8 text-xs",
+                                                        currentPage === 1 
+                                                            ? "pointer-events-none opacity-50 cursor-not-allowed" 
+                                                            : "hover:bg-accent hover:text-accent-foreground transition-colors"
+                                                    )}
+                                                />
+                                            </PaginationItem>
+                                            
+                                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                                                if (
+                                                    page === 1 ||
+                                                    page === totalPages ||
+                                                    (page >= currentPage - 1 && page <= currentPage + 1)
+                                                ) {
+                                                    return (
+                                                        <PaginationItem key={page}>
+                                                            <PaginationLink
+                                                                href="#"
+                                                                onClick={(e) => {
+                                                                    e.preventDefault();
+                                                                    setCurrentPage(page);
+                                                                }}
+                                                                isActive={currentPage === page}
+                                                                className={cn(
+                                                                    "min-w-[32px] h-8 text-xs flex items-center justify-center",
+                                                                    currentPage === page 
+                                                                        ? "bg-primary text-primary-foreground font-semibold" 
+                                                                        : "hover:bg-accent hover:text-accent-foreground transition-colors"
+                                                                )}
+                                                            >
+                                                                {page}
+                                                            </PaginationLink>
+                                                        </PaginationItem>
+                                                    );
+                                                } else if (page === currentPage - 2 || page === currentPage + 2) {
+                                                    return (
+                                                        <PaginationItem key={page}>
+                                                            <span className="px-1 py-1 text-muted-foreground text-xs">...</span>
+                                                        </PaginationItem>
+                                                    );
+                                                }
+                                                return null;
+                                            })}
+                                            
+                                            <PaginationItem>
+                                                <PaginationNext
+                                                    href="#"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        if (currentPage < totalPages) {
+                                                            setCurrentPage(currentPage + 1);
+                                                        }
+                                                    }}
+                                                    className={cn(
+                                                        "min-w-[80px] h-8 text-xs",
+                                                        currentPage === totalPages 
+                                                            ? "pointer-events-none opacity-50 cursor-not-allowed" 
+                                                            : "hover:bg-accent hover:text-accent-foreground transition-colors"
+                                                    )}
+                                                />
+                                            </PaginationItem>
+                                        </PaginationContent>
+                                    </Pagination>
+                                    
+                                    <div className="text-xs text-muted-foreground">
+                                        Trang {currentPage}/{totalPages}
+                                    </div>
+                                </div>
+                            )}
+                        </>
+                    )}
+                </div>
             </div>
+        );
+    }
+
+    // Full width mode: horizontal layout with pagination
+    return (
+        <div className="space-y-4">
+            <div className='flex items-center justify-between'>
+                <h1 className='font-medium text-lg'>{title}</h1>
+                <Badge variant="outline">{tasks?.length}</Badge>
+            </div>
+
+            {tasks.length === 0 ? (
+                <div className='text-center text-sm text-muted-foreground py-12 bg-muted/30 rounded-lg'>
+                    Chưa có task nào
+                </div>
+            ) : (
+                <>
+                    {/* Horizontal Scrollable Tasks */}
+                    <div className="overflow-x-auto pb-4" style={{ scrollbarWidth: 'thin' }}>
+                        <div className="flex gap-4 min-w-max">
+                            {paginatedTasks.map((task) => (
+                                <div key={task.id} className="w-[300px] md:w-[320px] flex-shrink-0">
+                                    <TaskCard
+                                        task={task}
+                                        onClick={() => onTaskClick(task.id)}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Pagination */}
+                    {tasks.length > 0 && (
+                        <div className="flex flex-col items-center gap-4 pt-4 border-t">
+                            <Pagination>
+                                <PaginationContent className="gap-2">
+                                    <PaginationItem>
+                                        <PaginationPrevious
+                                            href="#"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                if (currentPage > 1) {
+                                                    setCurrentPage(currentPage - 1);
+                                                }
+                                            }}
+                                            className={cn(
+                                                "min-w-[100px]",
+                                                currentPage === 1 
+                                                    ? "pointer-events-none opacity-50 cursor-not-allowed" 
+                                                    : "hover:bg-accent hover:text-accent-foreground transition-colors"
+                                            )}
+                                        />
+                                    </PaginationItem>
+                                    
+                                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                                        if (
+                                            page === 1 ||
+                                            page === totalPages ||
+                                            (page >= currentPage - 1 && page <= currentPage + 1)
+                                        ) {
+                                            return (
+                                                <PaginationItem key={page}>
+                                                    <PaginationLink
+                                                        href="#"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            setCurrentPage(page);
+                                                        }}
+                                                        isActive={currentPage === page}
+                                                        className={cn(
+                                                            "min-w-[40px] h-10 flex items-center justify-center",
+                                                            currentPage === page 
+                                                                ? "bg-primary text-primary-foreground font-semibold" 
+                                                                : "hover:bg-accent hover:text-accent-foreground transition-colors"
+                                                        )}
+                                                    >
+                                                        {page}
+                                                    </PaginationLink>
+                                                </PaginationItem>
+                                            );
+                                        } else if (page === currentPage - 2 || page === currentPage + 2) {
+                                            return (
+                                                <PaginationItem key={page}>
+                                                    <span className="px-2 py-2 text-muted-foreground">...</span>
+                                                </PaginationItem>
+                                            );
+                                        }
+                                        return null;
+                                    })}
+                                    
+                                    <PaginationItem>
+                                        <PaginationNext
+                                            href="#"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                if (currentPage < totalPages) {
+                                                    setCurrentPage(currentPage + 1);
+                                                }
+                                            }}
+                                            className={cn(
+                                                "min-w-[100px]",
+                                                currentPage === totalPages 
+                                                    ? "pointer-events-none opacity-50 cursor-not-allowed" 
+                                                    : "hover:bg-accent hover:text-accent-foreground transition-colors"
+                                            )}
+                                        />
+                                    </PaginationItem>
+                                </PaginationContent>
+                            </Pagination>
+                            
+                            {/* Results info */}
+                            <div className="text-sm text-muted-foreground">
+                                Trang {currentPage} / {totalPages} • Hiển thị {startIndex + 1}-{Math.min(endIndex, tasks.length)} trong tổng số {tasks.length} task
+                            </div>
+                        </div>
+                    )}
+                </>
+            )}
         </div>
     )
 }
+
+interface TaskStatusGroupProps {
+    status: string;
+    statusLabel: string;
+    tasks: Task[];
+    onTaskClick: (taskId: string) => void;
+    expandedStatuses: Record<string, boolean>;
+    statusPages: Record<string, number>;
+    onToggle: (status: string) => void;
+    onPageChange: (status: string, page: number) => void;
+}
+
+const TASKS_PER_PAGE_STATUS = 3;
+
+const TaskStatusGroup = ({ 
+    status, 
+    statusLabel, 
+    tasks, 
+    onTaskClick,
+    expandedStatuses,
+    statusPages,
+    onToggle,
+    onPageChange
+}: TaskStatusGroupProps) => {
+    const isExpanded = expandedStatuses[status] !== false;
+    const currentPage = statusPages[status] || 1;
+    
+    const totalPages = Math.ceil(tasks.length / TASKS_PER_PAGE_STATUS);
+    const startIndex = (currentPage - 1) * TASKS_PER_PAGE_STATUS;
+    const endIndex = startIndex + TASKS_PER_PAGE_STATUS;
+    const paginatedTasks = tasks.slice(startIndex, endIndex);
+
+    const getStatusIcon = () => {
+        switch (status) {
+            case 'To Do':
+                return '📋';
+            case 'In Progress':
+                return '🔄';
+            case 'Done':
+                return '✅';
+            default:
+                return '📝';
+        }
+    };
+
+    return (
+        <div className="border rounded-lg w-full">
+            {/* Status Header - Clickable */}
+            <div 
+                className="flex items-center gap-2 px-4 py-3 bg-muted/50 hover:bg-muted/70 transition-colors cursor-pointer"
+                onClick={() => onToggle(status)}
+            >
+                {isExpanded ? (
+                    <ChevronDown className="size-4 text-muted-foreground" />
+                ) : (
+                    <ChevronRight className="size-4 text-muted-foreground" />
+                )}
+                <span className="text-lg">{getStatusIcon()}</span>
+                <h2 className="text-lg font-semibold flex-1">{statusLabel}</h2>
+                <Badge variant="outline" className="ml-auto">
+                    {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}
+                </Badge>
+            </div>
+            
+            {/* Tasks Grid - Collapsible */}
+            {isExpanded && (
+                <div className="p-4 pt-3 space-y-4 w-full">
+                    {tasks.length === 0 ? (
+                        <div className="text-center py-8">
+                            <p className="text-sm text-muted-foreground">Chưa có task nào</p>
+                        </div>
+                    ) : (
+                        <>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
+                                {paginatedTasks.map((task: Task) => (
+                                    <TaskCard
+                                        key={task.id}
+                                        task={task}
+                                        onClick={() => onTaskClick(task.id)}
+                                    />
+                                ))}
+                            </div>
+
+                            {/* Pagination */}
+                            {tasks.length > 0 && (
+                                <div className="flex flex-col items-center gap-3 pt-2 border-t">
+                                    <Pagination>
+                                        <PaginationContent className="gap-2">
+                                            <PaginationItem>
+                                                <PaginationPrevious
+                                                    href="#"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        if (currentPage > 1) {
+                                                            onPageChange(status, currentPage - 1);
+                                                        }
+                                                    }}
+                                                    className={cn(
+                                                        "min-w-[100px]",
+                                                        currentPage === 1 
+                                                            ? "pointer-events-none opacity-50 cursor-not-allowed" 
+                                                            : "hover:bg-accent hover:text-accent-foreground transition-colors"
+                                                    )}
+                                                />
+                                            </PaginationItem>
+                                            
+                                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                                                if (
+                                                    page === 1 ||
+                                                    page === totalPages ||
+                                                    (page >= currentPage - 1 && page <= currentPage + 1)
+                                                ) {
+                                                    return (
+                                                        <PaginationItem key={page}>
+                                                            <PaginationLink
+                                                                href="#"
+                                                                onClick={(e) => {
+                                                                    e.preventDefault();
+                                                                    e.stopPropagation();
+                                                                    onPageChange(status, page);
+                                                                }}
+                                                                isActive={currentPage === page}
+                                                                className={cn(
+                                                                    "min-w-[40px] h-10 flex items-center justify-center",
+                                                                    currentPage === page 
+                                                                        ? "bg-primary text-primary-foreground font-semibold" 
+                                                                        : "hover:bg-accent hover:text-accent-foreground transition-colors"
+                                                                )}
+                                                            >
+                                                                {page}
+                                                            </PaginationLink>
+                                                        </PaginationItem>
+                                                    );
+                                                } else if (page === currentPage - 2 || page === currentPage + 2) {
+                                                    return (
+                                                        <PaginationItem key={page}>
+                                                            <span className="px-2 py-2 text-muted-foreground">...</span>
+                                                        </PaginationItem>
+                                                    );
+                                                }
+                                                return null;
+                                            })}
+                                            
+                                            <PaginationItem>
+                                                <PaginationNext
+                                                    href="#"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        if (currentPage < totalPages) {
+                                                            onPageChange(status, currentPage + 1);
+                                                        }
+                                                    }}
+                                                    className={cn(
+                                                        "min-w-[100px]",
+                                                        currentPage === totalPages 
+                                                            ? "pointer-events-none opacity-50 cursor-not-allowed" 
+                                                            : "hover:bg-accent hover:text-accent-foreground transition-colors"
+                                                    )}
+                                                />
+                                            </PaginationItem>
+                                        </PaginationContent>
+                                    </Pagination>
+                                    
+                                    {/* Results info */}
+                                    <div className="text-xs text-muted-foreground">
+                                        Trang {currentPage} / {totalPages} • Hiển thị {startIndex + 1}-{Math.min(endIndex, tasks.length)} trong tổng số {tasks.length} task
+                                    </div>
+                                </div>
+                            )}
+                        </>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+};
 
 interface ArchivedTaskColumnProps {
     title: string;
@@ -855,44 +1330,143 @@ interface ArchivedTaskColumnProps {
     isArchiving: boolean;
 }
 
-const ArchivedTaskColumn = ({ title, tasks, onTaskClick, onUnarchive, isArchiving }: ArchivedTaskColumnProps) => {
-    return (
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-            <div className="space-y-4 col-span-full mb-4">
-                <div className='flex items-center justify-between'>
-                    <h1 className='font-medium'>{title}</h1>
-                    <Badge variant="outline">{tasks?.length}</Badge>
-                </div>
+const ARCHIVED_TASKS_PER_PAGE = 3; // Maximum 3 tasks per page
 
-                <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-                    {
-                        tasks.length === 0 ? (
-                            <div className='text-center text-sm text-muted-foreground col-span-full py-8'>
-                                Không có task đã lưu trữ
-                            </div>
-                        ) : (
-                            tasks.map((task) => (
-                                <div key={task.id} className="relative">
-                                    <TaskCard
-                                        task={task}
-                                        onClick={() => onTaskClick(task.id)}
-                                    />
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="absolute top-2 right-2 z-10"
-                                        onClick={(e) => onUnarchive(task.id, e)}
-                                        disabled={isArchiving}
-                                    >
-                                        <Archive className="size-4 mr-2" />
-                                        Bỏ Lưu Trữ
-                                    </Button>
-                                </div>
-                            ))
-                        )
-                    }
-                </div>
+const ArchivedTaskColumn = ({ title, tasks, onTaskClick, onUnarchive, isArchiving }: ArchivedTaskColumnProps) => {
+    const [currentPage, setCurrentPage] = useState(1);
+
+    // Pagination for archived tasks
+    const totalPages = Math.ceil(tasks.length / ARCHIVED_TASKS_PER_PAGE);
+    const startIndex = (currentPage - 1) * ARCHIVED_TASKS_PER_PAGE;
+    const endIndex = startIndex + ARCHIVED_TASKS_PER_PAGE;
+    const paginatedTasks = tasks.slice(startIndex, endIndex);
+
+    // Reset to page 1 when tasks change
+    React.useEffect(() => {
+        setCurrentPage(1);
+    }, [tasks.length]);
+
+    return (
+        <div className="space-y-4">
+            <div className='flex items-center justify-between'>
+                <h1 className='font-medium'>{title}</h1>
+                <Badge variant="outline">{tasks?.length}</Badge>
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {
+                    paginatedTasks.length === 0 ? (
+                        <div className='text-center text-sm text-muted-foreground col-span-full py-8'>
+                            Không có task đã lưu trữ
+                        </div>
+                    ) : (
+                        paginatedTasks.map((task) => (
+                            <div key={task.id} className="relative">
+                                <TaskCard
+                                    task={task}
+                                    onClick={() => onTaskClick(task.id)}
+                                />
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="absolute top-2 right-2 z-10"
+                                    onClick={(e) => onUnarchive(task.id, e)}
+                                    disabled={isArchiving}
+                                >
+                                    <Archive className="size-4 mr-2" />
+                                    Bỏ Lưu Trữ
+                                </Button>
+                            </div>
+                        ))
+                    )
+                }
+            </div>
+
+                {/* Pagination for archived tasks */}
+                {tasks.length > 0 && (
+                <div className="mt-4 flex flex-col items-center gap-3 pt-3 border-t">
+                    <Pagination>
+                        <PaginationContent className="gap-2">
+                            <PaginationItem>
+                                <PaginationPrevious
+                                    href="#"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        if (currentPage > 1) {
+                                            setCurrentPage(currentPage - 1);
+                                        }
+                                    }}
+                                    className={cn(
+                                        "min-w-[100px]",
+                                        currentPage === 1 
+                                            ? "pointer-events-none opacity-50 cursor-not-allowed" 
+                                            : "hover:bg-accent hover:text-accent-foreground transition-colors"
+                                    )}
+                                />
+                            </PaginationItem>
+                            
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                                if (
+                                    page === 1 ||
+                                    page === totalPages ||
+                                    (page >= currentPage - 1 && page <= currentPage + 1)
+                                ) {
+                                    return (
+                                        <PaginationItem key={page}>
+                                            <PaginationLink
+                                                href="#"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    setCurrentPage(page);
+                                                }}
+                                                isActive={currentPage === page}
+                                                className={cn(
+                                                    "min-w-[40px] h-10 flex items-center justify-center",
+                                                    currentPage === page 
+                                                        ? "bg-primary text-primary-foreground font-semibold" 
+                                                        : "hover:bg-accent hover:text-accent-foreground transition-colors"
+                                                )}
+                                            >
+                                                {page}
+                                            </PaginationLink>
+                                        </PaginationItem>
+                                    );
+                                } else if (page === currentPage - 2 || page === currentPage + 2) {
+                                    return (
+                                        <PaginationItem key={page}>
+                                            <span className="px-2 py-2 text-muted-foreground">...</span>
+                                        </PaginationItem>
+                                    );
+                                }
+                                return null;
+                            })}
+                            
+                            <PaginationItem>
+                                <PaginationNext
+                                    href="#"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        if (currentPage < totalPages) {
+                                            setCurrentPage(currentPage + 1);
+                                        }
+                                    }}
+                                    className={cn(
+                                        "min-w-[100px]",
+                                        currentPage === totalPages 
+                                            ? "pointer-events-none opacity-50 cursor-not-allowed" 
+                                            : "hover:bg-accent hover:text-accent-foreground transition-colors"
+                                    )}
+                                />
+                            </PaginationItem>
+                        </PaginationContent>
+                    </Pagination>
+                    
+                    {/* Results info */}
+                    <div className="text-xs text-muted-foreground">
+                        Trang {currentPage} / {totalPages} • Hiển thị {startIndex + 1}-{Math.min(endIndex, tasks.length)} trong tổng số {tasks.length} task
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

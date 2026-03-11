@@ -1,12 +1,15 @@
 import db from '../models';
 
-// GET COMMENTS BY TASK ID
+// GET COMMENTS BY TASK ID (only top-level comments, no replies)
 export const getCommentsByTaskIdService = (taskId) => new Promise(async (resolve, reject) => {
     try {
         const numericTaskId = typeof taskId === 'string' && !isNaN(taskId) ? parseInt(taskId, 10) : taskId;
 
         const comments = await db.Comment.findAll({
-            where: { task_id: numericTaskId },
+            where: { 
+                task_id: numericTaskId,
+                parent_id: null // Only get top-level comments
+            },
             include: [
                 {
                     model: db.Users,
@@ -32,10 +35,43 @@ export const getCommentsByTaskIdService = (taskId) => new Promise(async (resolve
     }
 });
 
+// GET REPLIES BY COMMENT ID
+export const getRepliesByCommentIdService = (commentId) => new Promise(async (resolve, reject) => {
+    try {
+        const numericCommentId = typeof commentId === 'string' && !isNaN(commentId) ? parseInt(commentId, 10) : commentId;
+
+        const replies = await db.Comment.findAll({
+            where: { parent_id: numericCommentId },
+            include: [
+                {
+                    model: db.Users,
+                    as: 'user',
+                    attributes: ['id', 'username', 'email']
+                }
+            ],
+            order: [['createdAt', 'ASC']]
+        });
+
+        resolve({
+            err: 0,
+            msg: 'OK',
+            response: replies || []
+        });
+    } catch (error) {
+        console.error('Error getting replies:', error);
+        resolve({
+            err: 1,
+            msg: 'FAILED TO GET REPLIES: ' + error.message,
+            response: []
+        });
+    }
+});
+
 // CREATE COMMENT
-export const createCommentService = (taskId, content, userId) => new Promise(async (resolve, reject) => {
+export const createCommentService = (taskId, content, userId, parentId = null) => new Promise(async (resolve, reject) => {
     try {
         const numericTaskId = typeof taskId === 'string' && !isNaN(taskId) ? parseInt(taskId, 10) : taskId;
+        const numericParentId = parentId ? (typeof parentId === 'string' && !isNaN(parentId) ? parseInt(parentId, 10) : parentId) : null;
 
         if (!content || !content.trim()) {
             return resolve({
@@ -51,7 +87,59 @@ export const createCommentService = (taskId, content, userId) => new Promise(asy
             });
         }
 
-        // Check if task exists
+        // If parentId is provided, verify the parent comment exists
+        if (numericParentId) {
+            const parentComment = await db.Comment.findOne({
+                where: { id: numericParentId }
+            });
+            if (!parentComment) {
+                return resolve({
+                    err: 1,
+                    msg: 'PARENT COMMENT NOT FOUND'
+                });
+            }
+            // Use the same task_id as parent
+            const taskIdToUse = parentComment.task_id;
+            
+            const comment = await db.Comment.create({
+                task_id: taskIdToUse,
+                user_id: userId,
+                content: content.trim(),
+                parent_id: numericParentId
+            });
+
+            // Reload with user information
+            await comment.reload({
+                include: [
+                    {
+                        model: db.Users,
+                        as: 'user',
+                        attributes: ['id', 'username', 'email']
+                    }
+                ]
+            });
+
+            // Create activity log
+            try {
+                await db.Task_Activity.create({
+                    task_id: taskIdToUse,
+                    user_id: userId,
+                    action: 'added_reply',
+                    payload: { commentId: comment.id, parentCommentId: numericParentId }
+                });
+            } catch (activityError) {
+                console.error('Failed to create activity:', activityError);
+            }
+
+            resolve({
+                err: 0,
+                msg: 'OK',
+                response: comment
+            });
+            return;
+        }
+
+        // Check if task exists (for top-level comments)
         const task = await db.Task.findOne({
             where: { id: numericTaskId }
         });
@@ -66,7 +154,8 @@ export const createCommentService = (taskId, content, userId) => new Promise(asy
         const comment = await db.Comment.create({
             task_id: numericTaskId,
             user_id: userId,
-            content: content.trim()
+            content: content.trim(),
+            parent_id: null
         });
 
         // Reload with user information

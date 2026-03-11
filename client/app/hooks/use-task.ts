@@ -210,6 +210,41 @@ export const useUpdateTaskPriorityMutation = () => {
     })
 }
 
+export const useUpdateTaskDueDateMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (data: { taskId: string, dueDate: string | null }) => {
+            return await updateData(`/task/${data.taskId}/update-due-date`, { dueDate: data.dueDate });
+        },
+        onSuccess: async (response: any, variables: { taskId: string, dueDate: string | null }) => {
+            // Update cache immediately with new data
+            if (response?.response) {
+                const updatedTask: Task = {
+                    ...response.response,
+                    id: String(response.response.id),
+                    dueDate: response.response.dueDate || variables.dueDate
+                };
+                queryClient.setQueryData<Task>(["task", variables.taskId], updatedTask);
+            }
+            // Refetch to ensure we have the latest data from server
+            await queryClient.refetchQueries({ 
+                queryKey: ["task", variables.taskId],
+                type: 'active'
+            });
+            // Refetch activity query immediately to show new activity
+            await queryClient.refetchQueries({
+                queryKey: ["task-activity", String(variables.taskId)],
+                type: 'active'
+            });
+            toast.success("Cập nhật hạn chót thành công");
+        },
+        onError: (error: any) => {
+            const errorMessage = (error as any)?.response?.data?.msg || "Không thể cập nhật hạn chót";
+            toast.error(errorMessage);
+        }
+    })
+}
+
 // COMMENT HOOKS
 export const useCommentsQuery = (taskId: string) => {
     return useQuery<Comment[]>({

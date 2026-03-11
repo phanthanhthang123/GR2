@@ -72,7 +72,7 @@ export const CreateProjectDiaLog = ({
         form.reset();
       },
       onError: (error: any) => {
-        const errorMessage = (error as any)?.response?.data?.message || "Không thể tạo dự án";
+        const errorMessage = (error as any)?.response?.data?.msg || "Không thể tạo dự án";
         toast.error(errorMessage);
       }
     });
@@ -133,11 +133,18 @@ export const CreateProjectDiaLog = ({
                         <SelectValue placeholder="Chọn trạng thái dự án" />
                       </SelectTrigger>
                       <SelectContent>
-                        {Object.values(ProjectStatus).map((status) => (
-                          <SelectItem key={status} value={status}>
-                            {status}
-                          </SelectItem>
-                        ))}
+                        {Object.values(ProjectStatus).map((status) => {
+                          const statusLabels: Record<string, string> = {
+                            "Pending": "Đang chờ",
+                            "In Progress": "Đang tiến hành",
+                            "Completed": "Hoàn thành"
+                          };
+                          return (
+                            <SelectItem key={status} value={status}>
+                              {statusLabels[status] || status}
+                            </SelectItem>
+                          );
+                        })}
                       </SelectContent>
                     </Select>
                   </FormControl>
