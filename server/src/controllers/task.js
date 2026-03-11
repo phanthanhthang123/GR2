@@ -63,9 +63,14 @@ export const getTaskById = async (req, res) => {
                 msg: 'Missing required parameter: taskId'
             })
         }
-        const response = await services.getTaskByIdService(taskId);
+        // Lấy userId từ token để kiểm tra quyền truy cập task
+        const userId = getUserIdFromToken(req);
+        const response = await services.getTaskByIdService(taskId, userId);
         if (response.err === 1) {
             return res.status(404).json(response);
+        }
+        if (response.err === 2) {
+            return res.status(403).json(response);
         }
         return res.status(200).json(response);
     } catch (error) {

@@ -179,6 +179,74 @@ export const getAllUsers = async (req, res) => {
     }
 }
 
+export const adminCreateUser = async (req, res) => {
+    try {
+        const { username, email, role } = req.body;
+        if (!username || !email) {
+            return res.status(400).json({
+                err: 1,
+                msg: 'Missing inputs parameter'
+            });
+        }
+        const response = await services.adminCreateUserService(username, email, role);
+        const status = response.err === 0 ? 200 : 400;
+        return res.status(status).json(response);
+    } catch (error) {
+        return res.status(500).json({
+            err: -1,
+            msg: 'Failed at admin create user controller: ' + error
+        });
+    }
+}
+
+export const adminUpdateUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const response = await services.adminUpdateUserService(id, req.body);
+        const status = response.err === 0 ? 200 : 400;
+        return res.status(status).json(response);
+    } catch (error) {
+        return res.status(500).json({
+            err: -1,
+            msg: 'Failed at admin update user controller: ' + error
+        });
+    }
+}
+
+export const adminDeleteUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const response = await services.adminDeleteUserService(id);
+        const status = response.err === 0 ? 200 : 400;
+        return res.status(status).json(response);
+    } catch (error) {
+        return res.status(500).json({
+            err: -1,
+            msg: 'Failed at admin delete user controller: ' + error
+        });
+    }
+}
+
+export const firstChangePassword = async (req, res) => {
+    try {
+        const { id, newPassword } = req.body;
+        if (!id || !newPassword) {
+            return res.status(400).json({
+                err: 1,
+                msg: 'Missing inputs parameter'
+            });
+        }
+        const response = await services.firstChangePasswordService(id, newPassword);
+        const status = response.err === 0 ? 200 : 400;
+        return res.status(status).json(response);
+    } catch (error) {
+        return res.status(500).json({
+            err: -1,
+            msg: 'Failed at first change password controller: ' + error
+        });
+    }
+}
+
 // export const sendResetPasswordEmail = async (req, res) => {
 //     try {
 //         const { email } = req.body

@@ -14,8 +14,8 @@ const comparePassword = (password, hashPassword) => {
     return bcrypt.compareSync(password, hashPassword)
 }
 
-const generateToken = (username, id, role) => {
-    return jwt.sign({ username, id, role }, process.env.JWT_SECRET, { expiresIn: '24h' })
+const generateToken = (username, id, role, mustChangePassword) => {
+    return jwt.sign({ username, id, role, mustChangePassword }, process.env.JWT_SECRET, { expiresIn: '24h' })
 }
 
 const generateRefreshToken = (username, id, role) => {
@@ -57,7 +57,7 @@ export const loginService = (email, password) => new Promise(async (resolve, rej
         if (user) {
             const isCorrectPassword = bcrypt.compareSync(password, user.password)
             if (isCorrectPassword) {
-                const access_token = generateToken(user.username, user.id, user.role)
+                const access_token = generateToken(user.username, user.id, user.role, user.mustChangePassword)
                 const refresh_token = generateRefreshToken(user.username, user.id, user.role)
 
                 resolve({
@@ -265,6 +265,122 @@ export const getAllUsersService = (searchQuery) => new Promise(async (resolve, r
             msg: 'FAILED TO GET USERS: ' + error.message,
             response: []
         });
+    }
+});
+
+// Admin: create user with random password and specific role
+export const adminCreateUserService = (username, email, role = 'Member') => new Promise(async (resolve, reject) => {
+    try {
+        const existing = await db.Users.findOne({ where: { email } });
+        if (existing) {
+            return resolve({
+                err: 1,
+                msg: 'Email đã tồn tại',
+            });
+        }
+
+        const plainPassword = Math.random().toString(36).slice(-10);
+        const user = await db.Users.create({
+            id: v4(),
+            username,
+            email,
+            password: hashPassword(plainPassword),
+            role,
+            mustChangePassword: true,
+        });
+
+        resolve({
+            err: 0,
+            msg: 'Tạo tài khoản thành công',
+            response: {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                role: user.role,
+                mustChangePassword: user.mustChangePassword,
+                // trả về mật khẩu để Admin gửi cho user
+                tempPassword: plainPassword,
+            },
+        });
+    } catch (error) {
+        reject(error);
+    }
+});
+
+export const adminUpdateUserService = (id, data) => new Promise(async (resolve, reject) => {
+    try {
+        const user = await db.Users.findByPk(id);
+        if (!user) {
+            return resolve({
+                err: 1,
+                msg: 'User không tồn tại',
+            });
+        }
+
+        const allowed = ['username', 'email', 'role'];
+        const updatePayload = {};
+        allowed.forEach((key) => {
+            if (data[key] !== undefined) updatePayload[key] = data[key];
+        });
+
+        await user.update(updatePayload);
+
+        resolve({
+            err: 0,
+            msg: 'Cập nhật tài khoản thành công',
+            response: {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                role: user.role,
+            },
+        });
+    } catch (error) {
+        reject(error);
+    }
+});
+
+export const adminDeleteUserService = (id) => new Promise(async (resolve, reject) => {
+    try {
+        const user = await db.Users.findByPk(id);
+        if (!user) {
+            return resolve({
+                err: 1,
+                msg: 'User không tồn tại',
+            });
+        }
+        await user.destroy();
+        resolve({
+            err: 0,
+            msg: 'Xóa tài khoản thành công',
+        });
+    } catch (error) {
+        reject(error);
+    }
+});
+
+// First login: user must change password
+export const firstChangePasswordService = (id, newPassword) => new Promise(async (resolve, reject) => {
+    try {
+        const user = await db.Users.findByPk(id);
+        if (!user) {
+            return resolve({
+                err: 1,
+                msg: 'User không tồn tại',
+            });
+        }
+
+        await user.update({
+            password: hashPassword(newPassword),
+            mustChangePassword: false,
+        });
+
+        resolve({
+            err: 0,
+            msg: 'Đổi mật khẩu lần đầu thành công',
+        });
+    } catch (error) {
+        reject(error);
     }
 });
 

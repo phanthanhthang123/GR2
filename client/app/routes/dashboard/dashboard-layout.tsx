@@ -81,6 +81,11 @@ const DashBoardLayout = () => {
     return navigate("/sign-in");
   }
 
+  // Bắt buộc đổi mật khẩu lần đầu nếu server đánh dấu mustChangePassword = true
+  if (user?.mustChangePassword && location.pathname !== "/first-change-password") {
+    return navigate("/first-change-password");
+  }
+
   const handleWorkspaceSelected = (workspace: Workspace) => {
     setCurrentWorkspace(workspace);
     // Save to localStorage to persist across page refreshes
@@ -93,22 +98,21 @@ const DashBoardLayout = () => {
   }
 
   return (
-  <div className="flex min-h-screen w-full">
+  <div className="flex h-screen w-full overflow-hidden">
       {/* <Sidebar Components */}
       <SidebarComponent currentWorkspace={currentWorkspace}/>
-      <div className="flex flex-1 flex-col h-full">
+      <div className="flex flex-1 flex-col h-full min-w-0">
         {/* Header */}
         <Header
           onWorkspaceSelected = {(workspace) => handleWorkspaceSelected(workspace)}
           selectedWorkspace = {currentWorkspace}
           onCreateWorkspace = {() => setIsCreatingWorkspace(true)}
         />
-        {/* Để tránh xuất hiện 2 thanh scroll (trình duyệt + nội bộ),
-            bỏ overflow riêng của main và để trang cuộn theo trình duyệt */}
-        <main className="flex-1 p-4 h-full w-full">
-          <div className="mx-auto container px-2 sm:px-6 lg:px-8 py-0 md:py-8 w-full">
+        {/* Chỉ content được scroll; sidebar cố định */}
+        <main className="flex-1 w-full overflow-y-auto p-4">
+          <div className="mx-auto container px-2 sm:px-6 lg:px-8 py-0 md:py-8 w-full min-w-0">
             <Outlet />
-            </div>
+          </div>
         </main>
       </div>
       <CreateWorkspace 

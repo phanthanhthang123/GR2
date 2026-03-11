@@ -80,7 +80,7 @@ export const getWorkspaceByIdService = (id) => new Promise(async (resolve, rejec
                 {
                     model: db.Users,
                     as: 'owner',
-                    attributes: ['id', 'username', 'email']
+                    attributes: ['id', 'username', 'email', 'role']
                 },
                 {
                     model: db.Workspace_Members,
@@ -89,7 +89,7 @@ export const getWorkspaceByIdService = (id) => new Promise(async (resolve, rejec
                         {
                             model: db.Users,
                             as: 'user',
-                            attributes: ['id', 'username', 'email']
+                            attributes: ['id', 'username', 'email', 'role']
                         }
                     ]
                 },
@@ -133,19 +133,34 @@ export const addMemberToWorkspaceService = (workspaceId, email, role, userId, ta
             });
         }
 
-        // Check if user has permission (must be Leader)
+        // Check if user has permission
+        // Cho phép nếu:
+        // - User hệ thống là Admin hoặc Leader
+        // - Hoặc user là Leader trong Workspace_Members
         if (userId) {
+            const currentUser = await db.Users.findOne({
+                where: { id: userId },
+                attributes: ['id', 'role'],
+            });
+
+            const isSystemLeader =
+                currentUser &&
+                (currentUser.role === 'Admin' || currentUser.role === 'Leader');
+
             const currentUserMember = await db.Workspace_Members.findOne({
                 where: {
                     workspace_id: workspaceId,
-                    user_id: userId
-                }
+                    user_id: userId,
+                },
             });
 
-            if (!currentUserMember || currentUserMember.role !== 'Leader') {
+            const isWorkspaceLeader =
+                currentUserMember && currentUserMember.role === 'Leader';
+
+            if (!isSystemLeader && !isWorkspaceLeader) {
                 return resolve({
                     err: 1,
-                    msg: 'ONLY LEADER CAN ADD MEMBERS TO WORKSPACE'
+                    msg: 'ONLY LEADER CAN ADD MEMBERS TO WORKSPACE',
                 });
             }
         }
@@ -738,7 +753,7 @@ export const getWorkspaceMembersDetailService = (workspaceId) => new Promise(asy
         if (workspace.owner_id) {
             owner = await db.Users.findOne({
                 where: { id: workspace.owner_id },
-                attributes: ['id', 'username', 'email']
+                attributes: ['id', 'username', 'email', 'role']
             });
         }
 
@@ -749,7 +764,7 @@ export const getWorkspaceMembersDetailService = (workspaceId) => new Promise(asy
                 {
                     model: db.Users,
                     as: 'user',
-                    attributes: ['id', 'username', 'email'],
+                    attributes: ['id', 'username', 'email', 'role'],
                     required: false
                 }
             ],
@@ -765,7 +780,8 @@ export const getWorkspaceMembersDetailService = (workspaceId) => new Promise(asy
                 user: {
                     id: member.user.id,
                     username: member.user.username || 'Unknown',
-                    email: member.user.email || ''
+                    email: member.user.email || '',
+                    role: member.user.role || null,
                 },
                 role: member.role || 'Developer',
                 joined_at: member.joined_at || member.createdAt
@@ -783,7 +799,8 @@ export const getWorkspaceMembersDetailService = (workspaceId) => new Promise(asy
                 user: {
                     id: owner.id,
                     username: owner.username || 'Unknown',
-                    email: owner.email || ''
+                    email: owner.email || '',
+                    role: owner.role || 'Admin',
                 },
                 role: 'Owner',
                 joined_at: workspace.createdAt

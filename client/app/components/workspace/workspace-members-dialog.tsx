@@ -104,6 +104,17 @@ export const WorkspaceMembersDialog = ({
                 const isOwner = memberUserId === ownerId;
                 const canDelete = isCurrentUserLeader && !isOwner && memberUserId !== user?.id;
 
+                // Hiển thị role theo role của user (Admin/Leader/Member), fallback sang role workspace (Leader/Manager/Developer)
+                const userRole = member.user?.role as string | undefined;
+                const displayRole =
+                  userRole === "Admin"
+                    ? "Admin"
+                    : userRole === "Leader"
+                    ? "Leader"
+                    : userRole === "Member"
+                    ? "Member"
+                    : member.role || "Thành viên";
+
                 return (
                   <div
                     key={member.user_id || memberUserId}
@@ -130,9 +141,9 @@ export const WorkspaceMembersDialog = ({
                             Chủ Sở Hữu
                           </Badge>
                         )}
-                        {!isOwner && member.role && (
+                        {!isOwner && (
                           <Badge variant="outline" className="text-xs">
-                            {member.role}
+                            {displayRole}
                           </Badge>
                         )}
                       </div>

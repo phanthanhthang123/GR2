@@ -36,6 +36,8 @@ import { useAuth } from '@/provider/auth-context';
 import { useGetAllUsersQuery } from '@/hooks/use-workspace';
 import { useMemo } from 'react';
 
+const TASKS_PER_PAGE_TABLE = 10;
+
 const ProjectDetails = () => {
 
     const { projectId, workspaceId } = useParams<{ projectId: string, workspaceId: string }>();
@@ -57,6 +59,7 @@ const ProjectDetails = () => {
     const [selectedUserId, setSelectedUserId] = useState<string>('');
     const [expandedStatuses, setExpandedStatuses] = useState<Record<string, boolean>>({});
     const [statusPages, setStatusPages] = useState<Record<string, number>>({});
+    const [taskPage, setTaskPage] = useState(1);
     const { user } = useAuth();
 
     // All hooks must be called before any conditional returns
@@ -111,6 +114,29 @@ const ProjectDetails = () => {
         };
         return grouped;
     }, [filteredActiveTasks]);
+
+    // Tasks for table view by status filter + pagination
+    const statusFilteredTasks = useMemo(() => {
+        if (taskFilter === 'All') return filteredActiveTasks;
+        return filteredActiveTasks.filter((task) => task.status === taskFilter);
+    }, [filteredActiveTasks, taskFilter]);
+
+    const totalTaskPages = useMemo(() => {
+        if (statusFilteredTasks.length === 0) return 1;
+        return Math.ceil(statusFilteredTasks.length / TASKS_PER_PAGE_TABLE);
+    }, [statusFilteredTasks.length]);
+
+    const paginatedStatusTasks = useMemo(() => {
+        const safePage = Math.min(Math.max(taskPage, 1), totalTaskPages);
+        const startIndex = (safePage - 1) * TASKS_PER_PAGE_TABLE;
+        const endIndex = startIndex + TASKS_PER_PAGE_TABLE;
+        return statusFilteredTasks.slice(startIndex, endIndex);
+    }, [statusFilteredTasks, taskPage, totalTaskPages]);
+
+    // Reset page when filter hoặc search thay đổi
+    useEffect(() => {
+        setTaskPage(1);
+    }, [taskFilter, taskSearchQuery]);
 
     // Initialize expanded statuses and pages
     React.useEffect(() => {
@@ -453,56 +479,56 @@ const ProjectDetails = () => {
             </div>
 
             {/* Project Statistics */}
-            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
+            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3'>
                 <Card 
-                    className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition-all group"
+                    className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition-all group py-3"
                     onClick={() => setIsTaskDialogOpen(true)}
                 >
-                    <CardHeader className="flex flex-row items-center justify-between pb-2 px-5 pt-5">
-                        <CardTitle className="text-sm font-semibold">Tổng Task</CardTitle>
+                    <CardHeader className="flex flex-row items-center justify-between pb-1 px-4 pt-3">
+                        <CardTitle className="text-xs font-semibold">Tổng Task</CardTitle>
                         <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
                             <CheckSquare className="h-4 w-4 text-primary" />
                         </div>
                     </CardHeader>
-                    <CardContent className="px-5 pb-5">
-                        <div className="text-2xl font-bold text-foreground">{totalTasksInProject}</div>
-                        <p className="text-xs text-muted-foreground mt-1.5">
+                    <CardContent className="px-4 pb-3">
+                        <div className="text-xl font-bold text-foreground">{totalTasksInProject}</div>
+                        <p className="text-[11px] text-muted-foreground mt-1">
                             Task trong dự án
                         </p>
                     </CardContent>
                 </Card>
 
                 <Card 
-                    className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition-all group"
+                    className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition-all group py-3"
                     onClick={() => setIsMemberDialogOpen(true)}
                 >
-                    <CardHeader className="flex flex-row items-center justify-between pb-2 px-5 pt-5">
-                        <CardTitle className="text-sm font-semibold">Thành Viên</CardTitle>
+                    <CardHeader className="flex flex-row items-center justify-between pb-1 px-4 pt-3">
+                        <CardTitle className="text-xs font-semibold">Thành Viên</CardTitle>
                         <div className="p-2 rounded-lg bg-blue-500/10 group-hover:bg-blue-500/20 transition-colors">
                             <Users className="h-4 w-4 text-blue-600" />
                         </div>
                     </CardHeader>
-                    <CardContent className="px-5 pb-5">
-                        <div className="text-2xl font-bold text-foreground">{totalMembersInProject}</div>
-                        <p className="text-xs text-muted-foreground mt-1.5">
+                    <CardContent className="px-4 pb-3">
+                        <div className="text-xl font-bold text-foreground">{totalMembersInProject}</div>
+                        <p className="text-[11px] text-muted-foreground mt-1">
                             Thành viên trong dự án
                         </p>
                     </CardContent>
                 </Card>
 
                 {(project as any)?.start_date && (
-                    <Card className="hover:shadow-lg hover:border-primary/50 transition-all">
-                        <CardHeader className="flex flex-row items-center justify-between pb-2 px-5 pt-5">
-                            <CardTitle className="text-sm font-semibold">Bắt Đầu</CardTitle>
+                    <Card className="hover:shadow-lg hover:border-primary/50 transition-all py-3">
+                        <CardHeader className="flex flex-row items-center justify-between pb-1 px-4 pt-3">
+                            <CardTitle className="text-xs font-semibold">Bắt Đầu</CardTitle>
                             <div className="p-2 rounded-lg bg-green-500/10">
                                 <CalendarDays className="h-4 w-4 text-green-600" />
                             </div>
                         </CardHeader>
-                        <CardContent className="px-5 pb-5">
-                            <div className="text-lg font-bold text-foreground">
+                        <CardContent className="px-4 pb-3">
+                            <div className="text-base font-bold text-foreground">
                                 {format(new Date((project as any).start_date), "MMM d, yyyy")}
                             </div>
-                            <p className="text-xs text-muted-foreground mt-1.5">
+                            <p className="text-[11px] text-muted-foreground mt-1">
                                 Ngày bắt đầu dự án
                             </p>
                         </CardContent>
@@ -510,18 +536,18 @@ const ProjectDetails = () => {
                 )}
 
                 {(project as any)?.end_date && (
-                    <Card className="hover:shadow-lg hover:border-primary/50 transition-all">
-                        <CardHeader className="flex flex-row items-center justify-between pb-2 px-5 pt-5">
-                            <CardTitle className="text-sm font-semibold">Kết Thúc</CardTitle>
+                    <Card className="hover:shadow-lg hover:border-primary/50 transition-all py-3">
+                        <CardHeader className="flex flex-row items-center justify-between pb-1 px-4 pt-3">
+                            <CardTitle className="text-xs font-semibold">Kết Thúc</CardTitle>
                             <div className="p-2 rounded-lg bg-orange-500/10">
                                 <CalendarDays className="h-4 w-4 text-orange-600" />
                             </div>
                         </CardHeader>
-                        <CardContent className="px-5 pb-5">
-                            <div className="text-lg font-bold text-foreground">
+                        <CardContent className="px-4 pb-3">
+                            <div className="text-base font-bold text-foreground">
                                 {format(new Date((project as any).end_date), "MMM d, yyyy")}
                             </div>
-                            <p className="text-xs text-muted-foreground mt-1.5">
+                            <p className="text-[11px] text-muted-foreground mt-1">
                                 Ngày kết thúc dự án
                             </p>
                         </CardContent>
@@ -606,7 +632,22 @@ const ProjectDetails = () => {
                                 {(project as any)?.members?.map((member: any, index: number) => {
                                     const memberUser = typeof member.user === 'object' ? member.user : null;
                                     const memberUserId = typeof member.user === 'string' ? member.user : member.user?.id || member.user_id;
-                                    const isLeader = member.role === 'Leader' || (project as any).leader_id === memberUserId;
+                                    
+                                    // Role hệ thống gốc trên user (có thể dạng admin/kleader/member hoặc Admin/Leader/Member)
+                                    const systemRoleRaw = (memberUser?.role as string | undefined) || '';
+                                    // Role trong project (Leader/Manager/Developer/leader/manager/...)
+                                    const projectRoleRaw = (member.role as string | undefined) || '';
+
+                                    const systemRole = systemRoleRaw.toLowerCase();
+                                    const projectRole = projectRoleRaw.toLowerCase();
+
+                                    // Xác định leader để chặn nút xoá
+                                    const isLeader =
+                                      projectRole === 'leader' ||
+                                      (project as any).leader_id === memberUserId ||
+                                      systemRole === 'leader' ||
+                                      systemRole === 'kleader';
+
                                     const canDelete = isCurrentUserLeader && !isLeader && memberUserId !== user?.id;
                                     
                                     const getLastNameInitial = (username: string) => {
@@ -638,11 +679,17 @@ const ProjectDetails = () => {
                                                     <p className="text-sm font-medium truncate">
                                                         {memberUser?.username || "Người dùng không xác định"}
                                                     </p>
-                                                    {member.role && (
-                                                        <Badge variant="outline" className="text-xs">
-                                                            {member.role === 'Leader' ? 'Trưởng nhóm' : member.role === 'Manager' ? 'Quản lý' : 'Thành viên'}
-                                                        </Badge>
-                                                    )}
+                                                    <Badge variant="outline" className="text-xs">
+                                                        {systemRole === 'admin'
+                                                          ? 'Admin'
+                                                          : systemRole === 'leader' || systemRole === 'kleader'
+                                                          ? 'Leader'
+                                                          : systemRole === 'member'
+                                                          ? 'Member'
+                                                          : projectRole === 'leader'
+                                                          ? 'Leader'
+                                                          : 'Member'}
+                                                    </Badge>
                                                 </div>
                                                 <p className="text-xs text-muted-foreground truncate">
                                                     {memberUser?.email || "Không có email"}
@@ -790,80 +837,281 @@ const ProjectDetails = () => {
             </Dialog>
 
             {/* Tasks Section */}
-            <div className='space-y-4'>
-                {/* Search Bar */}
-                <div className='p-4 bg-muted/30 rounded-lg border'>
-                    <div className='relative'>
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground" />
-                        <Input
-                            placeholder="Tìm kiếm task..."
-                            value={taskSearchQuery}
-                            onChange={(e) => setTaskSearchQuery(e.target.value)}
-                            className="pl-9"
-                        />
+            <div className="space-y-4">
+              {/* Search Bar */}
+              <div className="p-4 bg-muted/30 rounded-lg border">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Tìm kiếm task..."
+                    value={taskSearchQuery}
+                    onChange={(e) => setTaskSearchQuery(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+              </div>
+
+              {/* Modern Status Board */}
+              <Card className="border-none shadow-none bg-transparent">
+                <CardHeader className="pb-4">
+                  <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <div>
+                      <CardTitle className="text-lg md:text-xl">
+                        Bảng Trạng Thái Task
+                      </CardTitle>
+                      <p className="text-xs md:text-sm text-muted-foreground">
+                        Nhìn nhanh toàn bộ luồng công việc từ Chưa Làm → Đang Làm → Hoàn Thành.
+                      </p>
                     </div>
-                </div>
+                    <div className="grid grid-cols-3 gap-2 md:gap-4 text-xs md:text-sm">
+                      <div className="rounded-lg bg-blue-50 px-3 py-2 border border-blue-100">
+                        <p className="font-medium text-blue-800">Chưa Làm</p>
+                        <p className="text-blue-600">
+                          {tasksByStatus["To Do"]?.length || 0} task
+                        </p>
+                      </div>
+                      <div className="rounded-lg bg-amber-50 px-3 py-2 border border-amber-100">
+                        <p className="font-medium text-amber-800">Đang Làm</p>
+                        <p className="text-amber-600">
+                          {tasksByStatus["In Progress"]?.length || 0} task
+                        </p>
+                      </div>
+                      <div className="rounded-lg bg-emerald-50 px-3 py-2 border border-emerald-100">
+                        <p className="font-medium text-emerald-800">Hoàn Thành</p>
+                        <p className="text-emerald-600">
+                          {tasksByStatus["Done"]?.length || 0} task
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Bộ lọc trạng thái cho bảng */}
+                  <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <div className="flex flex-wrap gap-2">
+                      {([
+                        { key: 'All', label: 'Tất cả' },
+                        { key: 'To Do', label: 'Chưa Làm' },
+                        { key: 'In Progress', label: 'Đang Làm' },
+                        { key: 'Done', label: 'Hoàn Thành' },
+                      ] as const).map((item) => (
+                        <Button
+                          key={item.key}
+                          type="button"
+                          size="sm"
+                          variant={taskFilter === item.key ? 'default' : 'outline'}
+                          onClick={() => setTaskFilter(item.key)}
+                          className="text-xs md:text-sm"
+                        >
+                          {item.label}
+                        </Button>
+                      ))}
+                    </div>
+                    <div className="text-xs md:text-sm text-muted-foreground">
+                      Đang hiển thị {paginatedStatusTasks.length} / {statusFilteredTasks.length} task
+                    </div>
+                  </div>
 
-                {/* Task Status Groups - Similar to "Task Của Tôi" */}
-                <div className="space-y-2">
-                    {/* Chưa Làm */}
-                    <TaskStatusGroup
-                        status="To Do"
-                        statusLabel="Chưa Làm"
-                        tasks={tasksByStatus['To Do']}
-                        onTaskClick={handleTaskClick}
-                        expandedStatuses={expandedStatuses}
-                        statusPages={statusPages}
-                        onToggle={toggleStatus}
-                        onPageChange={setStatusPage}
-                    />
+                  {/* Bảng task theo trạng thái + phân trang */}
+                  <div className="rounded-xl border bg-background overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead className="bg-muted/60 border-b">
+                          <tr className="text-left">
+                            <th className="px-4 py-2 w-[60px] font-medium text-xs text-muted-foreground">
+                              ID
+                            </th>
+                            <th className="px-4 py-2 min-w-[220px] font-medium text-xs text-muted-foreground">
+                              Tiêu đề
+                            </th>
+                            <th className="px-4 py-2 min-w-[120px] font-medium text-xs text-muted-foreground">
+                              Trạng thái
+                            </th>
+                            <th className="px-4 py-2 min-w-[100px] font-medium text-xs text-muted-foreground">
+                              Ưu tiên
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {statusFilteredTasks.length === 0 ? (
+                            <tr>
+                              <td
+                                colSpan={4}
+                                className="px-4 py-6 text-center text-sm text-muted-foreground"
+                              >
+                                Chưa có task nào phù hợp
+                              </td>
+                            </tr>
+                          ) : (
+                            paginatedStatusTasks.map((task) => (
+                              <tr
+                                key={task.id}
+                                className="cursor-pointer hover:bg-muted/60 border-b last:border-0"
+                                onClick={() => handleTaskClick(String(task.id))}
+                              >
+                                <td className="px-4 py-2 text-xs text-muted-foreground">
+                                  {task.id}
+                                </td>
+                                <td className="px-4 py-2 font-medium">
+                                  {task.title}
+                                </td>
+                                <td className="px-4 py-2">
+                                  <Badge
+                                    variant="outline"
+                                    className={cn(
+                                      "text-xs",
+                                      task.status === 'Done'
+                                        ? "bg-green-100 text-green-800"
+                                        : task.status === 'In Progress'
+                                        ? "bg-blue-100 text-blue-800"
+                                        : "bg-gray-100 text-gray-800"
+                                    )}
+                                  >
+                                    {task.status === 'To Do'
+                                      ? 'Chưa Làm'
+                                      : task.status === 'In Progress'
+                                      ? 'Đang Làm'
+                                      : 'Hoàn Thành'}
+                                  </Badge>
+                                </td>
+                                <td className="px-4 py-2">
+                                  <Badge
+                                    variant="outline"
+                                    className={cn(
+                                      "text-xs",
+                                      task.priority === 'High'
+                                        ? "bg-red-100 text-red-800"
+                                        : task.priority === 'Medium'
+                                        ? "bg-yellow-100 text-yellow-800"
+                                        : "bg-gray-100 text-gray-800"
+                                    )}
+                                  >
+                                    {task.priority}
+                                  </Badge>
+                                </td>
+                              </tr>
+                            ))
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
 
-                    {/* Đang Làm */}
-                    <TaskStatusGroup
-                        status="In Progress"
-                        statusLabel="Đang Làm"
-                        tasks={tasksByStatus['In Progress']}
-                        onTaskClick={handleTaskClick}
-                        expandedStatuses={expandedStatuses}
-                        statusPages={statusPages}
-                        onToggle={toggleStatus}
-                        onPageChange={setStatusPage}
-                    />
+                    {/* Phân trang cho bảng */}
+                    {statusFilteredTasks.length > 0 && (
+                      <div className="flex flex-col items-center gap-3 px-4 py-3 border-t bg-muted/40">
+                        <Pagination>
+                          <PaginationContent className="gap-2">
+                            <PaginationItem>
+                              <PaginationPrevious
+                                href="#"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  if (taskPage > 1) {
+                                    setTaskPage(taskPage - 1);
+                                  }
+                                }}
+                                className={cn(
+                                  "min-w-[90px] h-8 text-xs",
+                                  taskPage === 1
+                                    ? "pointer-events-none opacity-50 cursor-not-allowed"
+                                    : "hover:bg-accent hover:text-accent-foreground transition-colors"
+                                )}
+                              />
+                            </PaginationItem>
 
-                    {/* Hoàn Thành */}
-                    <TaskStatusGroup
-                        status="Done"
-                        statusLabel="Hoàn Thành"
-                        tasks={tasksByStatus['Done']}
-                        onTaskClick={handleTaskClick}
-                        expandedStatuses={expandedStatuses}
-                        statusPages={statusPages}
-                        onToggle={toggleStatus}
-                        onPageChange={setStatusPage}
-                    />
+                            {Array.from({ length: totalTaskPages }, (_, i) => i + 1).map((page) => {
+                              if (
+                                page === 1 ||
+                                page === totalTaskPages ||
+                                (page >= taskPage - 1 && page <= taskPage + 1)
+                              ) {
+                                return (
+                                  <PaginationItem key={page}>
+                                    <PaginationLink
+                                      href="#"
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        setTaskPage(page);
+                                      }}
+                                      isActive={taskPage === page}
+                                      className={cn(
+                                        "min-w-[32px] h-8 text-xs flex items-center justify-center",
+                                        taskPage === page
+                                          ? "bg-primary text-primary-foreground font-semibold"
+                                          : "hover:bg-accent hover:text-accent-foreground transition-colors"
+                                      )}
+                                    >
+                                      {page}
+                                    </PaginationLink>
+                                  </PaginationItem>
+                                );
+                              } else if (page === taskPage - 2 || page === taskPage + 2) {
+                                return (
+                                  <PaginationItem key={page}>
+                                    <span className="px-1 py-1 text-muted-foreground text-xs">...</span>
+                                  </PaginationItem>
+                                );
+                              }
+                              return null;
+                            })}
 
-                    {/* Archived Tasks */}
-                    {filteredArchivedTasks.length > 0 && (
-                        <div className="border rounded-lg overflow-hidden">
-                            <div className="flex items-center gap-2 px-4 py-3 bg-muted/50">
-                                <Archive className="size-4 text-muted-foreground" />
-                                <h2 className="text-lg font-semibold flex-1">Đã Lưu Trữ</h2>
-                                <Badge variant="outline" className="ml-auto">
-                                    {filteredArchivedTasks.length} {filteredArchivedTasks.length === 1 ? 'task' : 'tasks'}
-                                </Badge>
-                            </div>
-                            <div className="p-4">
-                                <ArchivedTaskColumn
-                                    title="Task Đã Lưu Trữ"
-                                    tasks={filteredArchivedTasks}
-                                    onTaskClick={handleTaskClick}
-                                    onUnarchive={handleUnarchiveTask}
-                                    isArchiving={isArchiving}
-                                />
-                            </div>
+                            <PaginationItem>
+                              <PaginationNext
+                                href="#"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  if (taskPage < totalTaskPages) {
+                                    setTaskPage(taskPage + 1);
+                                  }
+                                }}
+                                className={cn(
+                                  "min-w-[90px] h-8 text-xs",
+                                  taskPage === totalTaskPages
+                                    ? "pointer-events-none opacity-50 cursor-not-allowed"
+                                    : "hover:bg-accent hover:text-accent-foreground transition-colors"
+                                )}
+                              />
+                            </PaginationItem>
+                          </PaginationContent>
+                        </Pagination>
+
+                        <div className="text-xs text-muted-foreground">
+                          Trang {taskPage} / {totalTaskPages} • Hiển thị{" "}
+                          {(taskPage - 1) * TASKS_PER_PAGE_TABLE + 1}
+                          -
+                          {Math.min(taskPage * TASKS_PER_PAGE_TABLE, statusFilteredTasks.length)}{" "}
+                          trong tổng số {statusFilteredTasks.length} task
                         </div>
+                      </div>
                     )}
-                </div>
+                  </div>
+
+                  {/* Archived Tasks giữ nguyên */}
+                  {filteredArchivedTasks.length > 0 && (
+                    <div className="border rounded-lg overflow-hidden mt-4">
+                      <div className="flex items-center gap-2 px-4 py-3 bg-muted/50">
+                        <Archive className="size-4 text-muted-foreground" />
+                        <h2 className="text-lg font-semibold flex-1">
+                          Đã Lưu Trữ
+                        </h2>
+                        <Badge variant="outline" className="ml-auto">
+                          {filteredArchivedTasks.length}{" "}
+                          {filteredArchivedTasks.length === 1 ? "task" : "tasks"}
+                        </Badge>
+                      </div>
+                      <div className="p-4">
+                        <ArchivedTaskColumn
+                          title="Task Đã Lưu Trữ"
+                          tasks={filteredArchivedTasks}
+                          onTaskClick={handleTaskClick}
+                          onUnarchive={handleUnarchiveTask}
+                          isArchiving={isArchiving}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
 
 

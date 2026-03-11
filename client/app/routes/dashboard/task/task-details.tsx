@@ -31,22 +31,29 @@ const TaskDetails = () => {
     const navigate = useNavigate();
 
     // All hooks must be called before any conditional returns
-    const { data: task, isLoading } = useTaskByIdQuery(taskId! as any);
+    const { data: task, isLoading, error } = useTaskByIdQuery(taskId! as any);
     const { data: projectData } = useProjectQueryById(projectId!);
 
     const {mutate: watchTask, isPending: isWatching} = useWatchTaskMutation();
     const {mutate: achievdTask, isPending: isAchived} = useAchievedTaskMutation();
     const {mutate: archiveTask, isPending: isArchiving} = useArchiveTaskMutation();
 
-    console.log("task", task)
+    const goBack = () => navigate(-1);
 
-    // Early returns after all hooks are called
+    // Early returns sau khi khai báo goBack
     if (isLoading) {
         return (
             <div>
                 <Loader />
             </div>
-        )
+        );
+    }
+
+    // Nếu backend trả 403 (không có quyền), hiển thị toast và quay lại
+    if (error && (error as any)?.response?.status === 403) {
+        toast.error("Bạn không có quyền truy cập task này.");
+        goBack();
+        return null;
     }
 
     if (!task) {
@@ -58,8 +65,6 @@ const TaskDetails = () => {
             </div>
         )
     }
-
-    const goBack = () => navigate(-1);
 
     // Get project information - prefer from task object, fallback to projectData query
     const project: Project | null = (() => {
@@ -74,6 +79,23 @@ const TaskDetails = () => {
 
     const projectIdFromTask = project?.id || projectId;
     const projectName = project?.name || 'Unknown Project';
+
+    // Check project membership: nếu không thuộc project thì không cho xem task
+    if (projectData?.project?.members && user?.id) {
+        const isMember = projectData.project.members.some((m: any) => {
+            const memberId =
+                typeof m.user === "string"
+                    ? m.user
+                    : m.user?.id;
+            return memberId?.toString() === user.id.toString();
+        });
+
+        if (!isMember) {
+            toast.error("Bạn không có quyền truy cập task này.");
+            goBack();
+            return null;
+        }
+    }
 
     const handleNavigateToProject = () => {
         if (projectIdFromTask && workspaceId) {

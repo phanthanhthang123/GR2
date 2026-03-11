@@ -91,6 +91,11 @@ module.exports = (sequelize, DataTypes) => {
       type : DataTypes.ENUM('Admin', 'Leader', 'Member'),
       allowNull : false
     },
+    mustChangePassword: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
+    },
     resetToken: {
       type: DataTypes.STRING,
       allowNull: true

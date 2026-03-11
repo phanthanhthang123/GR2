@@ -48,65 +48,81 @@ const ForgotPassword = () => {
   }
 
   return (
-    <div className='flex flex-col items-center justify-center h-screen'>
-      <div className='w-full max-w-md space-y-6'>
+    <div className="w-full">
+      <Card className="w-full max-w-md mx-auto bg-slate-900/80 border-slate-800 text-slate-50 shadow-xl">
+        <CardHeader>
+          <Link
+            to="/sign-in"
+            className="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 mb-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>{t("forgotPassword.backToLogin")}</span>
+          </Link>
+          <div className="space-y-1">
+            <h1 className="text-xl font-semibold">
+              {t("forgotPassword.title")}
+            </h1>
+            <p className="text-xs text-slate-300">
+              {t("forgotPassword.description")}
+            </p>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {isSuccess ? (
+            <div className="flex flex-col items-center justify-center text-center space-y-3">
+              <CheckCircle className="w-10 h-10 text-emerald-400" />
+              <h2 className="text-lg font-semibold">
+                {t("forgotPassword.successTitle")}
+              </h2>
+              <p className="text-sm text-slate-300">
+                {t("forgotPassword.successDescription")}
+              </p>
+            </div>
+          ) : (
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
+                <FormField
+                  name="email"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("forgotPassword.email")}</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="email"
+                          className="bg-slate-900 border-slate-700 text-slate-50 placeholder:text-slate-500"
+                          placeholder={
+                            t("forgotPassword.placeholderEmail") || ""
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-        <div className='flex flex-col items-center justify-center space-y-2'>
-          <h1 className='text-2xl font-bold'>{t("forgotPassword.title")}</h1>
-          <p className='text-muted-foreground'>{t("forgotPassword.description")}</p>
-        </div>
-
-
-        <Card>
-          <CardHeader>
-            <Link to="/sign-in" className='flex items-center gap-2 text-sm text-primary hover:underline mb-4'>
-              <ArrowLeft className='w-4 h-4'/>
-              <span>{t("forgotPassword.backToLogin")}</span>
-            </Link>
-          </CardHeader>
-          <CardContent>
-            {
-              isSuccess ? (
-                <div className='flex flex-col items-center justify-center'>
-                  <CheckCircle className='w-10 h-10 text-green-500'/>
-                  <h2 className='text-lg font-semibold mb-4'>{t("forgotPassword.successTitle")}</h2>
-                  <p className='text-muted-foreground'>{t("forgotPassword.successDescription")}</p>
-                </div>
-              ):(
-                <>
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
-                    <FormField
-                    name='email'
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t("forgotPassword.email")}</FormLabel>
-                        <FormControl>
-                          <Input {...field} type='email' placeholder={t("forgotPassword.placeholderEmail") || ''} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                    />
-
-                    <Button type='submit' className='w-full' disabled={isPending}>
-                      {
-                        isPending ? (
-                          <Loader2 className='w-4 h-4 animate-spin'/>
-                        ) : t("forgotPassword.button")
-                      }
-                    </Button>
-                  </form>
-                </Form>
-                </>
-              )
-            }
-          </CardContent>
-        </Card>
-      </div>
+                <Button
+                  type="submit"
+                  className="w-full bg-blue-600 hover:bg-blue-500 text-slate-50"
+                  disabled={isPending}
+                >
+                  {isPending ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    t("forgotPassword.button")
+                  )}
+                </Button>
+              </form>
+            </Form>
+          )}
+        </CardContent>
+      </Card>
     </div>
-  )
+  );
 }
 
 export default ForgotPassword

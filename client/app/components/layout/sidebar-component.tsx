@@ -40,7 +40,7 @@ export const SidebarComponent = ({
   return (
     <div
       className={cn(
-        "flex flex-col border-r bg-sidebar transition-all duration-300",
+        "flex flex-col border-r bg-sidebar transition-all duration-300 sticky top-0 h-screen",
         isCollapsed ? "md:w[80px]" : "md:w[240px]"
       )}
     >
@@ -74,22 +74,29 @@ export const SidebarComponent = ({
       </div>
 
       <ScrollArea className="flex-1 px-3 py-2">
-            <SidebarNav
-            items  = {NAV_ITEMS}
-            isCollapsed={isCollapsed}
-            currentWorkspace={currentWorkspace}
-            className={cn(isCollapsed && "items-center space-y-2")}
-            />
+        {/* Chỉ Admin mới thấy mục Quản Lý Tài Khoản */}
+        <SidebarNav
+          items={NAV_ITEMS.filter((item) =>
+            item.href === "/accounts" ? user?.role === "Admin" : true
+          )}
+          isCollapsed={isCollapsed}
+          currentWorkspace={currentWorkspace}
+          className={cn(isCollapsed && "items-center space-y-2")}
+        />
       </ScrollArea>
 
       <div>
-            <Button variant={"ghost"} size={isCollapsed ? "icon": "default"} onClick={() => {
-              logout();
-              navigate("/sign-in");
-            }}>
-                  <LogOut className={cn("size-4",isCollapsed ? "" : "mr-2")}/>
-                  <span className="hidden mb:block">{t("header.signOut")}</span>
-            </Button>
+        <Button
+          variant={"ghost"}
+          size={isCollapsed ? "icon" : "default"}
+          onClick={() => {
+            logout();
+            navigate("/sign-in");
+          }}
+        >
+          <LogOut className={cn("size-4", isCollapsed ? "" : "mr-2")} />
+          <span className="hidden mb:block">{t("header.signOut")}</span>
+        </Button>
       </div>
     </div>
   );

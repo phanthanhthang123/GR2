@@ -186,7 +186,8 @@ export const getProjectTasksService = async (projectId, userId) => {
                         {
                             model: db.Users,
                             as: 'user',
-                            attributes: ['id', 'username', 'email']
+                            // Bao gồm luôn role hệ thống của user để FE hiển thị đúng Admin/Leader/Member
+                            attributes: ['id', 'username', 'email', 'role']
                         }
                     ]
                 }

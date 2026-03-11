@@ -59,8 +59,8 @@ export const createTaskService = (projectId, taskData) => new Promise(async (res
     }
 });
 
-//GET TASK BY ID
-export const getTaskByIdService = (taskId) => new Promise(async (resolve, reject) => {
+//GET TASK BY ID with permission check
+export const getTaskByIdService = (taskId, userId) => new Promise(async (resolve, reject) => {
     try {
         const task = await db.Task.findOne({
             where: { id: taskId },
@@ -101,6 +101,34 @@ export const getTaskByIdService = (taskId) => new Promise(async (resolve, reject
                 err: 1,
                 msg: 'TASK NOT FOUND'
             });
+        }
+
+        // Nếu có userId, kiểm tra xem user có quyền truy cập task này không
+        if (userId) {
+            const userIdStr = String(userId);
+
+            // Cho phép nếu là người được assign trực tiếp
+            const isAssigned =
+                task.assigned_to &&
+                String(task.assigned_to) === userIdStr;
+
+            let isProjectMember = false;
+            if (task.project_id) {
+                const membership = await db.Project_Member.findOne({
+                    where: {
+                        project_id: task.project_id,
+                        user_id: userIdStr,
+                    },
+                });
+                isProjectMember = !!membership;
+            }
+
+            if (!isAssigned && !isProjectMember) {
+                return resolve({
+                    err: 2,
+                    msg: 'FORBIDDEN: You do not have permission to access this task',
+                });
+            }
         }
 
         resolve({

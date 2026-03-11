@@ -51,30 +51,35 @@ const SignUp = () => {
   }
 
   return (
-    <div
-    className='min-h-screen flex flex-col items-center justify-center bg-muted/40 p-4'
-    >
-      <Card className='max-w-3/12 w-full'> 
-        <CardHeader className='text-center mb-5'> 
-          <CardTitle className='text-2xl font-bold'>{t('signUp.title')}</CardTitle>
-          <CardDescription className='text-sm text-muted-foreground '>{t('signUp.description')}</CardDescription>
+    <div className="w-full">
+      <Card className="w-full max-w-md mx-auto bg-slate-900/80 border-slate-800 text-slate-50 shadow-xl">
+        <CardHeader className="text-center mb-2">
+          <CardTitle className="text-2xl font-semibold">
+            {t("signUp.title")}
+          </CardTitle>
+          <CardDescription className="text-sm text-slate-300">
+            {t("signUp.description")}
+          </CardDescription>
         </CardHeader>
         <CardContent>
-
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleOnSubmit)}
-              className='space-y-6'
+            <form
+              onSubmit={form.handleSubmit(handleOnSubmit)}
+              className="space-y-6"
             >
               <FormField
                 control={form.control}
-                name='email'
-                render= {({ field }) => (
+                name="email"
+                render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('signUp.email')}</FormLabel>
+                    <FormLabel>{t("signUp.email")}</FormLabel>
                     <FormControl>
                       <Input
-                        type='email'
-                        placeholder={t('signUp.placeholderEmail')} {...field} />
+                        type="email"
+                        className="bg-slate-900 border-slate-700 text-slate-50 placeholder:text-slate-500"
+                        placeholder={t("signUp.placeholderEmail")}
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -82,14 +87,17 @@ const SignUp = () => {
               />
               <FormField
                 control={form.control}
-                name='name'
-                render= {({ field }) => (
+                name="name"
+                render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('signUp.fullName')}</FormLabel>
+                    <FormLabel>{t("signUp.fullName")}</FormLabel>
                     <FormControl>
                       <Input
-                        type='text'
-                        placeholder={t('signUp.placeholderFullName')} {...field} />
+                        type="text"
+                        className="bg-slate-900 border-slate-700 text-slate-50 placeholder:text-slate-500"
+                        placeholder={t("signUp.placeholderFullName")}
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -97,14 +105,17 @@ const SignUp = () => {
               />
               <FormField
                 control={form.control}
-                name='password'
-                render= {({ field }) => (
+                name="password"
+                render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('signUp.password')}</FormLabel>
+                    <FormLabel>{t("signUp.password")}</FormLabel>
                     <FormControl>
                       <Input
-                        type='password'
-                        placeholder={t('signUp.placeholderPassword')} {...field} />
+                        type="password"
+                        className="bg-slate-900 border-slate-700 text-slate-50 placeholder:text-slate-500"
+                        placeholder={t("signUp.placeholderPassword")}
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -112,31 +123,42 @@ const SignUp = () => {
               />
               <FormField
                 control={form.control}
-                name='confirmPassword'
-                render= {({ field }) => (
+                name="confirmPassword"
+                render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('signUp.confirmPassword')}</FormLabel>
+                    <FormLabel>{t("signUp.confirmPassword")}</FormLabel>
                     <FormControl>
                       <Input
-                        type='password'
-                        placeholder={t('signUp.placeholderConfirmPassword')} {...field} />
+                        type="password"
+                        className="bg-slate-900 border-slate-700 text-slate-50 placeholder:text-slate-500"
+                        placeholder={t("signUp.placeholderConfirmPassword")}
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              
-              <Button type='submit' className='w-full pointer' disabled={isPending}>
-                {isPending ?  t('signUp.buttonLoading') : t('signUp.button')}
+
+              <Button
+                type="submit"
+                className="w-full pointer bg-blue-600 hover:bg-blue-500 text-slate-50"
+                disabled={isPending}
+              >
+                {isPending ? t("signUp.buttonLoading") : t("signUp.button")}
               </Button>
             </form>
           </Form>
-
         </CardContent>
 
-        <CardFooter className='flex items-center justify-center text-center mt6'>
-          <div> 
-            <p>{t('signUp.textSignIn')} <Link className='text-blue-600' to="/sign-in">{t('signUp.textSignInLink')}</Link></p>
+        <CardFooter className="flex items-center justify-center text-center mt-2">
+          <div>
+            <p className="text-xs text-slate-300">
+              {t("signUp.textSignIn")}{" "}
+              <Link className="text-blue-300 hover:text-blue-200" to="/sign-in">
+                {t("signUp.textSignInLink")}
+              </Link>
+            </p>
           </div>
         </CardFooter>
       </Card>

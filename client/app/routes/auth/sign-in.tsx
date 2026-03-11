@@ -49,6 +49,11 @@ const SignIn = () => {
             // Fetch workspaces and navigate with workspaceId if available
             try {
               const userInfo = JSON.parse(localStorage.getItem("user") || "{}");
+              // Nếu đăng nhập lần đầu, bắt buộc đổi mật khẩu trước khi vào dashboard
+              if (userInfo?.mustChangePassword) {
+                navigate("/first-change-password");
+                return;
+              }
               if (userInfo?.id) {
                 const workspaces = await postData<Workspace[]>("/workspace/list-workspace-by-user", { user_id: userInfo.id });
                 
@@ -95,30 +100,35 @@ const SignIn = () => {
   }
 
   return (
-    <div
-    className='min-h-screen flex flex-col items-center justify-center bg-muted/40 p-4'
-    >
-      <Card className='max-w-3/12 w-full'> 
-        <CardHeader className='text-center mb-5'> 
-          <CardTitle className='text-2xl font-bold'>{t('signIn.title')}</CardTitle>
-          <CardDescription className='text-sm text-muted-foreground '>{t('signIn.description')}</CardDescription>
+    <div className="w-full">
+      <Card className="w-full max-w-md mx-auto bg-slate-900/80 border-slate-800 text-slate-50 shadow-xl">
+        <CardHeader className="text-center mb-2">
+          <CardTitle className="text-2xl font-semibold">
+            {t("signIn.title")}
+          </CardTitle>
+          <CardDescription className="text-sm text-slate-300">
+            {t("signIn.description")}
+          </CardDescription>
         </CardHeader>
         <CardContent>
-
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleOnSubmit)}
-              className='space-y-6'
+            <form
+              onSubmit={form.handleSubmit(handleOnSubmit)}
+              className="space-y-6"
             >
               <FormField
                 control={form.control}
-                name='email'
-                render= {({ field }) => (
+                name="email"
+                render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('signIn.email')}</FormLabel>
+                    <FormLabel>{t("signIn.email")}</FormLabel>
                     <FormControl>
                       <Input
-                        type='email'
-                        placeholder={t('signIn.placeholderEmail')} {...field} />
+                        className="bg-slate-900 border-slate-700 text-slate-50 placeholder:text-slate-500"
+                        type="email"
+                        placeholder={t("signIn.placeholderEmail")}
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -126,40 +136,57 @@ const SignIn = () => {
               />
               <FormField
                 control={form.control}
-                name='password'
-                render= {({ field }) => (
+                name="password"
+                render={({ field }) => (
                   <FormItem>
-                    <div className='flex items-center justify-between'>
-                      <FormLabel>{t('signIn.password')}</FormLabel>
-                      <Link to="/forgot-password" className='text-sm text-blue-600 float-right'>{t('signIn.forgotPassword')}
+                    <div className="flex items-center justify-between">
+                      <FormLabel>{t("signIn.password")}</FormLabel>
+                      <Link
+                        to="/forgot-password"
+                        className="text-xs text-blue-400 hover:text-blue-300"
+                      >
+                        {t("signIn.forgotPassword")}
                       </Link>
                     </div>
                     <FormControl>
                       <Input
-                        type='password'
-                        placeholder={t('signIn.placeholderPassword')} {...field} />
+                        className="bg-slate-900 border-slate-700 text-slate-50 placeholder:text-slate-500"
+                        type="password"
+                        placeholder={t("signIn.placeholderPassword")}
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              
-              <Button type='submit' className='w-full pointer' disabled={isPending}>
-                {isPending ? <Loader2 className='w-4 h-4 mr-2'/>: t('signIn.button')}
+
+              <Button
+                type="submit"
+                className="w-full pointer bg-blue-600 hover:bg-blue-500 text-slate-50"
+                disabled={isPending}
+              >
+                {isPending ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  t("signIn.button")
+                )}
               </Button>
             </form>
           </Form>
-
         </CardContent>
 
-        <CardFooter className='flex items-center justify-center text-center mt6'>
-          <div> 
-            <p>{t('signIn.textSignUp')} <Link className='text-blue-600' to="/sign-up">{t('signIn.textSignUpLink')}</Link></p>
-          </div>
+        <CardFooter className="flex flex-col gap-2 items-center justify-center text-center mt-2">
+          <p className="text-xs text-slate-300">
+            Bạn chưa có tài khoản?{" "}
+            <span className="font-medium text-blue-300">
+              Vui lòng liên hệ quản trị viên (Admin) để được đăng ký.
+            </span>
+          </p>
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }
 
 export default SignIn

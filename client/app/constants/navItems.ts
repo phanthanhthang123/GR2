@@ -1,4 +1,4 @@
-import { LayoutDashboard, User, ListCheck, CheckCircle2, Settings } from "lucide-react";
+import { LayoutDashboard, User, ListCheck, CheckCircle2, Settings, Users2 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export interface NavItem {
@@ -32,5 +32,10 @@ export const NAV_ITEMS: NavItem[] = [
     title: "Cài Đặt",
     href: "/settings",
     icon: Settings,
+  },
+  {
+    title: "Quản Lý Tài Khoản",
+    href: "/accounts",
+    icon: Users2,
   },
 ];

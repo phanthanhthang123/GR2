@@ -17,6 +17,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { format } from "date-fns";
 
 const TASKS_PER_PAGE = 3; // Maximum 3 tasks per page per project
 
@@ -34,8 +35,8 @@ const MyTasks = () => {
       try {
         const response = await fetchData(`/task/my-tasks?workspaceId=${workspaceId}`);
         // Check if response has error
-        if (response?.err === 1 || response?.err === -1) {
-          const errorMsg = response?.msg || 'Failed to fetch tasks';
+        if ((response as any)?.err === 1 || (response as any)?.err === -1) {
+          const errorMsg = (response as any)?.msg || 'Failed to fetch tasks';
           console.error("API returned error:", response);
           throw new Error(errorMsg);
         }
@@ -244,18 +245,89 @@ const MyTasks = () => {
                 {/* Tasks Grid - Collapsible */}
                 {isExpanded && (
                   <div className="p-4 pt-3 space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
-                      {paginatedTasks.map((task: Task) => (
-                        <TaskCard
-                          key={task.id}
-                          task={task}
-                          onClick={() => {
-                            if (workspaceId && projectIdForNav !== 'unknown') {
-                              navigate(`/workspaces/${workspaceId}/projects/${projectIdForNav}/tasks/${task.id}`);
-                            }
-                          }}
-                        />
-                      ))}
+                    {/* Task table layout */}
+                    <div className="overflow-x-auto rounded-lg border bg-white">
+                      <table className="min-w-full text-sm">
+                        <thead className="bg-muted/60">
+                          <tr>
+                            <th className="px-4 py-2 text-left font-medium text-slate-700 w-[40%]">
+                              Task
+                            </th>
+                            <th className="px-4 py-2 text-left font-medium text-slate-700">
+                              Trạng thái
+                            </th>
+                            <th className="px-4 py-2 text-left font-medium text-slate-700">
+                              Ưu tiên
+                            </th>
+                            <th className="px-4 py-2 text-left font-medium text-slate-700">
+                              Hạn chót
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {paginatedTasks.map((task: Task) => (
+                            <tr
+                              key={task.id}
+                              className="border-t hover:bg-muted/60 cursor-pointer"
+                              onClick={() => {
+                                if (workspaceId && projectIdForNav !== "unknown") {
+                                  navigate(
+                                    `/workspaces/${workspaceId}/projects/${projectIdForNav}/tasks/${task.id}`
+                                  );
+                                }
+                              }}
+                            >
+                              <td className="px-4 py-2 align-top">
+                                <div className="flex flex-col gap-1">
+                                  <span className="font-medium text-slate-900">
+                                    {task.title}
+                                  </span>
+                                  {task.description && (
+                                    <span className="text-xs text-slate-500 line-clamp-2">
+                                      {task.description}
+                                    </span>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="px-4 py-2 align-top">
+                                <Badge
+                                  className={
+                                    task.status === "To Do"
+                                      ? "bg-slate-100 text-slate-700 border border-slate-200"
+                                      : task.status === "In Progress"
+                                      ? "bg-blue-100 text-blue-700 border border-blue-200"
+                                      : "bg-green-100 text-green-700 border border-green-200"
+                                  }
+                                >
+                                  {task.status === "To Do"
+                                    ? "Chưa Làm"
+                                    : task.status === "In Progress"
+                                    ? "Đang Làm"
+                                    : "Hoàn Thành"}
+                                </Badge>
+                              </td>
+                              <td className="px-4 py-2 align-top">
+                                <Badge
+                                  className={
+                                    task.priority === "High"
+                                      ? "bg-red-100 text-red-700 border border-red-200"
+                                      : task.priority === "Medium"
+                                      ? "bg-yellow-100 text-yellow-700 border border-yellow-200"
+                                      : "bg-slate-100 text-slate-700 border border-slate-200"
+                                  }
+                                >
+                                  {task.priority}
+                                </Badge>
+                              </td>
+                              <td className="px-4 py-2 align-top text-xs text-slate-700">
+                                {task.dueDate
+                                  ? format(new Date(task.dueDate), "dd/MM/yyyy")
+                                  : "—"}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
 
                     {/* Pagination for this project */}

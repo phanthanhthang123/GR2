@@ -4,6 +4,7 @@ export interface User {
   email: string;
   password: string;
   role: "Admin" | "Leader" | "Member";
+  mustChangePassword?: boolean;
   resetToken?: string | null;
   resetTokenExpiry?: Date | null;
   createdAt: Date;

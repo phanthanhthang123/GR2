@@ -21,17 +21,23 @@ const WorkspaceHeader = (workspace: any) => {
     return lastName.charAt(0).toUpperCase();
   };
   
-  // Check if current user is Leader in this workspace
+  // Check nếu current user có quyền quản lý workspace
+  // (Admin/Leader hệ thống, Owner workspace, hoặc Leader trong workspace)
   // Only check if both user and workspaceData are loaded
   const isCurrentUserLeader = useMemo(() => {
     if (isAuthLoading || !user || !workspaceData) return false;
     
-    // Check if user is owner
+    // Admin hoặc Leader hệ thống luôn có quyền
+    if (user.role === "Admin" || user.role === "Leader") {
+      return true;
+    }
+
+    // Check if user is owner của workspace
     if (workspaceData.onwner === user.id || (typeof workspaceData.onwner === 'object' && workspaceData.onwner?.id === user.id)) {
       return true;
     }
     
-    // Check if user is Leader in members
+    // Check nếu user là Leader trong danh sách members của workspace
     return workspaceData.members?.some((member: any) => {
       const memberUserId = typeof member.user === 'string' ? member.user : member.user?.id || member.user_id;
       return memberUserId === user.id && member.role === 'Leader';
