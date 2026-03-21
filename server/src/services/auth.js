@@ -384,6 +384,47 @@ export const firstChangePasswordService = (id, newPassword) => new Promise(async
     }
 });
 
+// Update current user's profile (currently: username)
+export const updateProfileService = (id, data) => new Promise(async (resolve, reject) => {
+    try {
+        const user = await db.Users.findByPk(id);
+        if (!user) {
+            return resolve({
+                err: 1,
+                msg: 'User không tồn tại',
+            });
+        }
+
+        const updatePayload = {};
+        if (data?.username !== undefined) updatePayload.username = data.username;
+
+        if (Object.keys(updatePayload).length === 0) {
+            return resolve({
+                err: 1,
+                msg: 'Không có dữ liệu để cập nhật',
+            });
+        }
+
+        await user.update(updatePayload);
+
+        resolve({
+            err: 0,
+            msg: 'Cập nhật hồ sơ thành công',
+            response: {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                role: user.role,
+                mustChangePassword: user.mustChangePassword,
+                createdAt: user.createdAt,
+                updatedAt: user.updatedAt,
+            }
+        });
+    } catch (error) {
+        reject(error);
+    }
+});
+
 // export const verifyEmailService = (email) => new Promise(async (resolve, reject) => {
 //     try {
 //         const user = await db.Users.findOne({

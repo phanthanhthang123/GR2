@@ -12,6 +12,7 @@ interface AuthContextType {
       isLoading: boolean;
       login: (data: any) => Promise<void>;
       logout: () => Promise<void>;
+      updateUser: (nextUser: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);  
@@ -104,12 +105,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                   console.error("Logout error:", error);
             }
       }
+
+      const updateUser = (nextUser: User) => {
+            localStorage.setItem("user", JSON.stringify(nextUser));
+            setUser(nextUser);
+      };
       const values = {
             user,
             isAuthenticated,
             isLoading,
             login,
             logout,
+            updateUser,
       };
 
       return (

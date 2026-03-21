@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import { createSignUpSchema } from "@/lib/schema";
-import { postData } from "@/lib/fetch-utlis";
+import { postData, updateData } from "@/lib/fetch-utlis";
 
 
 export const useSignUpMutation = () => {
@@ -48,3 +48,19 @@ export const useResetPasswordMutation = () => {
     },
   });
 }
+
+export const useChangePasswordMutation = () => {
+  return useMutation({
+    mutationFn: async (data: { id?: string; password: string; newPassword: string }) => {
+      return postData("/auth/edit-password", data);
+    },
+  });
+};
+
+export const useUpdateProfileMutation = () => {
+  return useMutation({
+    mutationFn: async (data: { id?: string; username: string }) => {
+      return updateData("/auth/profile", data);
+    },
+  });
+};

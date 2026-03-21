@@ -14,6 +14,7 @@ router.post('/admin/users', controllers.adminCreateUser);
 router.put('/admin/users/:id', controllers.adminUpdateUser);
 router.delete('/admin/users/:id', controllers.adminDeleteUser);
 router.post('/first-change-password', controllers.firstChangePassword);
+router.put('/profile', controllers.updateProfile);
 // router.post('/send-reset-password-email', controllers.sendResetPasswordEmail);
 // router.post('/verify-email', controllers.verifyEmail);
 export default router;

@@ -3,7 +3,7 @@ import type { Workspace } from "@/type";
 import React, { use } from "react";
 import { Button } from "../ui/button";
 import { useLoaderData, useLocation, useNavigate } from "react-router";
-import { Bell, PlusCircle } from "lucide-react";
+import { Bell, LogOut, PlusCircle, Settings } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -134,15 +134,17 @@ export const Header = ({
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>{t("header.myAccount")}</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Link to="/user/profile">{t("header.profile")}</Link>
+              <DropdownMenuItem className="flex items-center">
+                <Link to="/settings" className="flex items-center">
+                  <Settings className="w-4 h-4 mr-2"/> {t("header.profile")}
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => {
               logout();
               navigate("/sign-in");
             }}>
-                {t("header.signOut")}
+                <LogOut className="w-4 h-4 mr-2"/> {t("header.signOut")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

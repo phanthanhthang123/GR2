@@ -1,4 +1,24 @@
 import * as services from '../services/auth';
+import jwt from 'jsonwebtoken';
+
+// Helper function to get userId from token (Bearer or cookie)
+const getUserIdFromToken = (req) => {
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.startsWith('Bearer ')
+        ? authHeader.replace('Bearer ', '')
+        : (req.cookies?.accessToken || null);
+
+    if (token) {
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            return decoded.id;
+        } catch (error) {
+            console.error('Token verification failed:', error.message);
+            return null;
+        }
+    }
+    return null;
+};
 
 export const register = async (req,res) => {
     try {
@@ -243,6 +263,37 @@ export const firstChangePassword = async (req, res) => {
         return res.status(500).json({
             err: -1,
             msg: 'Failed at first change password controller: ' + error
+        });
+    }
+}
+
+export const updateProfile = async (req, res) => {
+    try {
+        const tokenUserId = getUserIdFromToken(req);
+        const { id, username } = req.body;
+        const userId = tokenUserId || id;
+
+        if (!userId) {
+            return res.status(401).json({
+                err: 1,
+                msg: 'Unauthorized'
+            });
+        }
+
+        if (!username) {
+            return res.status(400).json({
+                err: 1,
+                msg: 'Missing inputs parameter'
+            });
+        }
+
+        const response = await services.updateProfileService(userId, { username });
+        const status = response.err === 0 ? 200 : 400;
+        return res.status(status).json(response);
+    } catch (error) {
+        return res.status(500).json({
+            err: -1,
+            msg: 'Failed at update profile controller: ' + error
         });
     }
 }
