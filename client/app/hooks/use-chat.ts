@@ -27,13 +27,30 @@ export const disconnectChatSocket = () => {
 };
 
 export const useConversationsQuery = (workspaceId?: string | null) => {
+  let userId: string | null = null;
+  try {
+    const raw = localStorage.getItem("user");
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      userId = parsed?.id || null;
+    }
+  } catch {
+    userId = null;
+  }
+
   return useQuery<Conversation[]>({
-    queryKey: ["chat-conversations", workspaceId],
+    queryKey: ["chat-conversations", userId, workspaceId],
     queryFn: async () => {
       const query = workspaceId ? `?workspaceId=${workspaceId}` : "";
       const res = await fetchData<{ err: number; response: Conversation[] }>(`/chat/conversations${query}`);
       return res?.response || [];
     },
+    enabled: !!userId,
+    staleTime: 0,
+    refetchInterval: 5000,
+    refetchIntervalInBackground: true,
+    refetchOnMount: "always",
+    refetchOnReconnect: true,
     refetchOnWindowFocus: true,
   });
 };
@@ -157,11 +174,33 @@ export const useChatRealtime = (conversationId?: string | null) => {
       queryClient.invalidateQueries({ queryKey: ["chat-messages", payload.conversationId] });
     };
 
+    const onMessageUpdated = (payload: { conversationId: string; message: Message }) => {
+      queryClient.setQueryData<Message[]>(["chat-messages", payload.conversationId], (old) => {
+        const prev = old || [];
+        return prev.map((m) => (m.id === payload.message.id ? payload.message : m));
+      });
+      queryClient.invalidateQueries({ queryKey: ["chat-conversations"] });
+    };
+
+    const onMessageDeleted = (payload: { conversationId: string; messageId: string }) => {
+      queryClient.setQueryData<Message[]>(["chat-messages", payload.conversationId], (old) => {
+        const prev = old || [];
+        return prev.filter((m) => m.id !== payload.messageId);
+      });
+      queryClient.invalidateQueries({ queryKey: ["chat-conversations"] });
+    };
+
     socket.on("message:new", onMessage);
     socket.on("message:read:updated", onReadUpdated);
+    socket.on("message:updated", onMessageUpdated);
+    socket.on("message:pinned", onMessageUpdated);
+    socket.on("message:deleted", onMessageDeleted);
     return () => {
       socket.off("message:new", onMessage);
       socket.off("message:read:updated", onReadUpdated);
+      socket.off("message:updated", onMessageUpdated);
+      socket.off("message:pinned", onMessageUpdated);
+      socket.off("message:deleted", onMessageDeleted);
     };
   }, [queryClient, socket]);
 

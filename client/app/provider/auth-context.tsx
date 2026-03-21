@@ -35,6 +35,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                         setUser(JSON.parse(userInfo));
                         setIsAuthenticated(true);
                         getChatSocket();
+                        queryClient.invalidateQueries({
+                              queryKey: ["chat-conversations"],
+                        });
                   }else{
                         setUser(null);
                         setIsAuthenticated(false);
@@ -89,6 +92,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                   // Connect chat socket immediately after login
                   disconnectChatSocket();
                   getChatSocket();
+                  queryClient.invalidateQueries({
+                        queryKey: ["chat-conversations"],
+                  });
             } catch (error) {
                   console.error("Login error:", error);
                   throw error;

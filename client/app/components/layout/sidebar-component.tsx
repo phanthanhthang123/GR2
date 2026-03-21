@@ -37,13 +37,24 @@ export const SidebarComponent = ({
     const refreshUnread = () => {
       queryClient.invalidateQueries({ queryKey: ["chat-conversations"] });
     };
+    // Force initial refreshes to avoid unread badge delay after login/reload.
+    refreshUnread();
+    const t1 = setTimeout(refreshUnread, 400);
+    const t2 = setTimeout(refreshUnread, 1500);
+
+    socket.on("connect", refreshUnread);
+    socket.on("reconnect", refreshUnread);
     socket.on("message:new", refreshUnread);
     socket.on("message:read:updated", refreshUnread);
     return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      socket.off("connect", refreshUnread);
+      socket.off("reconnect", refreshUnread);
       socket.off("message:new", refreshUnread);
       socket.off("message:read:updated", refreshUnread);
     };
-  }, [queryClient]);
+  }, [queryClient, workspaceId, user?.id]);
 
   const handleLogoClick = () => {
     // Lấy workspaceId từ query string hiện tại hoặc từ currentWorkspace

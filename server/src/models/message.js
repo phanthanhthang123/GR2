@@ -68,6 +68,23 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         allowNull: true,
       },
+      edited_at: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+      is_pinned: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
+      pinned_by: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        references: {
+          model: 'Users',
+          key: 'id',
+        },
+      },
     },
     {
       sequelize,

@@ -309,3 +309,76 @@ export const markAsReadService = (conversationId, userId) =>
     }
   });
 
+export const editMessageService = (messageId, userId, content) =>
+  new Promise(async (resolve) => {
+    try {
+      const message = await db.Message.findByPk(messageId);
+      if (!message) return resolve({ err: 1, msg: 'MESSAGE NOT FOUND' });
+      if (String(message.sender_id) !== String(userId)) {
+        return resolve({ err: 1, msg: 'FORBIDDEN' });
+      }
+      if (!content || !content.trim()) {
+        return resolve({ err: 1, msg: 'MESSAGE CONTENT IS REQUIRED' });
+      }
+      await message.update({
+        content: content.trim(),
+        edited_at: new Date(),
+        updatedAt: new Date(),
+      });
+      const fullMessage = await db.Message.findByPk(message.id, {
+        include: [{ model: db.Users, as: 'sender', attributes: ['id', 'username', 'email'] }],
+      });
+      resolve({ err: 0, msg: 'OK', response: fullMessage });
+    } catch (error) {
+      resolve({ err: 1, msg: 'FAILED TO EDIT MESSAGE: ' + error.message });
+    }
+  });
+
+export const deleteMessageService = (messageId, userId) =>
+  new Promise(async (resolve) => {
+    try {
+      const message = await db.Message.findByPk(messageId);
+      if (!message) return resolve({ err: 1, msg: 'MESSAGE NOT FOUND' });
+      if (String(message.sender_id) !== String(userId)) {
+        return resolve({ err: 1, msg: 'FORBIDDEN' });
+      }
+      await message.update({
+        deleted_at: new Date(),
+        updatedAt: new Date(),
+      });
+      resolve({ err: 0, msg: 'OK', response: { id: message.id, conversation_id: message.conversation_id } });
+    } catch (error) {
+      resolve({ err: 1, msg: 'FAILED TO DELETE MESSAGE: ' + error.message });
+    }
+  });
+
+export const togglePinMessageService = (messageId, userId, isPinned) =>
+  new Promise(async (resolve) => {
+    try {
+      const message = await db.Message.findByPk(messageId);
+      if (!message) return resolve({ err: 1, msg: 'MESSAGE NOT FOUND' });
+
+      const membership = await db.Conversation_Member.findOne({
+        where: {
+          conversation_id: message.conversation_id,
+          user_id: userId,
+        },
+      });
+      if (!membership) {
+        return resolve({ err: 1, msg: 'FORBIDDEN' });
+      }
+
+      await message.update({
+        is_pinned: Boolean(isPinned),
+        pinned_by: Boolean(isPinned) ? userId : null,
+        updatedAt: new Date(),
+      });
+      const fullMessage = await db.Message.findByPk(message.id, {
+        include: [{ model: db.Users, as: 'sender', attributes: ['id', 'username', 'email'] }],
+      });
+      resolve({ err: 0, msg: 'OK', response: fullMessage });
+    } catch (error) {
+      resolve({ err: 1, msg: 'FAILED TO PIN MESSAGE: ' + error.message });
+    }
+  });
+

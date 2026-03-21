@@ -420,53 +420,43 @@ export const getWorkspaceStatsService = (workspaceId) => new Promise(async (reso
         };
 
         // Task Trends Data (last 7 days)
+        // Group by application timezone to avoid "new day but still old date" issues after midnight.
         const taskTrendsData = [];
-        const today = new Date();
-        // Normalize today to UTC midnight
-        const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
-        
-        // Debug: Log total tasks and today's date
-        console.log(`[Task Trends] Total tasks in workspace: ${allTasks.length}`);
-        console.log(`[Task Trends] Today's date (local): ${today.toISOString().split('T')[0]}`);
-        console.log(`[Task Trends] Today's date (UTC): ${todayUTC.toISOString().split('T')[0]}`);
-        
-        // Helper function to normalize date to UTC date string (YYYY-MM-DD)
-        const getUTCDateString = (dateValue) => {
+        const appTimeZone = process.env.APP_TIMEZONE || 'Asia/Ho_Chi_Minh';
+        const getDateInTimeZone = (dateValue) => {
             if (!dateValue) return null;
-            const date = new Date(dateValue);
-            // Get UTC date components
-            const year = date.getUTCFullYear();
-            const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-            const day = String(date.getUTCDate()).padStart(2, '0');
+            const parts = new Intl.DateTimeFormat('en-CA', {
+                timeZone: appTimeZone,
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            }).formatToParts(new Date(dateValue));
+
+            const year = parts.find(p => p.type === 'year')?.value;
+            const month = parts.find(p => p.type === 'month')?.value;
+            const day = parts.find(p => p.type === 'day')?.value;
+
+            if (!year || !month || !day) return null;
             return `${year}-${month}-${day}`;
         };
         
         for (let i = 6; i >= 0; i--) {
-            const date = new Date(todayUTC);
-            date.setUTCDate(date.getUTCDate() - i);
-            const dateStr = date.toISOString().split('T')[0];
+            const date = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
+            const dateStr = getDateInTimeZone(date);
 
             // Count tasks created on this day
             const tasksCreated = allTasks.filter(t => {
                 if (!t.createdAt) return false;
-                const createdDateStr = getUTCDateString(t.createdAt);
-                if (createdDateStr === dateStr) {
-                    console.log(`[Task Trends] Match found! Task ${t.id} created on ${createdDateStr} matches ${dateStr}`);
-                    return true;
-                }
-                return false;
+                const createdDateStr = getDateInTimeZone(t.createdAt);
+                return createdDateStr === dateStr;
             }).length;
 
             // Count tasks completed on this day (status = 'Done' and updated on this day)
             const tasksCompleted = allTasks.filter(t => {
                 if (t.status !== 'Done') return false;
                 if (!t.updatedAt) return false;
-                const updatedDateStr = getUTCDateString(t.updatedAt);
-                if (updatedDateStr === dateStr) {
-                    console.log(`[Task Trends] Match found! Task ${t.id} completed on ${updatedDateStr} matches ${dateStr}`);
-                    return true;
-                }
-                return false;
+                const updatedDateStr = getDateInTimeZone(t.updatedAt);
+                return updatedDateStr === dateStr;
             }).length;
 
             taskTrendsData.push({
@@ -474,29 +464,6 @@ export const getWorkspaceStatsService = (workspaceId) => new Promise(async (reso
                 created: tasksCreated,
                 completed: tasksCompleted
             });
-            
-            // Debug: Log all dates being checked
-            console.log(`[Task Trends] Checking date ${dateStr}: Created=${tasksCreated}, Completed=${tasksCompleted}`);
-        }
-        
-        // Debug: Log all task dates for comparison
-        console.log('[Task Trends] All task dates:');
-        allTasks.forEach(t => {
-            const createdStr = getUTCDateString(t.createdAt);
-            const updatedStr = getUTCDateString(t.updatedAt);
-            console.log(`  Task ${t.id}: createdAt=${createdStr}, updatedAt=${updatedStr}, status=${t.status}`);
-        });
-        
-        // Debug: Log sample task dates
-        if (allTasks.length > 0) {
-            const sampleTasks = allTasks.slice(0, 3);
-            console.log('[Task Trends] Sample tasks:', sampleTasks.map(t => ({
-                id: t.id,
-                title: t.title,
-                status: t.status,
-                createdAt: t.createdAt ? new Date(t.createdAt).toISOString().split('T')[0] : null,
-                updatedAt: t.updatedAt ? new Date(t.updatedAt).toISOString().split('T')[0] : null
-            })));
         }
 
         // Project Status Data

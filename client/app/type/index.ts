@@ -174,6 +174,10 @@ export interface Message {
   type: 'text' | 'image' | 'file' | 'system';
   attachment_url?: string | null;
   reply_to_id?: string | null;
+  edited_at?: string | null;
+  is_pinned?: boolean;
+  pinned_by?: string | null;
+  deleted_at?: string | null;
   createdAt: string;
   updatedAt: string;
   sender?: User;

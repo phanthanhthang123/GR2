@@ -17,7 +17,14 @@ import {
   useTypingState,
 } from "@/hooks/use-chat";
 import { Phone, Video } from "lucide-react";
+import { MoreHorizontal, Pin, Pencil, Trash2 } from "lucide-react";
 import type { Conversation, User } from "@/type";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const ChatPage = () => {
   const { user } = useAuth();
@@ -30,10 +37,18 @@ const ChatPage = () => {
   const [isIncomingCall, setIsIncomingCall] = useState(false);
   const [incomingFromUserId, setIncomingFromUserId] = useState<string | null>(null);
   const [incomingMode, setIncomingMode] = useState<"audio" | "video">("audio");
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
+  const [editingText, setEditingText] = useState("");
+  const [showPinnedPanel, setShowPinnedPanel] = useState(false);
+  const [focusedMessageId, setFocusedMessageId] = useState<string | null>(null);
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
   const peerRef = useRef<RTCPeerConnection | null>(null);
   const localStreamRef = useRef<MediaStream | null>(null);
+  const messageScrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const messageEndRef = useRef<HTMLDivElement | null>(null);
+  const shouldAutoScrollRef = useRef(true);
+  const messageRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const { data: users = [] } = useAllUsersQuery();
   const { data: conversations = [] } = useConversationsQuery(workspaceId);
@@ -53,6 +68,22 @@ const ChatPage = () => {
     [conversations, activeConversationId]
   );
   const { data: messages = [] } = useMessagesQuery(activeConversationId);
+  const sortedMessages = useMemo(() => {
+    return [...messages].sort((a, b) => {
+      const aTime = new Date(a.createdAt).getTime();
+      const bTime = new Date(b.createdAt).getTime();
+      if (aTime === bTime) return a.id.localeCompare(b.id);
+      return aTime - bTime;
+    });
+  }, [messages]);
+  const pinnedMessages = useMemo(
+    () =>
+      sortedMessages
+        .filter((m) => m.is_pinned)
+        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()),
+    [sortedMessages]
+  );
+  const latestPinnedMessage = pinnedMessages[0] || null;
 
   useEffect(() => {
     if (!activeConversationId && conversations.length) {
@@ -65,6 +96,32 @@ const ChatPage = () => {
       socket.emit("message:read", { conversationId: activeConversationId });
     }
   }, [activeConversationId, socket]);
+
+  useEffect(() => {
+    shouldAutoScrollRef.current = true;
+  }, [activeConversationId]);
+
+  const scrollMessagesToBottom = () => {
+    const container = messageScrollContainerRef.current;
+    const viewport = container?.querySelector('[data-slot="scroll-area-viewport"]') as HTMLDivElement | null;
+    if (viewport) {
+      viewport.scrollTop = viewport.scrollHeight;
+      return;
+    }
+    messageEndRef.current?.scrollIntoView({ block: "end" });
+  };
+
+  useEffect(() => {
+    if (!activeConversationId || !shouldAutoScrollRef.current) return;
+    if (sortedMessages.length === 0) return;
+    const frame = requestAnimationFrame(() => {
+      scrollMessagesToBottom();
+      setTimeout(scrollMessagesToBottom, 0);
+      setTimeout(scrollMessagesToBottom, 120);
+      shouldAutoScrollRef.current = false;
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [activeConversationId, sortedMessages.length]);
 
   const getConversationTitle = (conversation: Conversation) => {
     if (conversation.type === "group") return conversation.title || "Nhóm";
@@ -98,9 +155,63 @@ const ChatPage = () => {
 
   const handleSendMessage = async () => {
     if (!activeConversationId || !messageInput.trim()) return;
+    shouldAutoScrollRef.current = true;
     socket.emit("message:send", { conversationId: activeConversationId, content: messageInput.trim() });
     socket.emit("typing:stop", { conversationId: activeConversationId });
     setMessageInput("");
+  };
+
+  const handleStartEditMessage = (messageId: string, content: string) => {
+    setEditingMessageId(messageId);
+    setEditingText(content);
+  };
+
+  const handleSaveEditMessage = () => {
+    if (!activeConversationId || !editingMessageId || !editingText.trim()) return;
+    socket.emit("message:edit", {
+      conversationId: activeConversationId,
+      messageId: editingMessageId,
+      content: editingText.trim(),
+    });
+    setEditingMessageId(null);
+    setEditingText("");
+  };
+
+  const handleDeleteMessage = (messageId: string) => {
+    if (!activeConversationId) return;
+    socket.emit("message:delete", {
+      conversationId: activeConversationId,
+      messageId,
+    });
+  };
+
+  const handleTogglePinMessage = (messageId: string, nextPinned: boolean) => {
+    if (!activeConversationId) return;
+    socket.emit("message:pin", {
+      conversationId: activeConversationId,
+      messageId,
+      isPinned: nextPinned,
+    });
+  };
+
+  const focusMessageById = (messageId: string) => {
+    const target = messageRefs.current[messageId];
+    if (!target) return;
+    target.scrollIntoView({ behavior: "smooth", block: "center" });
+    setFocusedMessageId(messageId);
+    setShowPinnedPanel(false);
+    setTimeout(() => {
+      setFocusedMessageId((prev) => (prev === messageId ? null : prev));
+    }, 1800);
+  };
+
+  const formatMessageTime = (iso?: string) => {
+    if (!iso) return "";
+    const date = new Date(iso);
+    return date.toLocaleTimeString("vi-VN", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   const startPeer = async (isVideo: boolean, toUserId: string, conversationId: string) => {
@@ -227,8 +338,8 @@ const ChatPage = () => {
 
   return (
     <div className="h-full rounded-lg border overflow-hidden bg-white">
-      <div className="grid grid-cols-12 h-full">
-        <div className="col-span-4 border-r p-3">
+      <div className="grid grid-cols-12 h-full min-h-0">
+        <div className="col-span-4 border-r p-3 min-h-0">
           <h2 className="font-semibold text-lg">Tin nhắn</h2>
           <div className="flex gap-2 mt-3">
             <select
@@ -288,7 +399,7 @@ const ChatPage = () => {
           </ScrollArea>
         </div>
 
-        <div className="col-span-8 flex flex-col h-full">
+        <div className="col-span-8 flex flex-col h-full min-h-0">
           {activeConversation ? (
             <>
               <div className="border-b p-3 flex items-center justify-between">
@@ -313,6 +424,54 @@ const ChatPage = () => {
                   </div>
                 )}
               </div>
+
+              {pinnedMessages.length > 0 && latestPinnedMessage && (
+                <div className="border-b bg-amber-50/60 px-3 py-2">
+                  <button
+                    className="w-full flex items-center justify-between gap-3 text-left"
+                    onClick={() => setShowPinnedPanel((prev) => !prev)}
+                  >
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold text-amber-900 flex items-center gap-1">
+                        <Pin className="size-3.5" />
+                        Tin nhắn đã ghim ({pinnedMessages.length})
+                      </p>
+                      <p className="text-xs text-slate-700 truncate mt-1">
+                        {latestPinnedMessage.sender?.username || "User"}: {latestPinnedMessage.content}
+                      </p>
+                    </div>
+                    <Badge variant="outline">{showPinnedPanel ? "Ẩn" : "Xem"}</Badge>
+                  </button>
+
+                  {showPinnedPanel && (
+                    <div className="mt-2 rounded border border-amber-200 bg-white max-h-52 overflow-y-auto">
+                      {pinnedMessages.map((msg) => (
+                        <div
+                          key={msg.id}
+                          className="px-3 py-2 border-b last:border-b-0 hover:bg-amber-50/60"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <button className="min-w-0 text-left flex-1" onClick={() => focusMessageById(msg.id)}>
+                              <p className="text-[11px] text-slate-500 truncate">
+                                {msg.sender?.username || "User"} · {formatMessageTime(msg.createdAt)}
+                              </p>
+                              <p className="text-xs text-slate-800 truncate">{msg.content}</p>
+                            </button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-6 px-2 text-xs shrink-0"
+                              onClick={() => handleTogglePinMessage(msg.id, false)}
+                            >
+                              Bỏ ghim
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {isIncomingCall && (
                 <div className="p-3 bg-amber-50 border-b flex items-center justify-between">
@@ -369,12 +528,22 @@ const ChatPage = () => {
                 </div>
               )}
 
-              <ScrollArea className="flex-1 p-4">
-                <div className="space-y-3 pb-2">
-                  {messages.map((message) => {
+              <div ref={messageScrollContainerRef} className="flex-1 min-h-0">
+                <ScrollArea className="h-full p-4">
+                  <div className="space-y-3 pb-2">
+                  {sortedMessages.map((message) => {
                     const mine = message.sender_id === user?.id;
+                    const isEditing = editingMessageId === message.id;
                     return (
-                      <div key={message.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+                      <div
+                        key={message.id}
+                        ref={(el) => {
+                          messageRefs.current[message.id] = el;
+                        }}
+                        className={`flex group ${mine ? "justify-end" : "justify-start"} ${
+                          focusedMessageId === message.id ? "ring-2 ring-amber-300 rounded-md" : ""
+                        }`}
+                      >
                         <div
                           className={`max-w-[70%] rounded-lg px-3 py-2 text-sm ${
                             mine ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-900"
@@ -383,16 +552,78 @@ const ChatPage = () => {
                           {!mine && (
                             <div className="text-[11px] opacity-70 mb-1">{message.sender?.username || "Unknown"}</div>
                           )}
-                          <div>{message.content}</div>
+                          {isEditing ? (
+                            <div className="space-y-2">
+                              <Input
+                                value={editingText}
+                                onChange={(e) => setEditingText(e.target.value)}
+                                className="bg-white text-slate-900 h-8"
+                              />
+                              <div className="flex justify-end gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="bg-white text-slate-900 hover:bg-slate-100"
+                                  onClick={() => setEditingMessageId(null)}
+                                >
+                                  Hủy
+                                </Button>
+                                <Button size="sm" className="bg-blue-600 text-white hover:bg-blue-500" onClick={handleSaveEditMessage}>
+                                  Lưu
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div>{message.content}</div>
+                          )}
+                          <div className={`mt-1 text-[11px] ${mine ? "text-blue-100" : "text-slate-500"}`}>
+                            {formatMessageTime(message.createdAt)}
+                            {message.edited_at ? " · đã chỉnh sửa" : ""}
+                            {message.is_pinned ? " · đã ghim" : ""}
+                          </div>
                         </div>
+                        {!isEditing ? (
+                          <div className="ml-2 self-start opacity-0 group-hover:opacity-100 transition-opacity">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="size-7">
+                                  <MoreHorizontal className="size-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                {mine ? (
+                                  <DropdownMenuItem onClick={() => handleStartEditMessage(message.id, message.content)}>
+                                    <Pencil className="size-4 mr-2" /> Chỉnh sửa
+                                  </DropdownMenuItem>
+                                ) : null}
+                                <DropdownMenuItem
+                                  onClick={() => handleTogglePinMessage(message.id, !message.is_pinned)}
+                                >
+                                  <Pin className="size-4 mr-2" /> {message.is_pinned ? "Bỏ ghim" : "Ghim"}
+                                </DropdownMenuItem>
+                                {mine ? (
+                                  <DropdownMenuItem
+                                    onClick={() => handleDeleteMessage(message.id)}
+                                    className="text-red-600"
+                                  >
+                                    <Trash2 className="size-4 mr-2" /> Xóa
+                                  </DropdownMenuItem>
+                                ) : null}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        ) : null}
                       </div>
                     );
                   })}
-                </div>
-              </ScrollArea>
+                  <div ref={messageEndRef} />
+                  </div>
+                </ScrollArea>
+              </div>
 
-              <div className="p-3 border-t flex gap-2 bg-white">
+              <div className="p-3 border-t flex gap-2 bg-white min-w-0">
                 <Input
+                  className="flex-1 min-w-0"
                   placeholder="Nhập tin nhắn..."
                   value={messageInput}
                   onChange={(e) => {
@@ -408,7 +639,7 @@ const ChatPage = () => {
                     if (e.key === "Enter") handleSendMessage();
                   }}
                 />
-                <Button onClick={handleSendMessage} disabled={!messageInput.trim()}>
+                <Button className="shrink-0 min-w-16" onClick={handleSendMessage} disabled={!messageInput.trim()}>
                   Gửi
                 </Button>
               </div>

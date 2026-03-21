@@ -137,6 +137,42 @@ export const registerSocketHandlers = (io) => {
       }
     });
 
+    socket.on('message:edit', async ({ conversationId, messageId, content }) => {
+      const response = await chatServices.editMessageService(messageId, userId, content);
+      if (response.err) {
+        socket.emit('message:error', { conversationId, msg: response.msg });
+        return;
+      }
+      io.to(`conversation:${conversationId}`).emit('message:updated', {
+        conversationId,
+        message: response.response,
+      });
+    });
+
+    socket.on('message:delete', async ({ conversationId, messageId }) => {
+      const response = await chatServices.deleteMessageService(messageId, userId);
+      if (response.err) {
+        socket.emit('message:error', { conversationId, msg: response.msg });
+        return;
+      }
+      io.to(`conversation:${conversationId}`).emit('message:deleted', {
+        conversationId,
+        messageId,
+      });
+    });
+
+    socket.on('message:pin', async ({ conversationId, messageId, isPinned }) => {
+      const response = await chatServices.togglePinMessageService(messageId, userId, isPinned);
+      if (response.err) {
+        socket.emit('message:error', { conversationId, msg: response.msg });
+        return;
+      }
+      io.to(`conversation:${conversationId}`).emit('message:pinned', {
+        conversationId,
+        message: response.response,
+      });
+    });
+
     socket.on('call:invite', async ({ conversationId, toUserId, mode }) => {
       const targetSocketId = onlineUsers.get(toUserId);
       if (targetSocketId) {
