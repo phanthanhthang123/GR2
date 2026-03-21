@@ -14,6 +14,9 @@ import { ScrollArea } from "../ui/scroll-area";
 import { t } from "i18next";
 import { SidebarNav } from "./sidebar-nav";
 import {NAV_ITEMS } from "@/constants/navItems";
+import { getChatSocket, useUnreadChatCount } from "@/hooks/use-chat";
+import { useQueryClient } from "@tanstack/react-query";
+import React from "react";
 
 export const SidebarComponent = ({
   currentWorkspace,
@@ -24,6 +27,23 @@ export const SidebarComponent = ({
   const [isCollapsed, setIsCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
+  const searchParams = new URLSearchParams(location.search);
+  const workspaceId = searchParams.get("workspaceId") || currentWorkspace?.id || null;
+  const chatUnreadCount = useUnreadChatCount(workspaceId);
+
+  React.useEffect(() => {
+    const socket = getChatSocket();
+    const refreshUnread = () => {
+      queryClient.invalidateQueries({ queryKey: ["chat-conversations"] });
+    };
+    socket.on("message:new", refreshUnread);
+    socket.on("message:read:updated", refreshUnread);
+    return () => {
+      socket.off("message:new", refreshUnread);
+      socket.off("message:read:updated", refreshUnread);
+    };
+  }, [queryClient]);
 
   const handleLogoClick = () => {
     // Lấy workspaceId từ query string hiện tại hoặc từ currentWorkspace
@@ -81,6 +101,7 @@ export const SidebarComponent = ({
           )}
           isCollapsed={isCollapsed}
           currentWorkspace={currentWorkspace}
+          chatUnreadCount={chatUnreadCount}
           className={cn(isCollapsed && "items-center space-y-2")}
         />
       </ScrollArea>

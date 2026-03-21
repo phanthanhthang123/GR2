@@ -178,8 +178,8 @@ const MyTasks = () => {
   const paginatedTasks = filteredTasks.slice(startIndex, endIndex);
 
   return (
-    <div className="p-6">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-6">
+    <div className="h-full p-4 flex flex-col overflow-hidden">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-4 shrink-0">
         <div>
           <h1 className="text-2xl font-bold">Task Của Tôi</h1>
           <p className="text-sm text-muted-foreground">
@@ -198,11 +198,11 @@ const MyTasks = () => {
       </div>
 
       {tasks.length === 0 ? (
-        <div className="text-center py-8">
+        <div className="text-center py-8 flex-1 flex items-center justify-center">
           <p className="text-sm text-muted-foreground">Bạn chưa có task nào</p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-4 flex-1 min-h-0 overflow-hidden flex flex-col">
           {/* Search Bar */}
           <div className='p-4 bg-muted/30 rounded-lg border space-y-3'>
             <div className='relative'>
@@ -271,14 +271,14 @@ const MyTasks = () => {
           </div>
 
           {!workspaceId ? (
-            <div className="text-center py-8">
+            <div className="text-center py-8 flex-1 flex items-center justify-center">
               <p className="text-sm text-muted-foreground">
                 Vui lòng chọn workspace để xem tasks.
               </p>
             </div>
           ) : (
-            <div className="space-y-3">
-              <div className="overflow-x-auto rounded-lg border bg-white">
+            <div className="space-y-3 flex-1 min-h-0 flex flex-col overflow-hidden">
+              <div className="flex-1 min-h-0 overflow-auto rounded-lg border bg-white">
                 <table className="min-w-full text-sm">
                   <thead className="bg-muted/60">
                     <tr>
@@ -367,7 +367,7 @@ const MyTasks = () => {
 
               {/* Global Pagination */}
               {filteredTasks.length > 0 && (
-                <div className="flex flex-col items-center gap-3 pt-2">
+                <div className="flex flex-col items-center gap-3 pt-2 shrink-0">
                   <Pagination>
                     <PaginationContent className="gap-2">
                       <PaginationItem>

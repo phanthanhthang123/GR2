@@ -1,0 +1,13 @@
+import express from 'express';
+import * as controllers from '../controllers/chat';
+
+const router = express.Router();
+
+router.get('/conversations', controllers.getConversations);
+router.get('/conversations/:conversationId/messages', controllers.getMessages);
+router.post('/conversations/direct', controllers.createDirectConversation);
+router.post('/conversations/group', controllers.createGroupConversation);
+router.post('/conversations/:conversationId/messages', controllers.sendMessage);
+router.post('/conversations/:conversationId/read', controllers.markAsRead);
+
+export default router;

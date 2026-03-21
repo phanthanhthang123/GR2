@@ -65,8 +65,8 @@ const SettingPage = () => {
     user?.role === "Admin" ? "default" : user?.role === "Leader" ? "secondary" : "outline";
 
   return (
-    <div className="space-y-6">
-      <Card className="bg-white text-slate-900 border-slate-200 shadow-md">
+    <div className="h-full overflow-hidden">
+      <Card className="h-full bg-white text-slate-900 border-slate-200 shadow-md overflow-hidden">
         <CardHeader className="space-y-1">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
@@ -81,7 +81,7 @@ const SettingPage = () => {
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-5">
+        <CardContent className="h-[calc(100%-110px)] space-y-5 overflow-hidden">
           <div className="flex flex-col md:flex-row md:items-center gap-4">
             <Avatar className="size-12">
               <AvatarImage src={user?.avatarUrl || undefined} alt={user?.username || "User"} />
@@ -98,7 +98,7 @@ const SettingPage = () => {
 
           <Separator className="bg-slate-200" />
 
-          <Tabs defaultValue="profile" className="w-full">
+          <Tabs defaultValue="profile" className="w-full h-full flex flex-col">
             <TabsList className="w-full justify-start bg-slate-100">
               <TabsTrigger value="profile" className="gap-2">
                 <User2 className="size-4" />
@@ -118,8 +118,8 @@ const SettingPage = () => {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="profile" className="pt-4">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <TabsContent value="profile" className="pt-4 mt-0 flex-1 overflow-hidden">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pb-4">
                 <Card className="border-slate-200 shadow-sm">
                   <CardHeader>
                     <CardTitle className="text-base">Thông tin cá nhân</CardTitle>
@@ -231,7 +231,7 @@ const SettingPage = () => {
               </div>
             </TabsContent>
 
-            <TabsContent value="security" className="pt-4">
+            <TabsContent value="security" className="pt-4 mt-0 flex-1 overflow-hidden">
               <Card className="border-slate-200 shadow-sm">
                 <CardHeader>
                   <CardTitle className="text-base">Đổi mật khẩu</CardTitle>
@@ -328,7 +328,7 @@ const SettingPage = () => {
               </Card>
             </TabsContent>
 
-            <TabsContent value="notifications" className="pt-4">
+            <TabsContent value="notifications" className="pt-4 mt-0 flex-1 overflow-hidden">
               <Card className="border-slate-200 shadow-sm">
                 <CardHeader>
                   <CardTitle className="text-base">Tuỳ chọn thông báo</CardTitle>
@@ -410,7 +410,7 @@ const SettingPage = () => {
               </Card>
             </TabsContent>
 
-            <TabsContent value="system" className="pt-4">
+            <TabsContent value="system" className="pt-4 mt-0 flex-1 overflow-hidden">
               <Card className="border-slate-200 shadow-sm">
                 <CardHeader>
                   <CardTitle className="text-base">Thông tin hệ thống</CardTitle>

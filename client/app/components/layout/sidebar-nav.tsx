@@ -13,6 +13,7 @@ interface SidebarNavProps extends React.HTMLAttributes<HTMLDivElement> {
   }[];
   isCollapsed: boolean;
   currentWorkspace: Workspace | null;
+  chatUnreadCount?: number;
   className?: string;
 }
 
@@ -21,6 +22,7 @@ export const SidebarNav = ({
   isCollapsed,
   className,
   currentWorkspace,
+  chatUnreadCount = 0,
   ...props
 }: SidebarNavProps) => {
   const location = useLocation();
@@ -62,6 +64,10 @@ export const SidebarNav = ({
           // Blur button after click to remove focus state
           e.currentTarget.blur();
         };
+        const isChatItem = el.href === "/chat";
+        const showBadge = isChatItem && chatUnreadCount > 0;
+        const chatBadgeText = chatUnreadCount > 99 ? "99+" : String(chatUnreadCount);
+
         return <Button key={el.href}
         variant={isActive ? "outline" : "ghost"}
         data-active={isActive}
@@ -73,9 +79,18 @@ export const SidebarNav = ({
         onClick={handleClick}
         >
             <Icon className="mr-2 size-4"/>
-            {
-                  isCollapsed ? (<span className="sr-only">{el.title}</span>) :(el.title)
-            }
+            {isCollapsed ? (
+              <span className="sr-only">{el.title}</span>
+            ) : (
+              <span className="flex items-center justify-between w-full">
+                <span>{el.title}</span>
+                {showBadge ? (
+                  <span className="ml-2 min-w-5 h-5 px-1 rounded-full bg-red-500 text-white text-[11px] leading-5 text-center">
+                    {chatBadgeText}
+                  </span>
+                ) : null}
+              </span>
+            )}
         </Button>;
       })}
     </nav>

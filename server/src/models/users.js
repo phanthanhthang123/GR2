@@ -65,6 +65,36 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'user_id',
         as: 'notifications'
       });
+
+      // User has many Conversations (creator)
+      Users.hasMany(models.Conversation, {
+        foreignKey: 'created_by',
+        as: 'createdConversations'
+      });
+
+      // User has many Conversation memberships
+      Users.hasMany(models.Conversation_Member, {
+        foreignKey: 'user_id',
+        as: 'conversationMemberships'
+      });
+
+      // User has many sent messages
+      Users.hasMany(models.Message, {
+        foreignKey: 'sender_id',
+        as: 'sentMessages'
+      });
+
+      // User has many call sessions as caller
+      Users.hasMany(models.Call_Session, {
+        foreignKey: 'caller_id',
+        as: 'outgoingCalls'
+      });
+
+      // User has many call sessions as callee
+      Users.hasMany(models.Call_Session, {
+        foreignKey: 'callee_id',
+        as: 'incomingCalls'
+      });
     }
   }
   Users.init({

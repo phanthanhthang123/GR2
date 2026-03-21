@@ -7,6 +7,7 @@ import type { Workspace } from "@/type";
 import { SidebarComponent } from "@/components/layout/sidebar-component";
 import { CreateWorkspace } from "@/components/workspace/create-workspace";
 import { postData } from "@/lib/fetch-utlis";
+import { getChatSocket } from "@/hooks/use-chat";
 
 export const clientLoader = async () => {
   try {
@@ -74,6 +75,35 @@ const DashBoardLayout = () => {
     // Keep the selected workspace visible in header
   }, [location.pathname, workspaces]);
 
+  // Keep chat presence online across all dashboard pages
+  useEffect(() => {
+    if (!isAuthenticated || !user?.id) return;
+    const socket = getChatSocket();
+
+    let lastEmit = 0;
+    const emitHeartbeat = () => {
+      const now = Date.now();
+      if (now - lastEmit < 5000) return;
+      lastEmit = now;
+      socket.emit("presence:heartbeat");
+    };
+
+    emitHeartbeat();
+    const interval = setInterval(emitHeartbeat, 30000);
+    window.addEventListener("mousemove", emitHeartbeat);
+    window.addEventListener("keydown", emitHeartbeat);
+    window.addEventListener("click", emitHeartbeat);
+    window.addEventListener("focus", emitHeartbeat);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("mousemove", emitHeartbeat);
+      window.removeEventListener("keydown", emitHeartbeat);
+      window.removeEventListener("click", emitHeartbeat);
+      window.removeEventListener("focus", emitHeartbeat);
+    };
+  }, [isAuthenticated, user?.id]);
+
   if(isLoading) {
     return <Loader/>
   }
@@ -97,6 +127,11 @@ const DashBoardLayout = () => {
     setIsCreatingWorkspace(true);
   }
 
+  const isFixedViewportRoute =
+    location.pathname === "/chat" ||
+    location.pathname === "/settings" ||
+    location.pathname === "/my-tasks";
+
   return (
   <div className="flex h-screen w-full overflow-hidden">
       {/* <Sidebar Components */}
@@ -109,8 +144,16 @@ const DashBoardLayout = () => {
           onCreateWorkspace = {() => setIsCreatingWorkspace(true)}
         />
         {/* Chỉ content được scroll; sidebar cố định */}
-        <main className="flex-1 w-full overflow-y-auto p-4">
-          <div className="mx-auto container px-2 sm:px-6 lg:px-8 py-0 md:py-8 w-full min-w-0">
+        <main
+          className={`flex-1 w-full ${
+            isFixedViewportRoute ? "overflow-hidden p-0" : "overflow-y-auto p-4"
+          }`}
+        >
+          <div
+            className={`mx-auto container w-full min-w-0 ${
+              isFixedViewportRoute ? "h-full px-2 sm:px-4 lg:px-6 py-2" : "px-2 sm:px-6 lg:px-8 py-0 md:py-8"
+            }`}
+          >
             <Outlet />
           </div>
         </main>

@@ -119,6 +119,7 @@ export type ActionType =
   | "created_workspace"
   | "updated_workspace"
   | "added_comment"
+  | "added_reply"
   | "edited_comment"
   | "added_member"
   | "removed_member"
@@ -156,3 +157,36 @@ export type ActionType =
     createdAt: Date | string;
     updatedAt: Date | string;
   }
+
+export interface ConversationMember {
+  id: string;
+  user_id: string;
+  role: 'owner' | 'member';
+  last_read_at?: string | null;
+  user?: User;
+}
+
+export interface Message {
+  id: string;
+  conversation_id: string;
+  sender_id: string;
+  content: string;
+  type: 'text' | 'image' | 'file' | 'system';
+  attachment_url?: string | null;
+  reply_to_id?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  sender?: User;
+}
+
+export interface Conversation {
+  id: string;
+  type: 'direct' | 'group';
+  title?: string | null;
+  workspace_id?: string | null;
+  members: ConversationMember[];
+  lastMessage?: Message | null;
+  unreadCount?: number;
+  createdAt: string;
+  updatedAt: string;
+}

@@ -27,6 +27,12 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'workspace_id',
         as: 'projects'
       });
+
+      // Workspace has many Conversations
+      Workspaces.hasMany(models.Conversation, {
+        foreignKey: 'workspace_id',
+        as: 'conversations'
+      });
     }
   }
   Workspaces.init({

@@ -5,6 +5,7 @@ import { queryClient } from "./react-query-provider";
 import { useLocation, useNavigate } from "react-router";
 import { publicRoutes } from "@/lib";
 import { set } from "zod";
+import { disconnectChatSocket, getChatSocket } from "@/hooks/use-chat";
 
 interface AuthContextType {
       user: User | null;
@@ -33,6 +34,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                   if(userInfo) {
                         setUser(JSON.parse(userInfo));
                         setIsAuthenticated(true);
+                        getChatSocket();
                   }else{
                         setUser(null);
                         setIsAuthenticated(false);
@@ -83,6 +85,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                               queryKey: ["workspace"],
                         });
                   }
+
+                  // Connect chat socket immediately after login
+                  disconnectChatSocket();
+                  getChatSocket();
             } catch (error) {
                   console.error("Login error:", error);
                   throw error;
@@ -98,6 +104,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                   localStorage.removeItem("token");
                   localStorage.removeItem("user");
                   localStorage.removeItem("selectedWorkspaceId");
+                  disconnectChatSocket();
 
                   // Clear query cache
                   queryClient.clear();

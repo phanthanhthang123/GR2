@@ -4,12 +4,16 @@ const emailExistence = require('email-existence');
 import express from 'express'
 import cors from 'cors'      
 import cookieParser from 'cookie-parser'
+import http from 'http'
+import { Server } from 'socket.io'
 import connectDatabase from './src/config/connectDatabase'
 import initRoutes from './src/routers'
+import { registerSocketHandlers } from './src/socket'
 
 
 const app = express()
 const PORT = process.env.PORT || 5000
+const server = http.createServer(app)
 //cho phép các request từ các domain khác (ví dụ: frontend của bạn) có thể truy cập API của backend
 app.use(cors({
     origin: process.env.URL_REACT,
@@ -36,7 +40,17 @@ initRoutes(app);
 //   }
 // });
 
-app.listen(PORT, () => {
+const io = new Server(server, {
+  cors: {
+    origin: process.env.URL_REACT,
+    methods: ['GET', 'POST'],
+    credentials: true,
+  },
+});
+
+registerSocketHandlers(io);
+
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`)
   console.log(`Server is running on http://localhost:${PORT}`)
 })
