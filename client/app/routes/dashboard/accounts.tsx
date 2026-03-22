@@ -26,11 +26,19 @@ import {
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import type { User } from "@/type";
 import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+function userInitials(name?: string | null) {
+  const n = (name || "").trim();
+  if (!n) return "U";
+  const parts = n.split(/\s+/).slice(0, 2);
+  return parts.map((p) => p[0]?.toUpperCase()).join("") || "U";
+}
 
 type UsersResponse = {
   err: number;
   msg: string;
-  response: Pick<User, "id" | "username" | "email" | "role">[];
+  response: Pick<User, "id" | "username" | "email" | "role" | "avatarUrl">[];
 };
 
 type AdminCreateUserResponse = {
@@ -60,6 +68,7 @@ const AccountsPage: React.FC = () => {
     username: string;
     email: string;
     role: User["role"];
+    avatarUrl?: string | null;
   }>(null);
 
   // Chỉ Admin được vào trang này
@@ -173,6 +182,7 @@ const AccountsPage: React.FC = () => {
     username: string;
     email: string;
     role: User["role"];
+    avatarUrl?: string | null;
   }) => {
     setEditingUser(u);
     setCreatedTempPassword(null);
@@ -368,6 +378,9 @@ const AccountsPage: React.FC = () => {
             <table className="min-w-full text-sm">
               <thead className="bg-blue-50">
                 <tr>
+                  <th className="px-4 py-2 text-left font-medium text-slate-700 w-14">
+                    Ảnh
+                  </th>
                   <th className="px-4 py-2 text-left font-medium text-slate-700">
                     Họ tên
                   </th>
@@ -385,14 +398,14 @@ const AccountsPage: React.FC = () => {
               <tbody>
                 {isLoading && (
                   <tr>
-                    <td colSpan={4} className="px-4 py-6 text-center text-slate-500">
+                    <td colSpan={5} className="px-4 py-6 text-center text-slate-500">
                       Đang tải danh sách tài khoản...
                     </td>
                   </tr>
                 )}
                 {!isLoading && (!data || data.length === 0) && (
                   <tr>
-                    <td colSpan={4} className="px-4 py-6 text-center text-slate-500">
+                    <td colSpan={5} className="px-4 py-6 text-center text-slate-500">
                       Chưa có tài khoản nào.
                     </td>
                   </tr>
@@ -404,6 +417,14 @@ const AccountsPage: React.FC = () => {
                       key={u.id}
                       className="border-t border-slate-100 hover:bg-blue-50"
                     >
+                      <td className="px-4 py-2">
+                        <Avatar className="size-9">
+                          <AvatarImage src={u.avatarUrl || undefined} alt={u.username} />
+                          <AvatarFallback className="text-xs font-semibold">
+                            {userInitials(u.username)}
+                          </AvatarFallback>
+                        </Avatar>
+                      </td>
                       <td className="px-4 py-2 text-slate-800">{u.username}</td>
                       <td className="px-4 py-2 text-slate-800">{u.email}</td>
                       <td className="px-4 py-2 text-slate-800">{u.role}</td>
@@ -419,6 +440,7 @@ const AccountsPage: React.FC = () => {
                                 username: u.username,
                                 email: u.email,
                                 role: u.role,
+                                avatarUrl: u.avatarUrl,
                               })
                             }
                           >

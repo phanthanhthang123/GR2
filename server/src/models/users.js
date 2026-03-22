@@ -134,6 +134,14 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
       allowNull: true
     },
+    avatarUrl: {
+      type: DataTypes.STRING(1024),
+      allowNull: true
+    },
+    avatarPublicId: {
+      type: DataTypes.STRING(512),
+      allowNull: true
+    },
     createdAt : {
       type : DataTypes.DATE,
       allowNull : false

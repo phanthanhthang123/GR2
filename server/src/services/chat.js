@@ -5,7 +5,7 @@ import { Op } from 'sequelize';
 const getMemberUserInclude = () => ({
   model: db.Users,
   as: 'user',
-  attributes: ['id', 'username', 'email'],
+  attributes: ['id', 'username', 'email', 'avatarUrl'],
 });
 
 const ensureMembership = async (conversationId, userId) => {
@@ -47,7 +47,7 @@ export const getConversationsService = (userId, workspaceId) =>
           conversation_id: conversationIds,
           deleted_at: null,
         },
-        include: [{ model: db.Users, as: 'sender', attributes: ['id', 'username', 'email'] }],
+        include: [{ model: db.Users, as: 'sender', attributes: ['id', 'username', 'email', 'avatarUrl'] }],
         order: [['createdAt', 'DESC']],
       });
 
@@ -125,7 +125,7 @@ export const getMessagesService = (conversationId, userId, page = 1, limit = 30)
       const offset = (Number(page) - 1) * Number(limit);
       const messages = await db.Message.findAll({
         where: { conversation_id: conversationId, deleted_at: null },
-        include: [{ model: db.Users, as: 'sender', attributes: ['id', 'username', 'email'] }],
+        include: [{ model: db.Users, as: 'sender', attributes: ['id', 'username', 'email', 'avatarUrl'] }],
         order: [['createdAt', 'DESC']],
         limit: Number(limit),
         offset,
@@ -288,7 +288,7 @@ export const sendMessageService = (conversationId, senderId, payload) =>
       );
 
       const fullMessage = await db.Message.findByPk(message.id, {
-        include: [{ model: db.Users, as: 'sender', attributes: ['id', 'username', 'email'] }],
+        include: [{ model: db.Users, as: 'sender', attributes: ['id', 'username', 'email', 'avatarUrl'] }],
       });
       resolve({ err: 0, msg: 'OK', response: fullMessage });
     } catch (error) {
@@ -326,7 +326,7 @@ export const editMessageService = (messageId, userId, content) =>
         updatedAt: new Date(),
       });
       const fullMessage = await db.Message.findByPk(message.id, {
-        include: [{ model: db.Users, as: 'sender', attributes: ['id', 'username', 'email'] }],
+        include: [{ model: db.Users, as: 'sender', attributes: ['id', 'username', 'email', 'avatarUrl'] }],
       });
       resolve({ err: 0, msg: 'OK', response: fullMessage });
     } catch (error) {
@@ -374,7 +374,7 @@ export const togglePinMessageService = (messageId, userId, isPinned) =>
         updatedAt: new Date(),
       });
       const fullMessage = await db.Message.findByPk(message.id, {
-        include: [{ model: db.Users, as: 'sender', attributes: ['id', 'username', 'email'] }],
+        include: [{ model: db.Users, as: 'sender', attributes: ['id', 'username', 'email', 'avatarUrl'] }],
       });
       resolve({ err: 0, msg: 'OK', response: fullMessage });
     } catch (error) {

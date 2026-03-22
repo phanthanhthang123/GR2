@@ -52,7 +52,7 @@ export const Header = ({
   const handleOnClickWorkspace = (ws: Workspace) => {
     onWorkspaceSelected && onWorkspaceSelected(ws);
     const location = window.location;
-    if(isOnWorkspacePage) {
+    if (isOnWorkspacePage) {
       location.href = `/workspaces/${ws.id}`;
     } else {
       const basePath = location.pathname;
@@ -103,7 +103,7 @@ export const Header = ({
             {canCreateWorkspace && (
               <DropdownMenuGroup>
                 <DropdownMenuItem onClick={onCreateWorkspace}>
-                    <PlusCircle className="w-4 h-4 mr-2"/> {t("header.createWorkspace")}
+                  <PlusCircle className="w-4 h-4 mr-2" /> {t("header.createWorkspace")}
                 </DropdownMenuItem>
               </DropdownMenuGroup>
             )}
@@ -121,7 +121,7 @@ export const Header = ({
               <button className="rounded-full border p-1 w-8 h-8">
                 <Avatar className="w-8 h-8">
                   <AvatarImage
-                    src={user?.avatarUrl || ""}
+                    src={user?.avatarUrl || undefined}
                     alt={user?.username || "User"}
                   />
                   <AvatarFallback className="bg-primary text-primary-foreground">
@@ -134,17 +134,17 @@ export const Header = ({
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>{t("header.myAccount")}</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="flex items-center">
-                <Link to="/settings" className="flex items-center">
-                  <Settings className="w-4 h-4 mr-2"/> {t("header.profile")}
-                </Link>
-              </DropdownMenuItem>
+              <Link to="/settings" className="flex items-center w-full cursor-pointer">
+                <DropdownMenuItem className="flex items-center w-full cursor-pointer">
+                  <Settings className="w-4 h-4 mr-2" /> {t("header.profile")}
+                </DropdownMenuItem>
+              </Link>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => {
-              logout();
-              navigate("/sign-in");
-            }}>
-                <LogOut className="w-4 h-4 mr-2"/> {t("header.signOut")}
+              <DropdownMenuItem className="cursor-pointer" onClick={() => {
+                logout();
+                navigate("/sign-in");
+              }}>
+                <LogOut className="w-4 h-4 mr-2" /> {t("header.signOut")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

@@ -68,7 +68,7 @@ export const getTaskByIdService = (taskId, userId) => new Promise(async (resolve
                 {
                     model: db.Users,
                     as: 'assignedUser',
-                    attributes: ['id', 'username', 'email']
+                    attributes: ['id', 'username', 'email', 'avatarUrl']
                 },
                 {
                     model: db.Project,
@@ -78,7 +78,7 @@ export const getTaskByIdService = (taskId, userId) => new Promise(async (resolve
                 {
                     model: db.Users,
                     as: 'watchers',
-                    attributes: ['id', 'username', 'email'],
+                    attributes: ['id', 'username', 'email', 'avatarUrl'],
                     through: { attributes: [] }
                 },
                 {
@@ -88,7 +88,7 @@ export const getTaskByIdService = (taskId, userId) => new Promise(async (resolve
                         {
                             model: db.Users,
                             as: 'user',
-                            attributes: ['id', 'username', 'email']
+                            attributes: ['id', 'username', 'email', 'avatarUrl']
                         }
                     ],
                     order: [['createdAt', 'DESC']]
@@ -157,7 +157,7 @@ export const getTaskActivitiesService = (taskId) => new Promise(async (resolve, 
                 {
                     model: db.Users,
                     as: 'user',
-                    attributes: ['id', 'username', 'email'],
+                    attributes: ['id', 'username', 'email', 'avatarUrl'],
                     required: false
                 }
             ],
@@ -232,10 +232,10 @@ export const updateTaskTitleService = (taskId, title, userId) => new Promise(asy
 
         await task.reload({
             include: [
-                { model: db.Users, as: 'assignedUser', attributes: ['id', 'username', 'email'] },
+                { model: db.Users, as: 'assignedUser', attributes: ['id', 'username', 'email', 'avatarUrl'] },
                 { model: db.Project, as: 'project', attributes: ['id', 'name', 'description'] },
-                { model: db.Users, as: 'watchers', attributes: ['id', 'username', 'email'], through: { attributes: [] } },
-                { model: db.Task_Activity, as: 'activities', include: [{ model: db.Users, as: 'user', attributes: ['id', 'username', 'email'] }], order: [['createdAt', 'DESC']] }
+                { model: db.Users, as: 'watchers', attributes: ['id', 'username', 'email', 'avatarUrl'], through: { attributes: [] } },
+                { model: db.Task_Activity, as: 'activities', include: [{ model: db.Users, as: 'user', attributes: ['id', 'username', 'email', 'avatarUrl'] }], order: [['createdAt', 'DESC']] }
             ]
         });
 
@@ -296,10 +296,10 @@ export const updateTaskStatusService = (taskId, status, userId) => new Promise(a
 
         await task.reload({
             include: [
-                { model: db.Users, as: 'assignedUser', attributes: ['id', 'username', 'email'] },
+                { model: db.Users, as: 'assignedUser', attributes: ['id', 'username', 'email', 'avatarUrl'] },
                 { model: db.Project, as: 'project', attributes: ['id', 'name', 'description'] },
-                { model: db.Users, as: 'watchers', attributes: ['id', 'username', 'email'], through: { attributes: [] } },
-                { model: db.Task_Activity, as: 'activities', include: [{ model: db.Users, as: 'user', attributes: ['id', 'username', 'email'] }], order: [['createdAt', 'DESC']] }
+                { model: db.Users, as: 'watchers', attributes: ['id', 'username', 'email', 'avatarUrl'], through: { attributes: [] } },
+                { model: db.Task_Activity, as: 'activities', include: [{ model: db.Users, as: 'user', attributes: ['id', 'username', 'email', 'avatarUrl'] }], order: [['createdAt', 'DESC']] }
             ]
         });
 
@@ -351,10 +351,10 @@ export const updateTaskDescriptionService = (taskId, description, userId) => new
 
         await task.reload({
             include: [
-                { model: db.Users, as: 'assignedUser', attributes: ['id', 'username', 'email'] },
+                { model: db.Users, as: 'assignedUser', attributes: ['id', 'username', 'email', 'avatarUrl'] },
                 { model: db.Project, as: 'project', attributes: ['id', 'name', 'description'] },
-                { model: db.Users, as: 'watchers', attributes: ['id', 'username', 'email'], through: { attributes: [] } },
-                { model: db.Task_Activity, as: 'activities', include: [{ model: db.Users, as: 'user', attributes: ['id', 'username', 'email'] }], order: [['createdAt', 'DESC']] }
+                { model: db.Users, as: 'watchers', attributes: ['id', 'username', 'email', 'avatarUrl'], through: { attributes: [] } },
+                { model: db.Task_Activity, as: 'activities', include: [{ model: db.Users, as: 'user', attributes: ['id', 'username', 'email', 'avatarUrl'] }], order: [['createdAt', 'DESC']] }
             ]
         });
 
@@ -402,15 +402,15 @@ export const updateTaskAssigneesService = (taskId, assignees, userId) => new Pro
                 {
                     model: db.Users,
                     as: 'assignedUser',
-                    attributes: ['id', 'username', 'email']
+                    attributes: ['id', 'username', 'email', 'avatarUrl']
                 },
                 {
                     model: db.Project,
                     as: 'project',
                     attributes: ['id', 'name', 'description']
                 },
-                { model: db.Users, as: 'watchers', attributes: ['id', 'username', 'email'], through: { attributes: [] } },
-                { model: db.Task_Activity, as: 'activities', include: [{ model: db.Users, as: 'user', attributes: ['id', 'username', 'email'] }], order: [['createdAt', 'DESC']] }
+                { model: db.Users, as: 'watchers', attributes: ['id', 'username', 'email', 'avatarUrl'], through: { attributes: [] } },
+                { model: db.Task_Activity, as: 'activities', include: [{ model: db.Users, as: 'user', attributes: ['id', 'username', 'email', 'avatarUrl'] }], order: [['createdAt', 'DESC']] }
             ]
         });
 
@@ -482,10 +482,10 @@ export const updateTaskDueDateService = (taskId, dueDate, userId) => new Promise
 
         await task.reload({
             include: [
-                { model: db.Users, as: 'assignedUser', attributes: ['id', 'username', 'email'] },
+                { model: db.Users, as: 'assignedUser', attributes: ['id', 'username', 'email', 'avatarUrl'] },
                 { model: db.Project, as: 'project', attributes: ['id', 'name', 'description'] },
-                { model: db.Users, as: 'watchers', attributes: ['id', 'username', 'email'], through: { attributes: [] } },
-                { model: db.Task_Activity, as: 'activities', include: [{ model: db.Users, as: 'user', attributes: ['id', 'username', 'email'] }], order: [['createdAt', 'DESC']] }
+                { model: db.Users, as: 'watchers', attributes: ['id', 'username', 'email', 'avatarUrl'], through: { attributes: [] } },
+                { model: db.Task_Activity, as: 'activities', include: [{ model: db.Users, as: 'user', attributes: ['id', 'username', 'email', 'avatarUrl'] }], order: [['createdAt', 'DESC']] }
             ]
         });
 
@@ -546,10 +546,10 @@ export const updateTaskPriorityService = (taskId, priority, userId) => new Promi
 
         await task.reload({
             include: [
-                { model: db.Users, as: 'assignedUser', attributes: ['id', 'username', 'email'] },
+                { model: db.Users, as: 'assignedUser', attributes: ['id', 'username', 'email', 'avatarUrl'] },
                 { model: db.Project, as: 'project', attributes: ['id', 'name', 'description'] },
-                { model: db.Users, as: 'watchers', attributes: ['id', 'username', 'email'], through: { attributes: [] } },
-                { model: db.Task_Activity, as: 'activities', include: [{ model: db.Users, as: 'user', attributes: ['id', 'username', 'email'] }], order: [['createdAt', 'DESC']] }
+                { model: db.Users, as: 'watchers', attributes: ['id', 'username', 'email', 'avatarUrl'], through: { attributes: [] } },
+                { model: db.Task_Activity, as: 'activities', include: [{ model: db.Users, as: 'user', attributes: ['id', 'username', 'email', 'avatarUrl'] }], order: [['createdAt', 'DESC']] }
             ]
         });
 
@@ -630,10 +630,10 @@ export const watchTaskService = (taskId, userId) => new Promise(async (resolve, 
         // Reload task with all associations
         await task.reload({
             include: [
-                { model: db.Users, as: 'assignedUser', attributes: ['id', 'username', 'email'] },
+                { model: db.Users, as: 'assignedUser', attributes: ['id', 'username', 'email', 'avatarUrl'] },
                 { model: db.Project, as: 'project', attributes: ['id', 'name', 'description'] },
-                { model: db.Users, as: 'watchers', attributes: ['id', 'username', 'email'], through: { attributes: [] } },
-                { model: db.Task_Activity, as: 'activities', include: [{ model: db.Users, as: 'user', attributes: ['id', 'username', 'email'] }], order: [['createdAt', 'DESC']] }
+                { model: db.Users, as: 'watchers', attributes: ['id', 'username', 'email', 'avatarUrl'], through: { attributes: [] } },
+                { model: db.Task_Activity, as: 'activities', include: [{ model: db.Users, as: 'user', attributes: ['id', 'username', 'email', 'avatarUrl'] }], order: [['createdAt', 'DESC']] }
             ]
         });
 
@@ -695,10 +695,10 @@ export const achievedTaskService = (taskId, userId) => new Promise(async (resolv
         // Reload task with all associations
         await task.reload({
             include: [
-                { model: db.Users, as: 'assignedUser', attributes: ['id', 'username', 'email'] },
+                { model: db.Users, as: 'assignedUser', attributes: ['id', 'username', 'email', 'avatarUrl'] },
                 { model: db.Project, as: 'project', attributes: ['id', 'name', 'description'] },
-                { model: db.Users, as: 'watchers', attributes: ['id', 'username', 'email'], through: { attributes: [] } },
-                { model: db.Task_Activity, as: 'activities', include: [{ model: db.Users, as: 'user', attributes: ['id', 'username', 'email'] }], order: [['createdAt', 'DESC']] }
+                { model: db.Users, as: 'watchers', attributes: ['id', 'username', 'email', 'avatarUrl'], through: { attributes: [] } },
+                { model: db.Task_Activity, as: 'activities', include: [{ model: db.Users, as: 'user', attributes: ['id', 'username', 'email', 'avatarUrl'] }], order: [['createdAt', 'DESC']] }
             ]
         });
 
@@ -761,10 +761,10 @@ export const archiveTaskService = (taskId, userId) => new Promise(async (resolve
         // Reload task with all associations
         await task.reload({
             include: [
-                { model: db.Users, as: 'assignedUser', attributes: ['id', 'username', 'email'] },
+                { model: db.Users, as: 'assignedUser', attributes: ['id', 'username', 'email', 'avatarUrl'] },
                 { model: db.Project, as: 'project', attributes: ['id', 'name', 'description'] },
-                { model: db.Users, as: 'watchers', attributes: ['id', 'username', 'email'], through: { attributes: [] } },
-                { model: db.Task_Activity, as: 'activities', include: [{ model: db.Users, as: 'user', attributes: ['id', 'username', 'email'] }], order: [['createdAt', 'DESC']] }
+                { model: db.Users, as: 'watchers', attributes: ['id', 'username', 'email', 'avatarUrl'], through: { attributes: [] } },
+                { model: db.Task_Activity, as: 'activities', include: [{ model: db.Users, as: 'user', attributes: ['id', 'username', 'email', 'avatarUrl'] }], order: [['createdAt', 'DESC']] }
             ]
         });
 
@@ -812,7 +812,7 @@ export const getMyTasksService = (userId, workspaceId) => new Promise(async (res
                     model: db.Users,
                     as: 'assignedUser',
                     required: false, // LEFT JOIN - task may not have assigned user
-                    attributes: ['id', 'username', 'email']
+                    attributes: ['id', 'username', 'email', 'avatarUrl']
                 }
             ],
             order: [['createdAt', 'DESC']]

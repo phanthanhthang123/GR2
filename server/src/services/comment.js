@@ -14,7 +14,7 @@ export const getCommentsByTaskIdService = (taskId) => new Promise(async (resolve
                 {
                     model: db.Users,
                     as: 'user',
-                    attributes: ['id', 'username', 'email']
+                    attributes: ['id', 'username', 'email', 'avatarUrl']
                 }
             ],
             order: [['createdAt', 'DESC']]
@@ -46,7 +46,7 @@ export const getRepliesByCommentIdService = (commentId) => new Promise(async (re
                 {
                     model: db.Users,
                     as: 'user',
-                    attributes: ['id', 'username', 'email']
+                    attributes: ['id', 'username', 'email', 'avatarUrl']
                 }
             ],
             order: [['createdAt', 'ASC']]
@@ -114,7 +114,7 @@ export const createCommentService = (taskId, content, userId, parentId = null) =
                     {
                         model: db.Users,
                         as: 'user',
-                        attributes: ['id', 'username', 'email']
+                        attributes: ['id', 'username', 'email', 'avatarUrl']
                     }
                 ]
             });
@@ -164,7 +164,7 @@ export const createCommentService = (taskId, content, userId, parentId = null) =
                 {
                     model: db.Users,
                     as: 'user',
-                    attributes: ['id', 'username', 'email']
+                    attributes: ['id', 'username', 'email', 'avatarUrl']
                 }
             ]
         });
@@ -235,7 +235,7 @@ export const updateCommentService = (commentId, content, userId) => new Promise(
                 {
                     model: db.Users,
                     as: 'user',
-                    attributes: ['id', 'username', 'email']
+                    attributes: ['id', 'username', 'email', 'avatarUrl']
                 }
             ]
         });

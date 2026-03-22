@@ -59,13 +59,25 @@ const updateData = async <T>(path: string, data?: any): Promise<T> => {
       }
 }
 
-const deleteData = async <T>(path: string, data?: any): Promise<T> => {
+const deleteData = async <T>(path: string, config?: object): Promise<T> => {
       try {
-            const response = await api.delete(path, data);
+            const response = await api.delete(path, config);
             return response.data;
       } catch (error) {
             throw error;
       }
 }
 
-export { postData, fetchData, updateData, deleteData };
+/** Multipart upload — bỏ Content-Type mặc định JSON để axios/browser gửi boundary đúng. */
+const postFormData = async <T>(path: string, formData: FormData): Promise<T> => {
+      try {
+            const response = await api.post(path, formData, {
+                  headers: { "Content-Type": undefined },
+            });
+            return response.data;
+      } catch (error) {
+            throw error;
+      }
+};
+
+export { postData, fetchData, updateData, deleteData, postFormData };

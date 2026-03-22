@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/provider/auth-context";
 import {
   getChatSocket,
+  isUserOnline,
   useAllUsersQuery,
   useChatRealtime,
   useConversationsQuery,
@@ -18,13 +19,21 @@ import {
 } from "@/hooks/use-chat";
 import { Phone, Video } from "lucide-react";
 import { MoreHorizontal, Pin, Pencil, Trash2 } from "lucide-react";
-import type { Conversation, User } from "@/type";
+import type { Conversation, Message, User } from "@/type";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+function chatUserInitials(name?: string | null) {
+  const n = (name || "").trim();
+  if (!n) return "U";
+  const parts = n.split(/\s+/).slice(0, 2);
+  return parts.map((p) => p[0]?.toUpperCase()).join("") || "U";
+}
 
 const ChatPage = () => {
   const { user } = useAuth();
@@ -67,6 +76,54 @@ const ChatPage = () => {
     () => conversations.find((c) => c.id === activeConversationId) || null,
     [conversations, activeConversationId]
   );
+
+  /** Gộp avatar/username từ API users + members hội thoại (tránh mất sender sau socket / cache cũ). */
+  const userDirectory = useMemo(() => {
+    const map = new Map<string, Partial<User>>();
+    users.forEach((u) => {
+      map.set(u.id, {
+        id: u.id,
+        username: u.username,
+        email: u.email,
+        avatarUrl: u.avatarUrl,
+      });
+    });
+    if (user?.id) {
+      const prev = map.get(user.id) || {};
+      map.set(user.id, {
+        ...prev,
+        id: user.id,
+        username: user.username ?? prev.username,
+        email: user.email ?? prev.email,
+        avatarUrl: user.avatarUrl ?? prev.avatarUrl,
+      });
+    }
+    const mergeMembers = (c: Conversation | null) => {
+      c?.members?.forEach((m) => {
+        if (!m.user) return;
+        const prev = map.get(m.user_id) || {};
+        map.set(m.user_id, {
+          ...prev,
+          id: m.user_id,
+          username: m.user.username ?? prev.username,
+          email: m.user.email ?? prev.email,
+          avatarUrl: m.user.avatarUrl ?? prev.avatarUrl,
+        });
+      });
+    };
+    mergeMembers(activeConversation);
+    conversations.forEach((c) => mergeMembers(c));
+    return map;
+  }, [users, user, activeConversation, conversations]);
+
+  const resolveChatProfile = (senderId: string, senderFromMsg?: Message["sender"]) => {
+    const cached = userDirectory.get(senderId);
+    return {
+      username: senderFromMsg?.username || cached?.username || "Unknown",
+      avatarUrl: senderFromMsg?.avatarUrl ?? cached?.avatarUrl ?? null,
+    };
+  };
+
   const { data: messages = [] } = useMessagesQuery(activeConversationId);
   const sortedMessages = useMemo(() => {
     return [...messages].sort((a, b) => {
@@ -136,13 +193,18 @@ const ChatPage = () => {
 
   const getPresenceText = (targetUserId?: string | null) => {
     if (!targetUserId) return "Offline";
-    const isOnline = onlineUserIds.includes(targetUserId);
-    if (isOnline) return "Online";
-    const lastSeen = lastSeenAtByUserId[targetUserId];
+    if (isUserOnline(onlineUserIds, targetUserId)) return "Online";
+    const lastSeen = lastSeenAtByUserId[String(targetUserId)];
     if (!lastSeen) return "Offline";
     const minutes = Math.max(1, Math.floor((Date.now() - new Date(lastSeen).getTime()) / 60000));
     return `Offline ${minutes} phút trước`;
   };
+
+  const activeOtherForHeader = activeConversation ? getOtherUser(activeConversation) : null;
+  const headerDirectPeer =
+    activeConversation?.type === "direct" && activeOtherForHeader
+      ? resolveChatProfile(activeOtherForHeader.id, activeOtherForHeader)
+      : null;
 
   const handleCreateDirect = async () => {
     if (!selectUserId) return;
@@ -365,13 +427,15 @@ const ChatPage = () => {
             <div className="space-y-2 pr-2">
               {conversations.map((conversation) => {
                 const other = getOtherUser(conversation);
-                const isOnline = other ? onlineUserIds.includes(other.id) : false;
+                const isOnline = other ? isUserOnline(onlineUserIds, other.id) : false;
                 const presenceText =
                   conversation.type === "direct"
                     ? getPresenceText(other?.id)
                     : isOnline
                       ? "Online"
                       : "Offline";
+                const directPeer = conversation.type === "direct" ? other : null;
+                const listPeerUi = directPeer ? resolveChatProfile(directPeer.id, directPeer) : null;
                 return (
                   <button
                     key={conversation.id}
@@ -380,8 +444,21 @@ const ChatPage = () => {
                       activeConversationId === conversation.id ? "bg-blue-50 border-blue-200" : "hover:bg-muted"
                     }`}
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium text-sm">{getConversationTitle(conversation)}</span>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        {listPeerUi ? (
+                          <Avatar className="h-10 w-10 min-h-10 min-w-10 shrink-0 rounded-full border border-slate-200 bg-muted">
+                            <AvatarImage
+                              src={listPeerUi.avatarUrl || undefined}
+                              alt={listPeerUi.username || ""}
+                            />
+                            <AvatarFallback className="text-xs font-semibold">
+                              {chatUserInitials(listPeerUi.username)}
+                            </AvatarFallback>
+                          </Avatar>
+                        ) : null}
+                        <span className="font-medium text-sm truncate">{getConversationTitle(conversation)}</span>
+                      </div>
                       {!!conversation.unreadCount && <Badge variant="destructive">{conversation.unreadCount}</Badge>}
                     </div>
                   <div className="text-xs text-muted-foreground mt-1 truncate max-w-[220px]">
@@ -402,16 +479,35 @@ const ChatPage = () => {
         <div className="col-span-8 flex flex-col h-full min-h-0">
           {activeConversation ? (
             <>
-              <div className="border-b p-3 flex items-center justify-between">
-                <div>
-                  <p className="font-semibold">{getConversationTitle(activeConversation)}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {typingUserIds.length > 0
-                      ? "Đang nhập..."
-                      : activeConversation.type === "direct"
-                        ? getPresenceText(getOtherUser(activeConversation)?.id)
-                        : "Sẵn sàng trò chuyện"}
-                  </p>
+              <div className="border-b p-3 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  {headerDirectPeer ? (
+                    <Avatar className="h-11 w-11 shrink-0 rounded-full border border-slate-200 bg-muted">
+                      <AvatarImage
+                        src={headerDirectPeer.avatarUrl || undefined}
+                        alt={headerDirectPeer.username || ""}
+                      />
+                      <AvatarFallback className="text-sm font-semibold">
+                        {chatUserInitials(headerDirectPeer.username)}
+                      </AvatarFallback>
+                    </Avatar>
+                  ) : (
+                    <Avatar className="h-11 w-11 shrink-0 rounded-full border border-slate-200 bg-muted">
+                      <AvatarFallback className="text-sm font-semibold">
+                        {chatUserInitials(getConversationTitle(activeConversation))}
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
+                  <div className="min-w-0">
+                    <p className="font-semibold truncate">{getConversationTitle(activeConversation)}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {typingUserIds.length > 0
+                        ? "Đang nhập..."
+                        : activeConversation.type === "direct"
+                          ? getPresenceText(getOtherUser(activeConversation)?.id)
+                          : "Sẵn sàng trò chuyện"}
+                    </p>
+                  </div>
                 </div>
                 {activeConversation.type === "direct" && (
                   <div className="flex gap-2">
@@ -534,23 +630,21 @@ const ChatPage = () => {
                   {sortedMessages.map((message) => {
                     const mine = message.sender_id === user?.id;
                     const isEditing = editingMessageId === message.id;
-                    return (
-                      <div
-                        key={message.id}
-                        ref={(el) => {
-                          messageRefs.current[message.id] = el;
-                        }}
-                        className={`flex group ${mine ? "justify-end" : "justify-start"} ${
-                          focusedMessageId === message.id ? "ring-2 ring-amber-300 rounded-md" : ""
-                        }`}
-                      >
+                    const profile = mine
+                      ? {
+                          username: user?.username || "Bạn",
+                          avatarUrl: user?.avatarUrl ?? null,
+                        }
+                      : resolveChatProfile(message.sender_id, message.sender);
+
+                    const bubble = (
                         <div
-                          className={`max-w-[70%] rounded-lg px-3 py-2 text-sm ${
+                          className={`max-w-[min(70vw,28rem)] rounded-lg px-3 py-2 text-sm ${
                             mine ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-900"
                           }`}
                         >
                           {!mine && (
-                            <div className="text-[11px] opacity-70 mb-1">{message.sender?.username || "Unknown"}</div>
+                            <div className="text-[11px] opacity-70 mb-1">{profile.username}</div>
                           )}
                           {isEditing ? (
                             <div className="space-y-2">
@@ -582,15 +676,17 @@ const ChatPage = () => {
                             {message.is_pinned ? " · đã ghim" : ""}
                           </div>
                         </div>
-                        {!isEditing ? (
-                          <div className="ml-2 self-start opacity-0 group-hover:opacity-100 transition-opacity">
+                    );
+
+                    const menu = !isEditing ? (
+                          <div className="shrink-0 self-start opacity-0 group-hover:opacity-100 transition-opacity">
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="icon" className="size-7">
                                   <MoreHorizontal className="size-4" />
                                 </Button>
                               </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
+                              <DropdownMenuContent align={mine ? "start" : "end"}>
                                 {mine ? (
                                   <DropdownMenuItem onClick={() => handleStartEditMessage(message.id, message.content)}>
                                     <Pencil className="size-4 mr-2" /> Chỉnh sửa
@@ -612,7 +708,45 @@ const ChatPage = () => {
                               </DropdownMenuContent>
                             </DropdownMenu>
                           </div>
-                        ) : null}
+                    ) : null;
+
+                    return (
+                      <div
+                        key={message.id}
+                        ref={(el) => {
+                          messageRefs.current[message.id] = el;
+                        }}
+                        className={`flex w-full group ${
+                          mine ? "justify-end" : "justify-start"
+                        } ${focusedMessageId === message.id ? "ring-2 ring-amber-300 rounded-md" : ""}`}
+                      >
+                        {mine ? (
+                          <div className="flex max-w-[min(92%,36rem)] flex-row-reverse items-end gap-2">
+                            <Avatar className="h-10 w-10 min-h-10 min-w-10 shrink-0 rounded-full border border-slate-200 bg-muted">
+                              <AvatarImage src={profile.avatarUrl || undefined} alt={profile.username || ""} />
+                              <AvatarFallback className="text-xs font-semibold">
+                                {chatUserInitials(profile.username)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex min-w-0 flex-row-reverse items-start gap-1">
+                              {bubble}
+                              {menu}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex max-w-[min(92%,36rem)] items-end gap-2">
+                            <Avatar className="h-10 w-10 min-h-10 min-w-10 shrink-0 rounded-full border border-slate-200 bg-muted">
+                              <AvatarImage src={profile.avatarUrl || undefined} alt={profile.username || ""} />
+                              <AvatarFallback className="text-xs font-semibold">
+                                {chatUserInitials(profile.username)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex min-w-0 items-start gap-1">
+                              {bubble}
+                              {menu}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     );
                   })}

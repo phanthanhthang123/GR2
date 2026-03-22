@@ -3,6 +3,12 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { v4 } from 'uuid'
 import nodemailer from 'nodemailer'
+import {
+    isCloudinaryConfigured,
+    configureCloudinary,
+    uploadAvatarBuffer,
+    destroyCloudinaryAsset,
+} from '../config/cloudinary'
 
 
 
@@ -21,6 +27,17 @@ const generateToken = (username, id, role, mustChangePassword) => {
 const generateRefreshToken = (username, id, role) => {
     return jwt.sign({ username, id, role }, process.env.JWT_SECRET, { expiresIn: '7d' })
 }
+
+const buildPublicUserProfile = (user) => ({
+    id: user.id,
+    username: user.username,
+    email: user.email,
+    role: user.role,
+    avatarUrl: user.avatarUrl ?? null,
+    mustChangePassword: user.mustChangePassword,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+})
 
 export const registerService = (username, email, password) => new Promise(async (resolve, reject) => {
     try {
@@ -60,12 +77,20 @@ export const loginService = (email, password) => new Promise(async (resolve, rej
                 const access_token = generateToken(user.username, user.id, user.role, user.mustChangePassword)
                 const refresh_token = generateRefreshToken(user.username, user.id, user.role)
 
+                const {
+                    password: _pw,
+                    resetToken: _rt,
+                    resetTokenExpiry: _rte,
+                    avatarPublicId: _apid,
+                    ...safeUser
+                } = user
+
                 resolve({
                     err: 0,
                     msg: 'Login is successfully !',
                     token: access_token,
                     refreshToken: refresh_token,
-                    response: user
+                    response: safeUser
                 })
             } else {
                 resolve({
@@ -249,7 +274,7 @@ export const getAllUsersService = (searchQuery) => new Promise(async (resolve, r
 
         const users = await db.Users.findAll({
             where: whereClause,
-            attributes: ['id', 'username', 'email', 'role'],
+            attributes: ['id', 'username', 'email', 'role', 'avatarUrl'],
             order: [['username', 'ASC']],
             limit: 100 // Limit to prevent loading too many users
         });
@@ -293,11 +318,7 @@ export const adminCreateUserService = (username, email, role = 'Member') => new 
             err: 0,
             msg: 'Tạo tài khoản thành công',
             response: {
-                id: user.id,
-                username: user.username,
-                email: user.email,
-                role: user.role,
-                mustChangePassword: user.mustChangePassword,
+                ...buildPublicUserProfile(user),
                 // trả về mật khẩu để Admin gửi cho user
                 tempPassword: plainPassword,
             },
@@ -324,16 +345,12 @@ export const adminUpdateUserService = (id, data) => new Promise(async (resolve, 
         });
 
         await user.update(updatePayload);
+        await user.reload();
 
         resolve({
             err: 0,
             msg: 'Cập nhật tài khoản thành công',
-            response: {
-                id: user.id,
-                username: user.username,
-                email: user.email,
-                role: user.role,
-            },
+            response: buildPublicUserProfile(user),
         });
     } catch (error) {
         reject(error);
@@ -348,6 +365,10 @@ export const adminDeleteUserService = (id) => new Promise(async (resolve, reject
                 err: 1,
                 msg: 'User không tồn tại',
             });
+        }
+        if (user.avatarPublicId && isCloudinaryConfigured()) {
+            configureCloudinary();
+            await destroyCloudinaryAsset(user.avatarPublicId);
         }
         await user.destroy();
         resolve({
@@ -384,6 +405,37 @@ export const firstChangePasswordService = (id, newPassword) => new Promise(async
     }
 });
 
+export const getCurrentUserProfileService = (id) =>
+    new Promise(async (resolve, reject) => {
+        try {
+            const user = await db.Users.findByPk(id, {
+                attributes: [
+                    'id',
+                    'username',
+                    'email',
+                    'role',
+                    'avatarUrl',
+                    'mustChangePassword',
+                    'createdAt',
+                    'updatedAt',
+                ],
+            });
+            if (!user) {
+                return resolve({
+                    err: 1,
+                    msg: 'User không tồn tại',
+                });
+            }
+            resolve({
+                err: 0,
+                msg: 'OK',
+                response: buildPublicUserProfile(user),
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+
 // Update current user's profile (currently: username)
 export const updateProfileService = (id, data) => new Promise(async (resolve, reject) => {
     try {
@@ -407,23 +459,84 @@ export const updateProfileService = (id, data) => new Promise(async (resolve, re
 
         await user.update(updatePayload);
 
+        await user.reload();
         resolve({
             err: 0,
             msg: 'Cập nhật hồ sơ thành công',
-            response: {
-                id: user.id,
-                username: user.username,
-                email: user.email,
-                role: user.role,
-                mustChangePassword: user.mustChangePassword,
-                createdAt: user.createdAt,
-                updatedAt: user.updatedAt,
-            }
+            response: buildPublicUserProfile(user),
         });
     } catch (error) {
         reject(error);
     }
 });
+
+export const uploadAvatarService = (userId, file) =>
+    new Promise(async (resolve) => {
+        try {
+            if (!isCloudinaryConfigured()) {
+                return resolve({
+                    err: 1,
+                    msg: 'Chưa cấu hình Cloudinary (CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET)',
+                });
+            }
+            configureCloudinary();
+            if (!file?.buffer) {
+                return resolve({ err: 1, msg: 'Thiếu file ảnh' });
+            }
+            const user = await db.Users.findByPk(userId);
+            if (!user) {
+                return resolve({ err: 1, msg: 'User không tồn tại' });
+            }
+            const oldPublicId = user.avatarPublicId;
+            const publicId = `user-${userId}-${Date.now()}`;
+            const result = await uploadAvatarBuffer(file.buffer, { publicId });
+            await user.update({
+                avatarUrl: result.secure_url,
+                avatarPublicId: result.public_id,
+            });
+            if (oldPublicId && oldPublicId !== result.public_id) {
+                await destroyCloudinaryAsset(oldPublicId);
+            }
+            await user.reload();
+            resolve({
+                err: 0,
+                msg: 'Cập nhật ảnh đại diện thành công',
+                response: buildPublicUserProfile(user),
+            });
+        } catch (error) {
+            resolve({
+                err: 1,
+                msg: 'Upload ảnh thất bại: ' + (error?.message || error),
+            });
+        }
+    });
+
+export const deleteAvatarService = (userId) =>
+    new Promise(async (resolve) => {
+        try {
+            const user = await db.Users.findByPk(userId);
+            if (!user) {
+                return resolve({ err: 1, msg: 'User không tồn tại' });
+            }
+            const oldPublicId = user.avatarPublicId;
+            await user.update({ avatarUrl: null, avatarPublicId: null });
+            if (oldPublicId && isCloudinaryConfigured()) {
+                configureCloudinary();
+                await destroyCloudinaryAsset(oldPublicId);
+            }
+            await user.reload();
+            resolve({
+                err: 0,
+                msg: 'Đã xóa ảnh đại diện',
+                response: buildPublicUserProfile(user),
+            });
+        } catch (error) {
+            resolve({
+                err: 1,
+                msg: 'Xóa ảnh thất bại: ' + (error?.message || error),
+            });
+        }
+    });
 
 // export const verifyEmailService = (email) => new Promise(async (resolve, reject) => {
 //     try {

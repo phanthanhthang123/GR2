@@ -55,7 +55,7 @@ export const listWorkspaceByUserService = (user_id) => new Promise(async (resolv
                 {
                     model: db.Users,
                     as: 'owner',
-                    attributes: ['id', 'username', 'email']
+                    attributes: ['id', 'username', 'email', 'avatarUrl']
                 }
             ],
             order: [['createdAt', 'DESC']]
@@ -80,7 +80,7 @@ export const getWorkspaceByIdService = (id) => new Promise(async (resolve, rejec
                 {
                     model: db.Users,
                     as: 'owner',
-                    attributes: ['id', 'username', 'email', 'role']
+                    attributes: ['id', 'username', 'email', 'avatarUrl', 'role']
                 },
                 {
                     model: db.Workspace_Members,
@@ -89,7 +89,7 @@ export const getWorkspaceByIdService = (id) => new Promise(async (resolve, rejec
                         {
                             model: db.Users,
                             as: 'user',
-                            attributes: ['id', 'username', 'email', 'role']
+                            attributes: ['id', 'username', 'email', 'avatarUrl', 'role']
                         }
                     ]
                 },
@@ -101,7 +101,12 @@ export const getWorkspaceByIdService = (id) => new Promise(async (resolve, rejec
                             model: db.Task,
                             as: 'tasks',
                             attributes: ['id', 'status']
-                        }
+                        },
+                        {
+                            model: db.Project_Member,
+                            as: 'members',
+                            attributes: ['user_id', 'role'],
+                        },
                     ]
                 }
             ]
@@ -221,7 +226,7 @@ export const addMemberToWorkspaceService = (workspaceId, email, role, userId, ta
                 {
                     model: db.Users,
                     as: 'owner',
-                    attributes: ['id', 'username', 'email']
+                    attributes: ['id', 'username', 'email', 'avatarUrl']
                 },
                 {
                     model: db.Workspace_Members,
@@ -230,7 +235,7 @@ export const addMemberToWorkspaceService = (workspaceId, email, role, userId, ta
                         {
                             model: db.Users,
                             as: 'user',
-                            attributes: ['id', 'username', 'email']
+                            attributes: ['id', 'username', 'email', 'avatarUrl']
                         }
                     ]
                 }
@@ -322,7 +327,7 @@ export const removeMemberFromWorkspaceService = (workspaceId, targetUserId, curr
                 {
                     model: db.Users,
                     as: 'owner',
-                    attributes: ['id', 'username', 'email']
+                    attributes: ['id', 'username', 'email', 'avatarUrl']
                 },
                 {
                     model: db.Workspace_Members,
@@ -331,7 +336,7 @@ export const removeMemberFromWorkspaceService = (workspaceId, targetUserId, curr
                         {
                             model: db.Users,
                             as: 'user',
-                            attributes: ['id', 'username', 'email']
+                            attributes: ['id', 'username', 'email', 'avatarUrl']
                         }
                     ]
                 }
@@ -537,7 +542,7 @@ export const getWorkspaceStatsService = (workspaceId) => new Promise(async (reso
                 {
                     model: db.Users,
                     as: 'assignedUser',
-                    attributes: ['id', 'username', 'email'],
+                    attributes: ['id', 'username', 'email', 'avatarUrl'],
                     required: false
                 }
             ],
@@ -567,7 +572,7 @@ export const getWorkspaceStatsService = (workspaceId) => new Promise(async (reso
                 {
                     model: db.Users,
                     as: 'assignedUser',
-                    attributes: ['id', 'username', 'email'],
+                    attributes: ['id', 'username', 'email', 'avatarUrl'],
                     required: false
                 }
             ],
@@ -629,7 +634,7 @@ export const getWorkspaceProjectsDetailService = (workspaceId) => new Promise(as
                 {
                     model: db.Users,
                     as: 'leader',
-                    attributes: ['id', 'username', 'email']
+                    attributes: ['id', 'username', 'email', 'avatarUrl']
                 },
                 {
                     model: db.Project_Member,
@@ -638,7 +643,7 @@ export const getWorkspaceProjectsDetailService = (workspaceId) => new Promise(as
                         {
                             model: db.Users,
                             as: 'user',
-                            attributes: ['id', 'username', 'email']
+                            attributes: ['id', 'username', 'email', 'avatarUrl']
                         }
                     ]
                 }
@@ -682,7 +687,7 @@ export const getWorkspaceTasksDetailService = (workspaceId) => new Promise(async
                 {
                     model: db.Users,
                     as: 'assignedUser',
-                    attributes: ['id', 'username', 'email']
+                    attributes: ['id', 'username', 'email', 'avatarUrl']
                 }
             ],
             where: { isArchived: false },
@@ -720,7 +725,7 @@ export const getWorkspaceMembersDetailService = (workspaceId) => new Promise(asy
         if (workspace.owner_id) {
             owner = await db.Users.findOne({
                 where: { id: workspace.owner_id },
-                attributes: ['id', 'username', 'email', 'role']
+                attributes: ['id', 'username', 'email', 'avatarUrl', 'role']
             });
         }
 
@@ -731,7 +736,7 @@ export const getWorkspaceMembersDetailService = (workspaceId) => new Promise(asy
                 {
                     model: db.Users,
                     as: 'user',
-                    attributes: ['id', 'username', 'email', 'role'],
+                    attributes: ['id', 'username', 'email', 'avatarUrl', 'role'],
                     required: false
                 }
             ],
@@ -819,7 +824,7 @@ export const getWorkspaceTasksByStatusService = (workspaceId, status) => new Pro
                 {
                     model: db.Users,
                     as: 'assignedUser',
-                    attributes: ['id', 'username', 'email']
+                    attributes: ['id', 'username', 'email', 'avatarUrl']
                 }
             ],
             where: { 

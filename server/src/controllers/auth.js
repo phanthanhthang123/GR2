@@ -267,6 +267,72 @@ export const firstChangePassword = async (req, res) => {
     }
 }
 
+export const uploadAvatar = async (req, res) => {
+    try {
+        const userId = getUserIdFromToken(req);
+        if (!userId) {
+            return res.status(401).json({
+                err: 1,
+                msg: 'Unauthorized',
+            });
+        }
+        if (!req.file) {
+            return res.status(400).json({
+                err: 1,
+                msg: 'Vui lòng chọn file ảnh (field name: avatar)',
+            });
+        }
+        const response = await services.uploadAvatarService(userId, req.file);
+        const status = response.err === 0 ? 200 : 400;
+        return res.status(status).json(response);
+    } catch (error) {
+        return res.status(500).json({
+            err: -1,
+            msg: 'Failed at upload avatar controller: ' + error,
+        });
+    }
+};
+
+export const deleteAvatar = async (req, res) => {
+    try {
+        const userId = getUserIdFromToken(req);
+        if (!userId) {
+            return res.status(401).json({
+                err: 1,
+                msg: 'Unauthorized',
+            });
+        }
+        const response = await services.deleteAvatarService(userId);
+        const status = response.err === 0 ? 200 : 400;
+        return res.status(status).json(response);
+    } catch (error) {
+        return res.status(500).json({
+            err: -1,
+            msg: 'Failed at delete avatar controller: ' + error,
+        });
+    }
+};
+
+export const getProfile = async (req, res) => {
+    try {
+        const userId = getUserIdFromToken(req);
+        if (!userId) {
+            return res.status(401).json({
+                err: 1,
+                msg: 'Unauthorized',
+            });
+        }
+        const response = await services.getCurrentUserProfileService(userId);
+        const status = response.err === 0 ? 200 : 400;
+        return res.status(status).json(response);
+    } catch (error) {
+        return res.status(500).json({
+            err: -1,
+            msg: 'Failed at get profile controller: ' + error,
+        });
+    }
+};
+
 export const updateProfile = async (req, res) => {
     try {
         const tokenUserId = getUserIdFromToken(req);

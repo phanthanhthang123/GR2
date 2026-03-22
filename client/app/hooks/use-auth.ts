@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import { createSignUpSchema } from "@/lib/schema";
-import { postData, updateData } from "@/lib/fetch-utlis";
+import { postData, updateData, postFormData, deleteData } from "@/lib/fetch-utlis";
 
 
 export const useSignUpMutation = () => {
@@ -62,5 +62,21 @@ export const useUpdateProfileMutation = () => {
     mutationFn: async (data: { id?: string; username: string }) => {
       return updateData("/auth/profile", data);
     },
+  });
+};
+
+export const useUploadAvatarMutation = () => {
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const form = new FormData();
+      form.append("avatar", file);
+      return postFormData("/auth/profile/avatar", form);
+    },
+  });
+};
+
+export const useDeleteAvatarMutation = () => {
+  return useMutation({
+    mutationFn: async () => deleteData("/auth/profile/avatar"),
   });
 };

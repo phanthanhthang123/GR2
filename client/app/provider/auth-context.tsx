@@ -1,10 +1,9 @@
 import type { User } from "@/type";
-import { createContext, use, useContext, useEffect, useState } from "react";
-import { da } from "zod/v4/locales";
+import { fetchData } from "@/lib/fetch-utlis";
+import { createContext, useContext, useEffect, useState } from "react";
 import { queryClient } from "./react-query-provider";
 import { useLocation, useNavigate } from "react-router";
 import { publicRoutes } from "@/lib";
-import { set } from "zod";
 import { disconnectChatSocket, getChatSocket } from "@/hooks/use-chat";
 
 interface AuthContextType {
@@ -31,8 +30,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             const checkAuth = async () => {
                   setIsLoading(true);
                   const userInfo = localStorage.getItem("user");
+                  const token = localStorage.getItem("token");
                   if(userInfo) {
-                        setUser(JSON.parse(userInfo));
+                        const parsed = JSON.parse(userInfo) as User;
+                        if (token) {
+                              try {
+                                    const fresh = await fetchData<{
+                                          err: number;
+                                          response?: Partial<User>;
+                                    }>("/auth/profile");
+                                    if (fresh?.err === 0 && fresh?.response) {
+                                          const merged = { ...parsed, ...fresh.response } as User;
+                                          localStorage.setItem("user", JSON.stringify(merged));
+                                          setUser(merged);
+                                    } else {
+                                          setUser(parsed);
+                                    }
+                              } catch {
+                                    setUser(parsed);
+                              }
+                        } else {
+                              setUser(parsed);
+                        }
                         setIsAuthenticated(true);
                         getChatSocket();
                         queryClient.invalidateQueries({
@@ -59,6 +78,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             window.addEventListener("force-logout", handleLogout);
             return () => window.removeEventListener("force-logout", handleLogout);
       }, []);
+
+      /** Tab khác đăng xuất → token bị xóa: ngắt socket chat để presence cập nhật đúng (tránh vẫn “Online”). */
+      useEffect(() => {
+            const onStorage = (e: StorageEvent) => {
+                  if (e.key !== "token" || e.newValue != null) return;
+                  disconnectChatSocket();
+                  setUser(null);
+                  setIsAuthenticated(false);
+                  queryClient.clear();
+                  const path = window.location.pathname;
+                  if (!publicRoutes.includes(path)) {
+                        navigate("/sign-in");
+                  }
+            };
+            window.addEventListener("storage", onStorage);
+            return () => window.removeEventListener("storage", onStorage);
+      }, [navigate]);
 
 
       const login = async (data: any) => {

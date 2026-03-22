@@ -6,6 +6,12 @@ const onlineUsers = new Map();
 const userSockets = new Map();
 const lastSeenAt = new Map();
 
+/** Socket.io cần plain object; Sequelize instance có thể mất association `sender` khi serialize. */
+const plainMessageForSocket = (row) => {
+  if (!row) return row;
+  return typeof row.toJSON === 'function' ? row.toJSON() : row;
+};
+
 const getUserIdFromSocket = (socket) => {
   const token =
     socket.handshake.auth?.token ||
@@ -14,7 +20,7 @@ const getUserIdFromSocket = (socket) => {
   if (!token) return null;
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    return decoded.id;
+    return decoded.id != null ? String(decoded.id) : null;
   } catch (error) {
     return null;
   }
@@ -35,7 +41,7 @@ export const registerSocketHandlers = (io) => {
   io.use((socket, next) => {
     const userId = getUserIdFromSocket(socket);
     if (!userId) return next(new Error('UNAUTHORIZED'));
-    socket.userId = userId;
+    socket.userId = String(userId);
     return next();
   });
 
@@ -109,9 +115,11 @@ export const registerSocketHandlers = (io) => {
         return;
       }
 
+      const messagePayload = plainMessageForSocket(response.response);
+
       io.to(`conversation:${conversationId}`).emit('message:new', {
         conversationId,
-        message: response.response,
+        message: messagePayload,
       });
 
       const members = await db.Conversation_Member.findAll({
@@ -121,7 +129,7 @@ export const registerSocketHandlers = (io) => {
       members.forEach((member) => {
         io.to(`user:${member.user_id}`).emit('message:new', {
           conversationId,
-          message: response.response,
+          message: messagePayload,
         });
       });
     });
@@ -145,7 +153,7 @@ export const registerSocketHandlers = (io) => {
       }
       io.to(`conversation:${conversationId}`).emit('message:updated', {
         conversationId,
-        message: response.response,
+        message: plainMessageForSocket(response.response),
       });
     });
 
@@ -169,12 +177,12 @@ export const registerSocketHandlers = (io) => {
       }
       io.to(`conversation:${conversationId}`).emit('message:pinned', {
         conversationId,
-        message: response.response,
+        message: plainMessageForSocket(response.response),
       });
     });
 
     socket.on('call:invite', async ({ conversationId, toUserId, mode }) => {
-      const targetSocketId = onlineUsers.get(toUserId);
+      const targetSocketId = onlineUsers.get(toUserId != null ? String(toUserId) : '');
       if (targetSocketId) {
         io.to(targetSocketId).emit('call:incoming', {
           conversationId,
@@ -185,42 +193,42 @@ export const registerSocketHandlers = (io) => {
     });
 
     socket.on('call:accept', ({ conversationId, toUserId }) => {
-      const targetSocketId = onlineUsers.get(toUserId);
+      const targetSocketId = onlineUsers.get(toUserId != null ? String(toUserId) : '');
       if (targetSocketId) {
         io.to(targetSocketId).emit('call:accepted', { conversationId, byUserId: userId });
       }
     });
 
     socket.on('call:reject', ({ conversationId, toUserId }) => {
-      const targetSocketId = onlineUsers.get(toUserId);
+      const targetSocketId = onlineUsers.get(toUserId != null ? String(toUserId) : '');
       if (targetSocketId) {
         io.to(targetSocketId).emit('call:rejected', { conversationId, byUserId: userId });
       }
     });
 
     socket.on('call:end', ({ conversationId, toUserId }) => {
-      const targetSocketId = onlineUsers.get(toUserId);
+      const targetSocketId = onlineUsers.get(toUserId != null ? String(toUserId) : '');
       if (targetSocketId) {
         io.to(targetSocketId).emit('call:ended', { conversationId, byUserId: userId });
       }
     });
 
     socket.on('webrtc:offer', ({ toUserId, offer, conversationId, mode }) => {
-      const targetSocketId = onlineUsers.get(toUserId);
+      const targetSocketId = onlineUsers.get(toUserId != null ? String(toUserId) : '');
       if (targetSocketId) {
         io.to(targetSocketId).emit('webrtc:offer', { fromUserId: userId, offer, conversationId, mode });
       }
     });
 
     socket.on('webrtc:answer', ({ toUserId, answer, conversationId }) => {
-      const targetSocketId = onlineUsers.get(toUserId);
+      const targetSocketId = onlineUsers.get(toUserId != null ? String(toUserId) : '');
       if (targetSocketId) {
         io.to(targetSocketId).emit('webrtc:answer', { fromUserId: userId, answer, conversationId });
       }
     });
 
     socket.on('webrtc:ice-candidate', ({ toUserId, candidate, conversationId }) => {
-      const targetSocketId = onlineUsers.get(toUserId);
+      const targetSocketId = onlineUsers.get(toUserId != null ? String(toUserId) : '');
       if (targetSocketId) {
         io.to(targetSocketId).emit('webrtc:ice-candidate', {
           fromUserId: userId,

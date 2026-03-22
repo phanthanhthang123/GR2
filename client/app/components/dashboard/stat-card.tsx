@@ -313,6 +313,10 @@ export const StatCard = ({ data }: { data: any }) => {
                                                 className="flex items-center gap-3 p-3 rounded-md border hover:bg-accent transition-colors"
                                             >
                                                 <Avatar className="size-10">
+                                                    <AvatarImage
+                                                        src={memberUser?.avatarUrl || undefined}
+                                                        alt={memberUser?.username || ""}
+                                                    />
                                                     <AvatarFallback>
                                                         {memberUser?.username
                                                             ? getLastNameInitial(memberUser.username)

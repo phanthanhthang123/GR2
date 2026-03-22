@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser'
 import http from 'http'
 import { Server } from 'socket.io'
 import connectDatabase from './src/config/connectDatabase'
+import { configureCloudinary } from './src/config/cloudinary'
 import initRoutes from './src/routers'
 import { registerSocketHandlers } from './src/socket'
 
@@ -28,6 +29,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 connectDatabase();
+configureCloudinary();
 initRoutes(app);
 
 

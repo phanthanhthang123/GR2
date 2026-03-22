@@ -26,6 +26,13 @@ export const disconnectChatSocket = () => {
   }
 };
 
+/** So sánh userId với danh sách online (server có thể gửi id dạng string/number). */
+export const isUserOnline = (onlineUserIds: string[], userId?: string | null) => {
+  if (userId == null || userId === "") return false;
+  const sid = String(userId);
+  return onlineUserIds.some((id) => String(id) === sid);
+};
+
 export const useConversationsQuery = (workspaceId?: string | null) => {
   let userId: string | null = null;
   try {
@@ -76,6 +83,8 @@ export const useAllUsersQuery = () => {
       const res = await fetchData<{ err: number; response: User[] }>("/auth/users");
       return res?.response || [];
     },
+    staleTime: 0,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -138,8 +147,12 @@ export const useOnlineUsers = () => {
   useEffect(() => {
     const socket = getChatSocket();
     const onPresence = (payload: { onlineUserIds: string[]; lastSeenAtByUserId?: Record<string, string> }) => {
-      setOnlineUserIds(payload.onlineUserIds || []);
-      setLastSeenAtByUserId(payload.lastSeenAtByUserId || {});
+      setOnlineUserIds((payload.onlineUserIds || []).map((id) => String(id)));
+      const normalized: Record<string, string> = {};
+      Object.entries(payload.lastSeenAtByUserId || {}).forEach(([k, v]) => {
+        normalized[String(k)] = v;
+      });
+      setLastSeenAtByUserId(normalized);
     };
     socket.on("presence:update", onPresence);
     socket.emit("presence:sync");

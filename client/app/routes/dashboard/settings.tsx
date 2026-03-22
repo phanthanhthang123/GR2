@@ -1,6 +1,11 @@
 import React from "react";
 import { useAuth } from "@/provider/auth-context";
-import { useChangePasswordMutation, useUpdateProfileMutation } from "@/hooks/use-auth";
+import {
+  useChangePasswordMutation,
+  useUpdateProfileMutation,
+  useUploadAvatarMutation,
+  useDeleteAvatarMutation,
+} from "@/hooks/use-auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -13,6 +18,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Shield, User2, Bell, Settings2 } from "lucide-react";
+import { queryClient } from "@/provider/react-query-provider";
 
 type Preferences = {
   emailNotifications: boolean;
@@ -40,6 +46,10 @@ const SettingPage = () => {
 
   const updateProfileMutation = useUpdateProfileMutation();
   const changePasswordMutation = useChangePasswordMutation();
+  const uploadAvatarMutation = useUploadAvatarMutation();
+  const deleteAvatarMutation = useDeleteAvatarMutation();
+
+  const avatarFileInputRef = React.useRef<HTMLInputElement>(null);
 
   const [displayName, setDisplayName] = React.useState(user?.username || "");
   const [bio, setBio] = React.useState("");
@@ -83,7 +93,7 @@ const SettingPage = () => {
 
         <CardContent className="h-[calc(100%-110px)] space-y-5 overflow-hidden">
           <div className="flex flex-col md:flex-row md:items-center gap-4">
-            <Avatar className="size-12">
+            <Avatar className="size-12 cursor-pointer" onClick={() => avatarFileInputRef.current?.click()}>
               <AvatarImage src={user?.avatarUrl || undefined} alt={user?.username || "User"} />
               <AvatarFallback className="text-sm font-semibold">
                 {getInitials(user?.username)}
@@ -211,19 +221,78 @@ const SettingPage = () => {
                   <CardHeader>
                     <CardTitle className="text-base">Ảnh đại diện</CardTitle>
                     <CardDescription>
-                      Hiện tại hệ thống đang hiển thị ảnh từ <code>avatarUrl</code>.
+                      JPEG, PNG, GIF hoặc WebP, tối đa 5MB. Ảnh được lưu trên Cloudinary.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
+                    <input
+                      ref={avatarFileInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/gif,image/webp"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        e.target.value = "";
+                        if (!file) return;
+                        if (!user?.id) {
+                          toast.error("Không tìm thấy thông tin user.");
+                          return;
+                        }
+                        uploadAvatarMutation.mutate(file, {
+                          onSuccess: (res: any) => {
+                            if (res?.err !== 0) {
+                              toast.error(res?.msg || "Upload thất bại.");
+                              return;
+                            }
+                                const next = { ...(user as any), ...(res?.response || {}) };
+                                updateUser(next);
+                                queryClient.invalidateQueries();
+                                toast.success(res?.msg || "Đã cập nhật ảnh đại diện.");
+                          },
+                          onError: (err: any) => {
+                            toast.error(err?.response?.data?.msg || "Có lỗi khi upload ảnh.");
+                          },
+                        });
+                      }}
+                    />
                     <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
-                      Tính năng upload ảnh có thể làm sau (cần API upload + lưu URL).
+                      Ảnh hiển thị trên toàn hệ thống (header, chat, thành viên workspace/project, v.v.). Sau khi đổi ảnh,
+                      trang sẽ tự đồng bộ khi bạn mở lại ứng dụng hoặc F5.
                     </div>
-                    <div className="flex justify-end">
+                    <div className="flex flex-wrap justify-end gap-2">
                       <Button
                         variant="outline"
-                        onClick={() => toast.message("Chưa tích hợp upload ảnh (UI).")}
+                        disabled={uploadAvatarMutation.isPending || !user?.avatarUrl}
+                        onClick={() => {
+                          if (!user?.id) {
+                            toast.error("Không tìm thấy thông tin user.");
+                            return;
+                          }
+                          deleteAvatarMutation.mutate(undefined, {
+                            onSuccess: (res: any) => {
+                              if (res?.err !== 0) {
+                                toast.error(res?.msg || "Xóa ảnh thất bại.");
+                                return;
+                              }
+                              const next = { ...(user as any), ...(res?.response || {}) };
+                              updateUser(next);
+                              queryClient.invalidateQueries();
+                              toast.success(res?.msg || "Đã xóa ảnh đại diện.");
+                            },
+                            onError: (err: any) => {
+                              toast.error(err?.response?.data?.msg || "Có lỗi khi xóa ảnh.");
+                            },
+                          });
+                        }}
                       >
-                        Tải ảnh lên
+                        {deleteAvatarMutation.isPending ? "Đang xóa..." : "Xóa ảnh"}
+                      </Button>
+                      <Button
+                        className="bg-blue-600 hover:bg-blue-500 text-white"
+                        disabled={uploadAvatarMutation.isPending}
+                        onClick={() => avatarFileInputRef.current?.click()}
+                      >
+                        {uploadAvatarMutation.isPending ? "Đang tải lên..." : "Tải ảnh lên"}
                       </Button>
                     </div>
                   </CardContent>
