@@ -26,7 +26,12 @@ const SignUp = () => {
       email: '',
       password: '',
       name: '',
-      confirmPassword: ''
+      confirmPassword: '',
+      cpa: 3,
+      interviewScore: 6,
+      cvScore: 6,
+      yearsExperience: 0,
+      numProjects: 0,
     }
   })
 
@@ -41,7 +46,10 @@ const SignUp = () => {
           navigate('/sign-in');
         },
         onError: (error: any) => {
-          const errorMessage = error?.response?.data?.message || t("signUp.serverError");
+          const errorMessage =
+            error?.response?.data?.msg ||
+            error?.response?.data?.message ||
+            t("signUp.serverError");
           toast.error(errorMessage);
         }
       });
@@ -132,6 +140,114 @@ const SignUp = () => {
                         type="password"
                         className="bg-slate-900 border-slate-700 text-slate-50 placeholder:text-slate-500"
                         placeholder={t("signUp.placeholderConfirmPassword")}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <p className="text-xs font-medium text-slate-400 pt-1">
+                {t("signUp.kpiSectionTitle")}
+              </p>
+              <FormField
+                control={form.control}
+                name="cpa"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("signUp.cpa")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min={0}
+                        max={4}
+                        className="bg-slate-900 border-slate-700 text-slate-50 placeholder:text-slate-500"
+                        placeholder={t("signUp.cpaHint")}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="interviewScore"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("signUp.interviewScore")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.1"
+                        min={0}
+                        max={10}
+                        className="bg-slate-900 border-slate-700 text-slate-50 placeholder:text-slate-500"
+                        placeholder={t("signUp.interviewHint")}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="cvScore"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("signUp.cvScore")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.1"
+                        min={0}
+                        max={10}
+                        className="bg-slate-900 border-slate-700 text-slate-50 placeholder:text-slate-500"
+                        placeholder={t("signUp.cvHint")}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="yearsExperience"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("signUp.yearsExperience")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.5"
+                        min={0}
+                        max={50}
+                        className="bg-slate-900 border-slate-700 text-slate-50 placeholder:text-slate-500"
+                        placeholder={t("signUp.yearsHint")}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="numProjects"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("signUp.numProjects")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step={1}
+                        min={0}
+                        max={200}
+                        className="bg-slate-900 border-slate-700 text-slate-50 placeholder:text-slate-500"
+                        placeholder={t("signUp.numProjectsHint")}
                         {...field}
                       />
                     </FormControl>

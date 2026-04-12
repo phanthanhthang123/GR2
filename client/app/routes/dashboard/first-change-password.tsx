@@ -73,12 +73,12 @@ const FirstChangePassword: React.FC = () => {
 
   return (
     <div className="w-full">
-      <Card className="w-full max-w-md mx-auto bg-slate-900/80 border-slate-800 text-slate-50 shadow-xl">
+      <Card className="w-full max-w-md mx-auto bg-white border-slate-200 text-slate-900 shadow-xl">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-semibold">
             Đổi mật khẩu lần đầu
           </CardTitle>
-          <CardDescription className="text-slate-300">
+          <CardDescription className="text-slate-600">
             Vì lý do bảo mật, bạn cần đặt mật khẩu mới trước khi sử dụng hệ thống.
           </CardDescription>
         </CardHeader>
@@ -94,7 +94,7 @@ const FirstChangePassword: React.FC = () => {
                     <FormControl>
                       <Input
                         type="password"
-                        className="bg-slate-900 border-slate-700 text-slate-50 placeholder:text-slate-500"
+                        className="bg-white border-slate-300 text-slate-900 placeholder:text-slate-400"
                         placeholder="Nhập mật khẩu mới"
                         {...field}
                       />
@@ -112,7 +112,7 @@ const FirstChangePassword: React.FC = () => {
                     <FormControl>
                       <Input
                         type="password"
-                        className="bg-slate-900 border-slate-700 text-slate-50 placeholder:text-slate-500"
+                        className="bg-white border-slate-300 text-slate-900 placeholder:text-slate-400"
                         placeholder="Nhập lại mật khẩu mới"
                         {...field}
                       />

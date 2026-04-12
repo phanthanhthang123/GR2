@@ -3,6 +3,7 @@ import authRouter from './auth';
 import workspaceRouter from './workspace';
 import taskRouter from './task';
 import chatRouter from './chat';
+import notificationRouter from './notification';
 
 const initRoutes = (app) => {
     app.use('/api/v1/project', projectRouter);
@@ -10,6 +11,7 @@ const initRoutes = (app) => {
     app.use('/api/v1/workspace', workspaceRouter);
     app.use('/api/v1/task', taskRouter);
     app.use('/api/v1/chat', chatRouter);
+    app.use('/api/v1/notification', notificationRouter);
 
     return app.use('/', (req, res) => {
         res.send('Server on ...');

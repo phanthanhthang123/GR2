@@ -9,6 +9,7 @@ import {
     uploadAvatarBuffer,
     destroyCloudinaryAsset,
 } from '../config/cloudinary'
+import { predictOnboardingKpi } from './kpiPython'
 
 
 
@@ -37,28 +38,71 @@ const buildPublicUserProfile = (user) => ({
     mustChangePassword: user.mustChangePassword,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
+    kpiScore: user.kpiScore != null ? Number(user.kpiScore) : null,
+    kpiModelAtSignup: user.kpiModelAtSignup ?? null,
+    cpa: user.cpa != null ? Number(user.cpa) : null,
+    yearsAtCompany:
+        user.yearsAtCompany != null ? Number(user.yearsAtCompany) : 0,
+    interviewScore: user.interviewScore != null ? Number(user.interviewScore) : null,
+    cvScore: user.cvScore != null ? Number(user.cvScore) : null,
+    yearsExperience: user.yearsExperience != null ? Number(user.yearsExperience) : 0,
+    numProjectsPrior: user.numProjectsPrior != null ? Number(user.numProjectsPrior) : 0,
 })
 
-export const registerService = (username, email, password) => new Promise(async (resolve, reject) => {
+const normalizeKpiProfile = (body = {}) => {
+    const rawCpa = body.cpa != null ? body.cpa : body.gpa
+    const cpa = rawCpa != null ? Number(rawCpa) : 3.0
+    const interview_score = body.interview_score != null ? Number(body.interview_score) : 6.0
+    const cv_score = body.cv_score != null ? Number(body.cv_score) : 6.0
+    const years_experience = body.years_experience != null ? Number(body.years_experience) : 0
+    const num_projects = body.num_projects != null ? Number(body.num_projects) : 0
+    return { cpa, interview_score, cv_score, years_experience, num_projects }
+}
+
+export const registerService = (username, email, password, kpiBody = {}) => new Promise(async (resolve, reject) => {
     try {
-        const response = await db.Users.findOrCreate({
-            where: { email },
-            defaults: {
-                username,
-                email,
-                password: hashPassword(password),
-                id: v4(),
-                role: 'Member'
-            }
+        const dup = await db.Users.findOne({ where: { email } })
+        if (dup) {
+            return resolve({
+                err: 1,
+                msg: 'Email hash been aldready used!',
+            })
+        }
+
+        const kp = normalizeKpiProfile(kpiBody)
+        const pred = predictOnboardingKpi({
+            cpa: kp.cpa,
+            interview_score: kp.interview_score,
+            cv_score: kp.cv_score,
+            years_experience: kp.years_experience,
+            num_projects: kp.num_projects,
         })
-        //response[0] :data 
-        // response[1] = true or false , true : da dc tao tk, false : tk da ton tai => da co token
-        // const token = response[1] && generateToken(response[1].username,response[1].id, response[1].role)
+        const kpiScore = pred.kpi != null ? pred.kpi : null
+        const kpiModelAtSignup = pred.model != null ? pred.model : null
+        if (pred.err) {
+            console.warn('[register] KPI Python không chạy được, vẫn tạo user:', pred.msg)
+        }
+
+        const userRow = await db.Users.create({
+            username,
+            email,
+            password: hashPassword(password),
+            id: v4(),
+            role: 'Member',
+            cpa: kp.cpa,
+            yearsAtCompany: 0,
+            interviewScore: kp.interview_score,
+            cvScore: kp.cv_score,
+            yearsExperience: kp.years_experience,
+            numProjectsPrior: Math.max(0, Math.floor(kp.num_projects)),
+            kpiScore,
+            kpiModelAtSignup,
+        })
 
         resolve({
-            err: response[1] ? 0 : 1,
-            msg: response[1] ? 'Register is successfully !' : 'Email hash been aldready used!',
-            // token : token ? token : null
+            err: 0,
+            msg: 'Register is successfully !',
+            response: buildPublicUserProfile(userRow),
         })
     } catch (error) {
         reject(error)
@@ -274,7 +318,12 @@ export const getAllUsersService = (searchQuery) => new Promise(async (resolve, r
 
         const users = await db.Users.findAll({
             where: whereClause,
-            attributes: ['id', 'username', 'email', 'role', 'avatarUrl'],
+            attributes: [
+                'id', 'username', 'email', 'role', 'avatarUrl',
+                'kpiScore', 'kpiModelAtSignup',
+                'cpa', 'interviewScore', 'cvScore',
+                'yearsAtCompany', 'yearsExperience', 'numProjectsPrior',
+            ],
             order: [['username', 'ASC']],
             limit: 100 // Limit to prevent loading too many users
         });
@@ -293,8 +342,8 @@ export const getAllUsersService = (searchQuery) => new Promise(async (resolve, r
     }
 });
 
-// Admin: create user with random password and specific role
-export const adminCreateUserService = (username, email, role = 'Member') => new Promise(async (resolve, reject) => {
+// Admin: create user with random password and specific role (+ KPI từ HM LR)
+export const adminCreateUserService = (username, email, role = 'Member', kpiBody = {}) => new Promise(async (resolve, reject) => {
     try {
         const existing = await db.Users.findOne({ where: { email } });
         if (existing) {
@@ -302,6 +351,28 @@ export const adminCreateUserService = (username, email, role = 'Member') => new 
                 err: 1,
                 msg: 'Email đã tồn tại',
             });
+        }
+
+        const kp = normalizeKpiProfile(kpiBody)
+        const rawYac = kpiBody.years_at_company ?? kpiBody.yearsAtCompany
+        const yac =
+            rawYac !== undefined && rawYac !== null && rawYac !== ''
+                ? Number(rawYac)
+                : 0
+        const yearsAtCompany =
+            Number.isFinite(yac) && yac >= 0 && yac <= 50 ? yac : 0
+
+        const pred = predictOnboardingKpi({
+            cpa: kp.cpa,
+            interview_score: kp.interview_score,
+            cv_score: kp.cv_score,
+            years_experience: kp.years_experience,
+            num_projects: kp.num_projects,
+        })
+        let kpiScore = pred.kpi != null ? pred.kpi : null
+        let kpiModelAtSignup = pred.model != null ? pred.model : null
+        if (pred.err) {
+            console.warn('[adminCreateUser] KPI Python:', pred.msg)
         }
 
         const plainPassword = Math.random().toString(36).slice(-10);
@@ -312,6 +383,14 @@ export const adminCreateUserService = (username, email, role = 'Member') => new 
             password: hashPassword(plainPassword),
             role,
             mustChangePassword: true,
+            cpa: kp.cpa,
+            yearsAtCompany,
+            interviewScore: kp.interview_score,
+            cvScore: kp.cv_score,
+            yearsExperience: kp.years_experience,
+            numProjectsPrior: Math.max(0, Math.floor(kp.num_projects)),
+            kpiScore,
+            kpiModelAtSignup,
         });
 
         resolve({
@@ -328,6 +407,73 @@ export const adminCreateUserService = (username, email, role = 'Member') => new 
     }
 });
 
+// Admin: send created account credentials to user's email
+const sendAdminCreatedUserCredentialsEmail = async (toEmail, username, plainPassword) => {
+    const loginLink = `${process.env.URL_REACT}/sign-in`;
+    const fromEmail = process.env.EMAIL_USER || "your_email@gmail.com";
+    const mailOptions = {
+        from: `"SmartHR" <${fromEmail}>`,
+        to: toEmail,
+        subject: "[SmartHR] Thông tin tài khoản đăng nhập",
+        text: `Xin chào ${username},\n\nBạn đã được tạo tài khoản SmartHR.\n\nEmail: ${toEmail}\nMật khẩu tạm: ${plainPassword}\n\nVui lòng đăng nhập tại: ${loginLink}\nSau lần đăng nhập đầu tiên, hệ thống sẽ yêu cầu đổi mật khẩu.\n\nTrân trọng,\nSmartHR`,
+        html: `<div style="font-family: Arial, sans-serif; color: #222;">
+            <h2 style="color: #1976d2;">Xin chào ${username},</h2>
+            <p>Bạn đã được tạo tài khoản <b>SmartHR</b>.</p>
+            <div style="margin: 16px 0; padding: 12px 16px; background: #f6f8fa; border-radius: 6px;">
+              <p style="margin: 0 0 6px;"><b>Email:</b> ${toEmail}</p>
+              <p style="margin: 0;"><b>Mật khẩu tạm:</b> <code>${plainPassword}</code></p>
+            </div>
+            <p>Vui lòng đăng nhập tại:</p>
+            <div style="margin: 16px 0;">
+              <a href="${loginLink}" style="background: #1976d2; color: #fff; padding: 10px 18px; border-radius: 4px; text-decoration: none; font-weight: bold;">
+                Đăng nhập
+              </a>
+            </div>
+            <p style="color: #666; font-size: 13px;">Sau lần đăng nhập đầu tiên, hệ thống sẽ yêu cầu đổi mật khẩu.</p>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;">
+            <p style="font-size: 13px; color: #888;">Trân trọng,<br>SmartHR</p>
+        </div>`
+    };
+
+    try {
+        const info = await transporter.sendMail(mailOptions);
+        console.log("Admin created user email sent:", info?.response);
+        return { success: true, response: info?.response };
+    } catch (error) {
+        console.error("Admin created user email error:", error?.message || error);
+        return { success: false, error: error?.message || String(error) };
+    }
+};
+
+export const adminSendUserCredentialsEmailService = (username, email, tempPassword) =>
+    new Promise(async (resolve) => {
+        try {
+            if (!username || !email || !tempPassword) {
+                return resolve({ err: 1, msg: "Missing required fields" });
+            }
+
+            const result = await sendAdminCreatedUserCredentialsEmail(email, username, tempPassword);
+            if (!result.success) {
+                return resolve({
+                    err: 1,
+                    msg: "Gửi email thất bại",
+                    response: result,
+                });
+            }
+
+            return resolve({
+                err: 0,
+                msg: "Gửi email thành công",
+                response: result,
+            });
+        } catch (error) {
+            return resolve({
+                err: 1,
+                msg: "Gửi email thất bại: " + (error?.message || String(error)),
+            });
+        }
+    });
+
 export const adminUpdateUserService = (id, data) => new Promise(async (resolve, reject) => {
     try {
         const user = await db.Users.findByPk(id);
@@ -338,11 +484,124 @@ export const adminUpdateUserService = (id, data) => new Promise(async (resolve, 
             });
         }
 
-        const allowed = ['username', 'email', 'role'];
         const updatePayload = {};
-        allowed.forEach((key) => {
-            if (data[key] !== undefined) updatePayload[key] = data[key];
-        });
+
+        if (data.username !== undefined) {
+            updatePayload.username = String(data.username).trim();
+        }
+        if (data.email !== undefined) {
+            const email = String(data.email).trim().toLowerCase();
+            const prevEmail = String(user.email || '').trim().toLowerCase();
+            if (email !== prevEmail) {
+                const dup = await db.Users.findOne({
+                    where: {
+                        email,
+                        id: { [db.Sequelize.Op.ne]: user.id },
+                    },
+                });
+                if (dup) {
+                    return resolve({
+                        err: 1,
+                        msg: 'Email đã được sử dụng bởi tài khoản khác',
+                    });
+                }
+            }
+            updatePayload.email = email;
+        }
+        if (data.role !== undefined) {
+            updatePayload.role = data.role;
+        }
+
+        const onboardingFieldKeys = [
+            'cpa',
+            'gpa',
+            'interview_score',
+            'interviewScore',
+            'cv_score',
+            'cvScore',
+            'years_experience',
+            'yearsExperience',
+            'num_projects',
+            'numProjectsPrior',
+        ]
+        const hasOnboardingPatch = onboardingFieldKeys.some((k) => data[k] !== undefined)
+
+        if (hasOnboardingPatch) {
+            const rawCpa = data.cpa !== undefined ? data.cpa : data.gpa
+            const cpa =
+                rawCpa !== undefined && rawCpa !== null && rawCpa !== ''
+                    ? Number(rawCpa)
+                    : Number(user.cpa ?? 3)
+            const iv =
+                data.interview_score !== undefined || data.interviewScore !== undefined
+                    ? Number(data.interview_score ?? data.interviewScore)
+                    : Number(user.interviewScore ?? 6)
+            const cv =
+                data.cv_score !== undefined || data.cvScore !== undefined
+                    ? Number(data.cv_score ?? data.cvScore)
+                    : Number(user.cvScore ?? 6)
+            const ye =
+                data.years_experience !== undefined || data.yearsExperience !== undefined
+                    ? Number(data.years_experience ?? data.yearsExperience)
+                    : Number(user.yearsExperience ?? 0)
+            const np =
+                data.num_projects !== undefined || data.numProjectsPrior !== undefined
+                    ? Number(data.num_projects ?? data.numProjectsPrior)
+                    : Number(user.numProjectsPrior ?? 0)
+
+            if (!Number.isFinite(cpa) || cpa < 0 || cpa > 4) {
+                return resolve({ err: 1, msg: 'CPA phải từ 0 đến 4' })
+            }
+            if (!Number.isFinite(iv) || iv < 0 || iv > 10) {
+                return resolve({ err: 1, msg: 'Điểm phỏng vấn phải từ 0 đến 10' })
+            }
+            if (!Number.isFinite(cv) || cv < 0 || cv > 10) {
+                return resolve({ err: 1, msg: 'Điểm CV phải từ 0 đến 10' })
+            }
+            if (!Number.isFinite(ye) || ye < 0 || ye > 50) {
+                return resolve({ err: 1, msg: 'Số năm kinh nghiệm không hợp lệ' })
+            }
+            if (!Number.isFinite(np) || np < 0 || np > 200) {
+                return resolve({ err: 1, msg: 'Số project không hợp lệ' })
+            }
+
+            const pred = predictOnboardingKpi({
+                cpa,
+                interview_score: iv,
+                cv_score: cv,
+                years_experience: ye,
+                num_projects: np,
+            })
+            updatePayload.cpa = cpa
+            updatePayload.interviewScore = iv
+            updatePayload.cvScore = cv
+            updatePayload.yearsExperience = ye
+            updatePayload.numProjectsPrior = Math.max(0, Math.floor(np))
+            if (!pred.err && pred.kpi != null) {
+                updatePayload.kpiScore = pred.kpi
+                updatePayload.kpiModelAtSignup = pred.model
+            } else if (pred.err) {
+                console.warn('[adminUpdateUser] KPI Python:', pred.msg)
+            }
+        }
+
+        if (data.years_at_company !== undefined || data.yearsAtCompany !== undefined) {
+            const yac = Number(data.years_at_company ?? data.yearsAtCompany)
+            if (!Number.isFinite(yac) || yac < 0 || yac > 50) {
+                return resolve({
+                    err: 1,
+                    msg: 'Số năm làm việc tại công ty không hợp lệ (0–50)',
+                })
+            }
+            updatePayload.yearsAtCompany = yac
+        }
+
+        if (Object.keys(updatePayload).length === 0) {
+            return resolve({
+                err: 1,
+                msg: 'Không có trường nào để cập nhật',
+            })
+        }
 
         await user.update(updatePayload);
         await user.reload();
@@ -418,6 +677,14 @@ export const getCurrentUserProfileService = (id) =>
                     'mustChangePassword',
                     'createdAt',
                     'updatedAt',
+                    'kpiScore',
+                    'kpiModelAtSignup',
+                    'cpa',
+                    'yearsAtCompany',
+                    'interviewScore',
+                    'cvScore',
+                    'yearsExperience',
+                    'numProjectsPrior',
                 ],
             });
             if (!user) {

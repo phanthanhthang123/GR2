@@ -13,12 +13,27 @@ export const createSignInSchema = (t: (key: string) => string) =>
   });
 
 export const createSignUpSchema = (t: (key: string) => string) =>
-  z.object({
-    email: z.string().email(t("signUp.emailError")),
-    password: z.string().min(8, t("signUp.passwordError")),
-    name: z.string().min(3, t("signUp.fullNameError")),
-    confirmPassword: z.string().min(8, t("signUp.passwordsDontMatch")),
-  })
+  z
+    .object({
+      email: z.string().email(t("signUp.emailError")),
+      password: z.string().min(8, t("signUp.passwordError")),
+      name: z.string().min(3, t("signUp.fullNameError")),
+      confirmPassword: z.string().min(8, t("signUp.passwordsDontMatch")),
+      cpa: z.coerce.number().min(0, t("signUp.cpaError")).max(4, t("signUp.cpaError")),
+      interviewScore: z.coerce
+        .number()
+        .min(0, t("signUp.interviewError"))
+        .max(10, t("signUp.interviewError")),
+      cvScore: z.coerce.number().min(0, t("signUp.cvError")).max(10, t("signUp.cvError")),
+      yearsExperience: z.preprocess(
+        (v) => (v === "" || v === undefined || v === null ? 0 : Number(v)),
+        z.number().min(0, t("signUp.yearsError")).max(50, t("signUp.yearsError"))
+      ),
+      numProjects: z.preprocess(
+        (v) => (v === "" || v === undefined || v === null ? 0 : Number(v)),
+        z.number().min(0, t("signUp.numProjectsError")).max(200, t("signUp.numProjectsError"))
+      ),
+    })
     .refine((data) => data.password === data.confirmPassword, {
       path: ["confirmPassword"],
       message: t("signUp.passwordsDontMatch"),

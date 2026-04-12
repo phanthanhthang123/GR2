@@ -1,8 +1,9 @@
 import db from '../models';
 import { v4 } from 'uuid';
+import { createNotificationService } from './notification';
 
 //CREATE TASK
-export const createTaskService = (projectId, taskData) => new Promise(async (resolve, reject) => {
+export const createTaskService = (projectId, taskData, actorUserId) => new Promise(async (resolve, reject) => {
     try {
         // Check if a task with the same title already exists in this project
         const existingTask = await db.Task.findOne({
@@ -43,6 +44,22 @@ export const createTaskService = (projectId, taskData) => new Promise(async (res
                 err: 1,
                 msg: 'FAILED TO CREATE TASK'
             });
+        }
+
+        if (assignedTo) {
+            const actor = actorUserId ? await db.Users.findByPk(actorUserId, { attributes: ['username'] }) : null;
+            const actorName = actor?.username || 'Một người dùng';
+            const project = await db.Project.findByPk(projectId, { attributes: ['id', 'workspace_id'] });
+            await createNotificationService(
+                String(assignedTo),
+                `${actorName} đã giao cho bạn task: ${task.title}`,
+                {
+                    type: 'task',
+                    taskId: String(task.id),
+                    projectId: String(projectId),
+                    workspaceId: project?.workspace_id ? String(project.workspace_id) : null,
+                }
+            );
         }
 
         resolve({
@@ -385,6 +402,7 @@ export const updateTaskAssigneesService = (taskId, assignees, userId) => new Pro
             });
         }
 
+        const previousAssignedTo = task.assigned_to ? String(task.assigned_to) : null;
         // Since assigned_to is a single STRING field, we'll use the first assignee
         // If assignees array is empty, set to null
         const assignedTo = Array.isArray(assignees) && assignees.length > 0
@@ -395,6 +413,23 @@ export const updateTaskAssigneesService = (taskId, assignees, userId) => new Pro
             assigned_to: assignedTo,
             updatedAt: new Date()
         });
+
+        const nextAssignedTo = assignedTo ? String(assignedTo) : null;
+        if (nextAssignedTo && nextAssignedTo !== previousAssignedTo) {
+            const actor = userId ? await db.Users.findByPk(userId, { attributes: ['username'] }) : null;
+            const actorName = actor?.username || 'Một người dùng';
+            const project = await db.Project.findByPk(task.project_id, { attributes: ['id', 'workspace_id'] });
+            await createNotificationService(
+                nextAssignedTo,
+                `${actorName} đã gán bạn vào task: ${task.title}`,
+                {
+                    type: 'task',
+                    taskId: String(task.id),
+                    projectId: String(task.project_id),
+                    workspaceId: project?.workspace_id ? String(project.workspace_id) : null,
+                }
+            );
+        }
 
         // Reload task with associations to get updated assignedUser
         await task.reload({

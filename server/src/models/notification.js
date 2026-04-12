@@ -30,6 +30,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.TEXT,
       allowNull: false
     },
+    payload: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
     is_read: {
       type: DataTypes.ENUM('TRUE', 'FALSE'),
       defaultValue: 'FALSE'

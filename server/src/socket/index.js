@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import db from '../models';
 import * as chatServices from '../services/chat';
+import { createNotificationService } from '../services/notification';
 
 const onlineUsers = new Map();
 const userSockets = new Map();
@@ -132,6 +133,18 @@ export const registerSocketHandlers = (io) => {
           message: messagePayload,
         });
       });
+
+      members
+        .filter((member) => String(member.user_id) !== String(userId))
+        .forEach(async (member) => {
+          const senderName = messagePayload?.sender?.username || 'Một người dùng';
+          const contentPreview = (messagePayload?.content || '').trim();
+          const preview = contentPreview.length > 80 ? `${contentPreview.slice(0, 80)}...` : contentPreview;
+          await createNotificationService(
+            member.user_id,
+            `${senderName} vừa gửi tin nhắn: ${preview || '[Tin nhắn mới]'}`
+          );
+        });
     });
 
     socket.on('message:read', async ({ conversationId }) => {

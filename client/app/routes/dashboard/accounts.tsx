@@ -16,13 +16,6 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-  SelectValue,
-} from "@/components/ui/select";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import type { User } from "@/type";
 import { toast } from "sonner";
@@ -38,8 +31,40 @@ function userInitials(name?: string | null) {
 type UsersResponse = {
   err: number;
   msg: string;
-  response: Pick<User, "id" | "username" | "email" | "role" | "avatarUrl">[];
+  response: Pick<
+    User,
+    | "id"
+    | "username"
+    | "email"
+    | "role"
+    | "avatarUrl"
+    | "kpiScore"
+    | "kpiModelAtSignup"
+    | "cpa"
+    | "interviewScore"
+    | "cvScore"
+    | "yearsAtCompany"
+    | "yearsExperience"
+    | "numProjectsPrior"
+  >[];
 };
+
+type EditingUserRow = Pick<
+  User,
+  | "id"
+  | "username"
+  | "email"
+  | "role"
+  | "avatarUrl"
+  | "cpa"
+  | "interviewScore"
+  | "cvScore"
+  | "yearsExperience"
+  | "numProjectsPrior"
+  | "yearsAtCompany"
+  | "kpiScore"
+  | "kpiModelAtSignup"
+>;
 
 type AdminCreateUserResponse = {
   err: number;
@@ -51,7 +76,15 @@ type AdminCreateUserResponse = {
     role: User["role"];
     mustChangePassword?: boolean;
     tempPassword?: string;
+    kpiScore?: number | null;
+    kpiModelAtSignup?: string | null;
   };
+};
+
+type AdminSendUserCredentialsEmailResponse = {
+  err: number;
+  msg: string;
+  response?: any;
 };
 
 const AccountsPage: React.FC = () => {
@@ -63,13 +96,11 @@ const AccountsPage: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [createdTempPassword, setCreatedTempPassword] = React.useState<string | null>(null);
   const [createdEmail, setCreatedEmail] = React.useState<string | null>(null);
-  const [editingUser, setEditingUser] = React.useState<null | {
-    id: string;
-    username: string;
-    email: string;
-    role: User["role"];
-    avatarUrl?: string | null;
-  }>(null);
+  const [createdKpi, setCreatedKpi] = React.useState<{
+    score: number | null;
+    model: string | null;
+  } | null>(null);
+  const [editingUser, setEditingUser] = React.useState<null | EditingUserRow>(null);
 
   // Chỉ Admin được vào trang này
   React.useEffect(() => {
@@ -89,20 +120,58 @@ const AccountsPage: React.FC = () => {
     },
   });
 
+  const sendCredentialsEmailMutation = useMutation({
+    mutationFn: (payload: { username: string; email: string; tempPassword: string }) =>
+      postData<AdminSendUserCredentialsEmailResponse>(
+        "/auth/admin/users/send-credentials",
+        payload
+      ),
+  });
+
   const createMutation = useMutation({
     mutationFn: (payload: {
       username: string;
       email: string;
       role: User["role"];
+      cpa: number;
+      interview_score: number;
+      cv_score: number;
+      years_experience: number;
+      num_projects: number;
+      years_at_company: number;
     }) => postData<AdminCreateUserResponse>("/auth/admin/users", payload),
-    onSuccess: (res) => {
+    onSuccess: async (res) => {
       if (res.err === 0) {
         queryClient.invalidateQueries({ queryKey: ["admin-users"] });
         const temp = res.response?.tempPassword || null;
+        const createdEmail = res.response?.email || null;
+        const createdUsername = res.response?.username || "";
         setCreatedTempPassword(temp);
-        setCreatedEmail(res.response?.email || null);
+        setCreatedEmail(createdEmail);
+        setCreatedKpi({
+          score: res.response?.kpiScore ?? null,
+          model: res.response?.kpiModelAtSignup ?? null,
+        });
         setEditingUser(null);
         toast.success("Tạo tài khoản thành công.");
+
+        // Gửi Gmail cho user ngay sau khi tạo xong
+        if (temp && createdEmail) {
+          try {
+            const emailRes = await sendCredentialsEmailMutation.mutateAsync({
+              username: createdUsername,
+              email: createdEmail,
+              tempPassword: temp,
+            });
+            if (emailRes.err === 0) {
+              toast.success("Đã gửi thông tin đăng nhập tới email.");
+            } else {
+              toast.error(emailRes.msg || "Gửi email thất bại");
+            }
+          } catch (e: any) {
+            toast.error(e?.message || "Gửi email thất bại");
+          }
+        }
       } else {
         toast.error(res.msg || "Không thể tạo tài khoản");
       }
@@ -118,13 +187,25 @@ const AccountsPage: React.FC = () => {
       username: string;
       email: string;
       role: User["role"];
+      cpa: number;
+      interview_score: number;
+      cv_score: number;
+      years_experience: number;
+      num_projects: number;
+      years_at_company: number;
     }) => updateData(`/auth/admin/users/${payload.id}`, payload),
     onSuccess: (res: any) => {
       if (res.err === 0) {
         queryClient.invalidateQueries({ queryKey: ["admin-users"] });
         setIsDialogOpen(false);
         setEditingUser(null);
-        toast.success("Cập nhật tài khoản thành công");
+        const k = res.response?.kpiScore;
+        const m = res.response?.kpiModelAtSignup;
+        if (k != null && m) {
+          toast.success(`Đã cập nhật. KPI mới: ${Number(k).toFixed(4)} (${m})`);
+        } else {
+          toast.success("Cập nhật tài khoản thành công");
+        }
       } else {
         toast.error(res.msg || "Không thể cập nhật tài khoản");
       }
@@ -162,11 +243,93 @@ const AccountsPage: React.FC = () => {
     }
 
     if (editingUser) {
-      updateMutation.mutate({ id: editingUser.id, username, email, role });
+      const cpa = parseFloat(String(formData.get("cpa") || ""));
+      const interview_score = parseFloat(String(formData.get("interview_score") || ""));
+      const cv_score = parseFloat(String(formData.get("cv_score") || ""));
+      const years_experience = parseFloat(String(formData.get("years_experience") || "0"));
+      const num_projects = parseInt(String(formData.get("num_projects") || "0"), 10);
+      const years_at_company = parseFloat(String(formData.get("years_at_company") || "0"));
+      if (!Number.isFinite(cpa) || cpa < 0 || cpa > 4) {
+        toast.error("CPA phải từ 0 đến 4");
+        return;
+      }
+      if (!Number.isFinite(interview_score) || interview_score < 0 || interview_score > 10) {
+        toast.error("Điểm phỏng vấn từ 0 đến 10");
+        return;
+      }
+      if (!Number.isFinite(cv_score) || cv_score < 0 || cv_score > 10) {
+        toast.error("Điểm CV từ 0 đến 10");
+        return;
+      }
+      if (!Number.isFinite(years_experience) || years_experience < 0 || years_experience > 50) {
+        toast.error("Số năm kinh nghiệm không hợp lệ");
+        return;
+      }
+      if (!Number.isFinite(num_projects) || num_projects < 0 || num_projects > 200) {
+        toast.error("Số project không hợp lệ");
+        return;
+      }
+      if (!Number.isFinite(years_at_company) || years_at_company < 0 || years_at_company > 50) {
+        toast.error("Số năm tại công ty không hợp lệ (0–50)");
+        return;
+      }
+      updateMutation.mutate({
+        id: editingUser.id,
+        username,
+        email,
+        role,
+        cpa,
+        interview_score,
+        cv_score,
+        years_experience,
+        num_projects,
+        years_at_company,
+      });
     } else {
+      const cpa = parseFloat(String(formData.get("cpa") || ""));
+      const interview_score = parseFloat(String(formData.get("interview_score") || ""));
+      const cv_score = parseFloat(String(formData.get("cv_score") || ""));
+      const years_experience = parseFloat(String(formData.get("years_experience") || "0"));
+      const num_projects = parseInt(String(formData.get("num_projects") || "0"), 10);
+      const years_at_company = parseFloat(String(formData.get("years_at_company") || "0"));
+      if (!Number.isFinite(cpa) || cpa < 0 || cpa > 4) {
+        toast.error("CPA phải từ 0 đến 4");
+        return;
+      }
+      if (!Number.isFinite(interview_score) || interview_score < 0 || interview_score > 10) {
+        toast.error("Điểm phỏng vấn từ 0 đến 10");
+        return;
+      }
+      if (!Number.isFinite(cv_score) || cv_score < 0 || cv_score > 10) {
+        toast.error("Điểm CV từ 0 đến 10");
+        return;
+      }
+      if (!Number.isFinite(years_experience) || years_experience < 0 || years_experience > 50) {
+        toast.error("Số năm kinh nghiệm không hợp lệ");
+        return;
+      }
+      if (!Number.isFinite(num_projects) || num_projects < 0 || num_projects > 200) {
+        toast.error("Số project không hợp lệ");
+        return;
+      }
+      if (!Number.isFinite(years_at_company) || years_at_company < 0 || years_at_company > 50) {
+        toast.error("Số năm tại công ty không hợp lệ (0–50)");
+        return;
+      }
       setCreatedTempPassword(null);
       setCreatedEmail(null);
-      createMutation.mutate({ username, email, role });
+      setCreatedKpi(null);
+      createMutation.mutate({
+        username,
+        email,
+        role,
+        cpa,
+        interview_score,
+        cv_score,
+        years_experience,
+        num_projects,
+        years_at_company,
+      });
     }
   };
 
@@ -174,19 +337,15 @@ const AccountsPage: React.FC = () => {
     setEditingUser(null);
     setCreatedTempPassword(null);
     setCreatedEmail(null);
+    setCreatedKpi(null);
     setIsDialogOpen(true);
   };
 
-  const openEditDialog = (u: {
-    id: string;
-    username: string;
-    email: string;
-    role: User["role"];
-    avatarUrl?: string | null;
-  }) => {
+  const openEditDialog = (u: EditingUserRow) => {
     setEditingUser(u);
     setCreatedTempPassword(null);
     setCreatedEmail(null);
+    setCreatedKpi(null);
     setIsDialogOpen(true);
   };
 
@@ -205,7 +364,17 @@ const AccountsPage: React.FC = () => {
               Tạo, chỉnh sửa và xóa tài khoản người dùng trong hệ thống.
             </CardDescription>
           </div>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <Dialog
+            open={isDialogOpen}
+            onOpenChange={(open) => {
+              setIsDialogOpen(open);
+              if (!open) {
+                setCreatedKpi(null);
+                setCreatedTempPassword(null);
+                setCreatedEmail(null);
+              }
+            }}
+          >
             <DialogTrigger asChild>
               <Button
                 className="bg-blue-600 hover:bg-blue-500 text-white"
@@ -222,7 +391,7 @@ const AccountsPage: React.FC = () => {
                 </DialogTitle>
                 <DialogDescription>
                   {editingUser
-                    ? "Cập nhật thông tin tài khoản và vai trò."
+                    ? "Cập nhật thông tin, vai trò và chỉ số KPI. Khi đổi CPA / phỏng vấn / CV / kinh nghiệm / project, KPI onboarding được tính lại (Python)."
                     : "Hệ thống sẽ tạo mật khẩu ngẫu nhiên cho tài khoản mới."}
                 </DialogDescription>
               </DialogHeader>
@@ -238,6 +407,24 @@ const AccountsPage: React.FC = () => {
                       hệ thống sẽ yêu cầu đổi mật khẩu.
                     </p>
                     <div className="mt-3 space-y-3">
+                      {createdKpi && (createdKpi.score != null || createdKpi.model) && (
+                        <div className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
+                          <p className="font-semibold">KPI khởi tạo (Logistic Regression)</p>
+                          <p className="mt-1">
+                            Điểm:{" "}
+                            <span className="font-mono font-medium">
+                              {createdKpi.score != null ? createdKpi.score.toFixed(4) : "—"}
+                            </span>
+                                {createdKpi.model ? (
+                              <span className="ml-2 text-emerald-800">
+                                (Model {createdKpi.model}
+                                {createdKpi.model === "A" ? " — onboarding" : ""}
+                                )
+                              </span>
+                            ) : null}
+                          </p>
+                        </div>
+                      )}
                       <div className="space-y-1">
                         <Label>Email</Label>
                         <div className="flex gap-2">
@@ -287,6 +474,7 @@ const AccountsPage: React.FC = () => {
                         setIsDialogOpen(false);
                         setCreatedTempPassword(null);
                         setCreatedEmail(null);
+                        setCreatedKpi(null);
                       }}
                       className="bg-blue-600 hover:bg-blue-500 text-white"
                     >
@@ -295,7 +483,11 @@ const AccountsPage: React.FC = () => {
                   </DialogFooter>
                 </div>
               ) : (
-                <form className="space-y-4" onSubmit={handleSubmit}>
+                <form
+                  className="space-y-4"
+                  onSubmit={handleSubmit}
+                  key={editingUser?.id ?? "create"}
+                >
                   <div className="space-y-2">
                     <Label htmlFor="username">Họ tên</Label>
                     <Input
@@ -316,21 +508,137 @@ const AccountsPage: React.FC = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Vai trò</Label>
-                    <Select
+                    <Label htmlFor="role">Vai trò</Label>
+                    <select
+                      id="role"
                       name="role"
                       defaultValue={editingUser?.role || "Member"}
+                      className="flex h-9 w-full min-w-[160px] rounded-md border border-slate-300 bg-white px-3 py-1 text-sm text-slate-900 shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500"
                     >
-                      <SelectTrigger className="min-w-[160px]">
-                        <SelectValue placeholder="Chọn vai trò" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Admin">Admin</SelectItem>
-                        <SelectItem value="Leader">Leader</SelectItem>
-                        <SelectItem value="Member">Member</SelectItem>
-                      </SelectContent>
-                    </Select>
+                      <option value="Admin">Admin</option>
+                      <option value="Leader">Leader</option>
+                      <option value="Member">Member</option>
+                    </select>
                   </div>
+                  <>
+                    <p className="text-xs font-medium text-slate-600 pt-1">
+                      {editingUser
+                        ? "Hồ sơ KPI & công ty (lưu ý: đổi CPA/CV/phỏng vấn/KN → KPI được tính lại)"
+                        : "Chỉ số KPI (Python — model onboarding A)"}
+                    </p>
+                    {editingUser &&
+                      (editingUser.kpiScore != null || editingUser.kpiModelAtSignup) && (
+                        <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700">
+                          <span className="font-medium">KPI hiện tại:</span>{" "}
+                          <span className="font-mono">
+                            {editingUser.kpiScore != null
+                              ? Number(editingUser.kpiScore).toFixed(4)
+                              : "—"}
+                          </span>
+                          {editingUser.kpiModelAtSignup ? (
+                            <span className="text-slate-500 ml-1">
+                              (model {editingUser.kpiModelAtSignup})
+                            </span>
+                          ) : null}
+                        </div>
+                      )}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <Label htmlFor="cpa">CPA (0–4)</Label>
+                        <Input
+                          id="cpa"
+                          name="cpa"
+                          type="number"
+                          step="0.01"
+                          min={0}
+                          max={4}
+                          defaultValue={
+                            editingUser?.cpa != null ? Number(editingUser.cpa) : 3
+                          }
+                          required
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label htmlFor="interview_score">Điểm phỏng vấn (0–10)</Label>
+                        <Input
+                          id="interview_score"
+                          name="interview_score"
+                          type="number"
+                          step="0.1"
+                          min={0}
+                          max={10}
+                          defaultValue={
+                            editingUser?.interviewScore != null
+                              ? Number(editingUser.interviewScore)
+                              : 6
+                          }
+                          required
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label htmlFor="cv_score">Điểm CV (0–10)</Label>
+                        <Input
+                          id="cv_score"
+                          name="cv_score"
+                          type="number"
+                          step="0.1"
+                          min={0}
+                          max={10}
+                          defaultValue={
+                            editingUser?.cvScore != null ? Number(editingUser.cvScore) : 6
+                          }
+                          required
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label htmlFor="years_experience">Năm kinh nghiệm (trước công ty)</Label>
+                        <Input
+                          id="years_experience"
+                          name="years_experience"
+                          type="number"
+                          step="0.5"
+                          min={0}
+                          max={50}
+                          defaultValue={
+                            editingUser?.yearsExperience != null
+                              ? Number(editingUser.yearsExperience)
+                              : 0
+                          }
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label htmlFor="years_at_company">Năm làm việc tại công ty</Label>
+                        <Input
+                          id="years_at_company"
+                          name="years_at_company"
+                          type="number"
+                          step="0.5"
+                          min={0}
+                          max={50}
+                          defaultValue={
+                            editingUser?.yearsAtCompany != null
+                              ? Number(editingUser.yearsAtCompany)
+                              : 0
+                          }
+                        />
+                      </div>
+                      <div className="space-y-1 sm:col-span-2">
+                        <Label htmlFor="num_projects">Số project đã làm (trước đây)</Label>
+                        <Input
+                          id="num_projects"
+                          name="num_projects"
+                          type="number"
+                          min={0}
+                          max={200}
+                          defaultValue={
+                            editingUser?.numProjectsPrior != null
+                              ? Number(editingUser.numProjectsPrior)
+                              : 0
+                          }
+                        />
+                      </div>
+                    </div>
+                  </>
                   <DialogFooter className="pt-2">
                     <Button
                       type="button"
@@ -340,6 +648,7 @@ const AccountsPage: React.FC = () => {
                         setEditingUser(null);
                         setCreatedTempPassword(null);
                         setCreatedEmail(null);
+                        setCreatedKpi(null);
                       }}
                     >
                       Hủy
@@ -390,6 +699,9 @@ const AccountsPage: React.FC = () => {
                   <th className="px-4 py-2 text-left font-medium text-slate-700">
                     Vai trò
                   </th>
+                  <th className="px-4 py-2 text-left font-medium text-slate-700">
+                    KPI
+                  </th>
                   <th className="px-4 py-2 text-right font-medium text-slate-700">
                     Thao tác
                   </th>
@@ -398,14 +710,14 @@ const AccountsPage: React.FC = () => {
               <tbody>
                 {isLoading && (
                   <tr>
-                    <td colSpan={5} className="px-4 py-6 text-center text-slate-500">
+                    <td colSpan={6} className="px-4 py-6 text-center text-slate-500">
                       Đang tải danh sách tài khoản...
                     </td>
                   </tr>
                 )}
                 {!isLoading && (!data || data.length === 0) && (
                   <tr>
-                    <td colSpan={5} className="px-4 py-6 text-center text-slate-500">
+                    <td colSpan={6} className="px-4 py-6 text-center text-slate-500">
                       Chưa có tài khoản nào.
                     </td>
                   </tr>
@@ -428,6 +740,18 @@ const AccountsPage: React.FC = () => {
                       <td className="px-4 py-2 text-slate-800">{u.username}</td>
                       <td className="px-4 py-2 text-slate-800">{u.email}</td>
                       <td className="px-4 py-2 text-slate-800">{u.role}</td>
+                      <td className="px-4 py-2 text-slate-700 text-xs">
+                        {u.kpiScore != null && u.kpiScore !== undefined ? (
+                          <span className="font-mono">
+                            {Number(u.kpiScore).toFixed(3)}
+                            {u.kpiModelAtSignup ? (
+                              <span className="text-slate-500 ml-1">({u.kpiModelAtSignup})</span>
+                            ) : null}
+                          </span>
+                        ) : (
+                          <span className="text-slate-400">—</span>
+                        )}
+                      </td>
                       <td className="px-4 py-2">
                         <div className="flex justify-end gap-2">
                           <Button
@@ -441,6 +765,14 @@ const AccountsPage: React.FC = () => {
                                 email: u.email,
                                 role: u.role,
                                 avatarUrl: u.avatarUrl,
+                                cpa: u.cpa ?? null,
+                                interviewScore: u.interviewScore ?? null,
+                                cvScore: u.cvScore ?? null,
+                                yearsExperience: u.yearsExperience ?? 0,
+                                numProjectsPrior: u.numProjectsPrior ?? 0,
+                                yearsAtCompany: u.yearsAtCompany ?? 0,
+                                kpiScore: u.kpiScore ?? null,
+                                kpiModelAtSignup: u.kpiModelAtSignup ?? null,
                               })
                             }
                           >

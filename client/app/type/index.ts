@@ -10,6 +10,25 @@ export interface User {
   createdAt: Date;
   updatedAt: Date;
   avatarUrl?: string | null;
+  /** KPI khởi tạo (Logistic Regression HM) */
+  kpiScore?: number | null;
+  kpiModelAtSignup?: "A" | "B" | string | null;
+  cpa?: number | null;
+  yearsAtCompany?: number;
+  interviewScore?: number | null;
+  cvScore?: number | null;
+  yearsExperience?: number;
+  numProjectsPrior?: number;
+}
+
+export interface AppNotification {
+  id: string;
+  user_id: string;
+  message: string;
+  is_read: "TRUE" | "FALSE";
+  payload?: any | null;
+  createdAt: string | Date;
+  updatedAt: string | Date;
 }
 
 export interface Workspace {

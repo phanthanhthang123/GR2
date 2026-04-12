@@ -22,16 +22,54 @@ const getUserIdFromToken = (req) => {
 
 export const register = async (req,res) => {
     try {
-        const {username, email, password} = req.body; 
-        // console.log(username, email, password);
-        
+        const {
+            username,
+            email,
+            password,
+            cpa,
+            gpa,
+            interview_score,
+            cv_score,
+            years_experience,
+            num_projects,
+        } = req.body;
+
         if(!username || !email || !password) {
             return res.status(400).json({
                 err : 1,
                 msg : 'Missing inputs parameter'
             })
         }
-        const response = await services.registerService(username, email, password);
+
+        const rawCpa = cpa != null ? cpa : gpa
+        const g = rawCpa != null ? Number(rawCpa) : NaN
+        const iv = interview_score != null ? Number(interview_score) : NaN
+        const cv = cv_score != null ? Number(cv_score) : NaN
+        if (!Number.isFinite(g) || g < 0 || g > 4) {
+            return res.status(400).json({ err: 1, msg: 'CPA phải từ 0 đến 4' })
+        }
+        if (!Number.isFinite(iv) || iv < 0 || iv > 10) {
+            return res.status(400).json({ err: 1, msg: 'Điểm phỏng vấn phải từ 0 đến 10' })
+        }
+        if (!Number.isFinite(cv) || cv < 0 || cv > 10) {
+            return res.status(400).json({ err: 1, msg: 'Điểm CV phải từ 0 đến 10' })
+        }
+        const ye = years_experience != null ? Number(years_experience) : 0
+        const np = num_projects != null ? Number(num_projects) : 0
+        if (!Number.isFinite(ye) || ye < 0 || ye > 50) {
+            return res.status(400).json({ err: 1, msg: 'Số năm kinh nghiệm không hợp lệ' })
+        }
+        if (!Number.isFinite(np) || np < 0 || np > 200) {
+            return res.status(400).json({ err: 1, msg: 'Số project trước đó không hợp lệ' })
+        }
+
+        const response = await services.registerService(username, email, password, {
+            cpa: g,
+            interview_score: iv,
+            cv_score: cv,
+            years_experience: ye,
+            num_projects: np,
+        });
         if(response.err === 1) {
             return res.status(400).json(response);
         }
@@ -201,20 +239,89 @@ export const getAllUsers = async (req, res) => {
 
 export const adminCreateUser = async (req, res) => {
     try {
-        const { username, email, role } = req.body;
+        const {
+            username,
+            email,
+            role,
+            cpa,
+            gpa,
+            interview_score,
+            cv_score,
+            years_experience,
+            num_projects,
+            years_at_company,
+            yearsAtCompany,
+        } = req.body;
         if (!username || !email) {
             return res.status(400).json({
                 err: 1,
                 msg: 'Missing inputs parameter'
             });
         }
-        const response = await services.adminCreateUserService(username, email, role);
+
+        const rawCpa = cpa != null ? cpa : gpa
+        const g = rawCpa != null ? Number(rawCpa) : NaN
+        const iv = interview_score != null ? Number(interview_score) : NaN
+        const cv = cv_score != null ? Number(cv_score) : NaN
+        if (!Number.isFinite(g) || g < 0 || g > 4) {
+            return res.status(400).json({ err: 1, msg: 'CPA phải từ 0 đến 4' })
+        }
+        if (!Number.isFinite(iv) || iv < 0 || iv > 10) {
+            return res.status(400).json({ err: 1, msg: 'Điểm phỏng vấn phải từ 0 đến 10' })
+        }
+        if (!Number.isFinite(cv) || cv < 0 || cv > 10) {
+            return res.status(400).json({ err: 1, msg: 'Điểm CV phải từ 0 đến 10' })
+        }
+        const ye = years_experience != null ? Number(years_experience) : 0
+        const np = num_projects != null ? Number(num_projects) : 0
+        if (!Number.isFinite(ye) || ye < 0 || ye > 50) {
+            return res.status(400).json({ err: 1, msg: 'Số năm kinh nghiệm không hợp lệ' })
+        }
+        if (!Number.isFinite(np) || np < 0 || np > 200) {
+            return res.status(400).json({ err: 1, msg: 'Số project trước đó không hợp lệ' })
+        }
+        const rawYac = years_at_company != null ? years_at_company : yearsAtCompany
+        const yac = rawYac != null && rawYac !== '' ? Number(rawYac) : 0
+        if (!Number.isFinite(yac) || yac < 0 || yac > 50) {
+            return res.status(400).json({ err: 1, msg: 'Số năm tại công ty không hợp lệ (0–50)' })
+        }
+
+        const response = await services.adminCreateUserService(username, email, role, {
+            cpa: g,
+            interview_score: iv,
+            cv_score: cv,
+            years_experience: ye,
+            num_projects: np,
+            years_at_company: yac,
+        });
         const status = response.err === 0 ? 200 : 400;
         return res.status(status).json(response);
     } catch (error) {
         return res.status(500).json({
             err: -1,
             msg: 'Failed at admin create user controller: ' + error
+        });
+    }
+}
+
+// Admin: send created account credentials to user email
+export const adminSendUserCredentialsEmail = async (req, res) => {
+    try {
+        const { username, email, tempPassword } = req.body;
+        if (!username || !email || !tempPassword) {
+            return res.status(400).json({
+                err: 1,
+                msg: 'Missing inputs parameter',
+            });
+        }
+
+        const response = await services.adminSendUserCredentialsEmailService(username, email, tempPassword);
+        const status = response.err === 0 ? 200 : 400;
+        return res.status(status).json(response);
+    } catch (error) {
+        return res.status(500).json({
+            err: -1,
+            msg: 'Failed at admin send credentials email controller: ' + error,
         });
     }
 }

@@ -24,6 +24,7 @@ export const createTask = async (req, res) => {
     try {
         const { projectId } = req.params;
         const taskData = req.body;
+        const userId = getUserIdFromToken(req);
         if (!projectId) {
             return res.status(400).json({
                 err: 1,
@@ -41,7 +42,7 @@ export const createTask = async (req, res) => {
         taskData.description = taskData.description || "";
         taskData.dueDate = taskData.dueDate || null;
         taskData.assignees = taskData.assignees || [];
-        const response = await services.createTaskService(projectId, taskData);
+        const response = await services.createTaskService(projectId, taskData, userId);
         if (response.err === 1) {
             return res.status(400).json(response);
         }

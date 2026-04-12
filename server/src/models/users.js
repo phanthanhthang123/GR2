@@ -142,6 +142,41 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(512),
       allowNull: true
     },
+    kpiScore: {
+      type: DataTypes.DECIMAL(10, 6),
+      allowNull: true
+    },
+    kpiModelAtSignup: {
+      type: DataTypes.STRING(1),
+      allowNull: true
+    },
+    cpa: {
+      type: DataTypes.DECIMAL(4, 2),
+      allowNull: true
+    },
+    yearsAtCompany: {
+      type: DataTypes.DECIMAL(8, 2),
+      allowNull: false,
+      defaultValue: 0
+    },
+    interviewScore: {
+      type: DataTypes.DECIMAL(5, 2),
+      allowNull: true
+    },
+    cvScore: {
+      type: DataTypes.DECIMAL(5, 2),
+      allowNull: true
+    },
+    yearsExperience: {
+      type: DataTypes.DECIMAL(8, 2),
+      allowNull: false,
+      defaultValue: 0
+    },
+    numProjectsPrior: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0
+    },
     createdAt : {
       type : DataTypes.DATE,
       allowNull : false

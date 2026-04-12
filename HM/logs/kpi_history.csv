@@ -1,0 +1,15 @@
+timestamp_utc,user_id,kpi,model_used,event
+2026-04-05T17:26:56.399942+00:00,user_demo_001,0.999575,A,account_created
+2026-04-05T17:26:56.418894+00:00,user_demo_001,0.004431,C,quarterly_update
+2026-04-05T17:32:06.693150+00:00,user_demo_001,0.599745,A,account_created
+2026-04-05T17:32:06.706230+00:00,user_demo_001,0.927978,C,quarterly_update
+2026-04-05T17:33:31.493592+00:00,user_demo_001,0.599745,A,account_created
+2026-04-05T17:33:31.500597+00:00,user_demo_001,0.927978,C,quarterly_update
+2026-04-05T17:33:55.318272+00:00,user_demo_001,0.599745,A,account_created
+2026-04-05T17:33:55.323887+00:00,user_demo_001,0.927978,C,quarterly_update
+2026-04-05T17:36:30.885583+00:00,user_demo_001,0.59997,A,account_created
+2026-04-05T17:36:30.911763+00:00,user_demo_001,0.999816,C,quarterly_update
+2026-04-05T17:45:53.215544+00:00,user_demo_001,0.599983,A,account_created
+2026-04-05T17:45:53.248652+00:00,user_demo_001,0.999999,C,quarterly_update
+2026-04-12T14:40:51.912374+00:00,user_demo_001,0.017648,A,account_created_cold
+2026-04-12T14:40:51.912374+00:00,user_demo_001,0.99994,B,quarterly_update

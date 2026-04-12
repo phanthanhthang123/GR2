@@ -10,6 +10,7 @@ import connectDatabase from './src/config/connectDatabase'
 import { configureCloudinary } from './src/config/cloudinary'
 import initRoutes from './src/routers'
 import { registerSocketHandlers } from './src/socket'
+import { startTaskDueRemindersScheduler } from './src/services/task-due-reminders'
 
 
 const app = express()
@@ -51,6 +52,7 @@ const io = new Server(server, {
 });
 
 registerSocketHandlers(io);
+startTaskDueRemindersScheduler();
 
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`)

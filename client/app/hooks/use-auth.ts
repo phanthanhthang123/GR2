@@ -15,9 +15,14 @@ export const useSignUpMutation = () => {
       // Transform data to match server expectations
       const { confirmPassword, ...serverData } = data;
       const transformedData = {
-        username: data.name, // Map name to username
+        username: data.name,
         email: data.email,
-        password: data.password
+        password: data.password,
+        cpa: data.cpa,
+        interview_score: data.interviewScore,
+        cv_score: data.cvScore,
+        years_experience: data.yearsExperience,
+        num_projects: data.numProjects,
       };
       // console.log(transformedData)
       return postData("/auth/register", transformedData);

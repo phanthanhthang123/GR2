@@ -1,20 +1,32 @@
 import React from 'react'
-import { useSearchParams } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import { useGetWorkspaceStatsQuery } from '@/hooks/use-workspace';
 import { Loader } from '@/components/loader';
 import { NoDataFound } from '@/components/workspace/no-data-found';
-import { PlusCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { StatCard } from '@/components/dashboard/stat-card';
 import { StatisticsCharts } from '@/components/dashboard/statistics-charts';
 
 const DashBoard = () => {
   const [searchParams] = useSearchParams();
-  const workspaceId = searchParams.get('workspaceId') || '';
+  const navigate = useNavigate();
+  const savedWorkspaceId =
+    typeof window !== "undefined" ? localStorage.getItem("selectedWorkspaceId") || "" : "";
+  const workspaceId = searchParams.get('workspaceId') || savedWorkspaceId;
 
-  const {data, isPending} = useGetWorkspaceStatsQuery(workspaceId);
+  const { data, isLoading } = useGetWorkspaceStatsQuery(workspaceId);
 
-  if(isPending) {
+  if (!workspaceId) {
+    return (
+      <NoDataFound
+        title="Chưa chọn không gian làm việc"
+        description="Hãy chọn một workspace ở thanh trên để xem thống kê."
+        buttonText="Đi tới không gian làm việc"
+        buttonAction={() => navigate("/workspaces")}
+      />
+    );
+  }
+
+  if (isLoading) {
     return <Loader />
   }
   // Type assertion for workspace stats response
