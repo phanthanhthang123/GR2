@@ -88,6 +88,9 @@ export const CreateTaskSchema = z.object({
   description: z.string().max(1000, "Mô tả không được vượt quá 1000 ký tự").optional().or(z.literal("")),
   status: z.nativeEnum(TaskStatus).default(TaskStatus.TO_DO),
   priority: z.enum(["Low", "Medium", "High"]).default("Medium"),
+  difficulty: z.enum(["Easy", "Medium", "Hard"]).refine((v) => !!v, {
+    message: "Độ khó là bắt buộc",
+  }),
   dueDate: z.string().optional().or(z.literal("")).nullable(),
   assignees: z.array(z.string()).default([]),
 });

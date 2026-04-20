@@ -15,7 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useArchiveTaskMutation } from '@/hooks/use-task';
-import { Archive, CheckSquare, Users, Edit, Trash2, UserPlus, CalendarDays, Search, ChevronDown, ChevronRight } from 'lucide-react';
+import { Archive, CheckSquare, Users, Edit, Trash2, UserPlus, CalendarDays, Search, ChevronDown, ChevronRight, ExternalLink, Copy, Github } from 'lucide-react';
 import {
   Pagination,
   PaginationContent,
@@ -114,6 +114,18 @@ const ProjectDetails = () => {
         };
         return grouped;
     }, [filteredActiveTasks]);
+
+    const getDifficultyLabel = (difficulty?: string | null) => {
+        switch ((difficulty || "").toString()) {
+            case "Easy":
+                return "Dễ";
+            case "Hard":
+                return "Khó";
+            case "Medium":
+            default:
+                return "Trung bình";
+        }
+    };
 
     // Tasks for table view by status filter + pagination
     const statusFilteredTasks = useMemo(() => {
@@ -393,6 +405,54 @@ const ProjectDetails = () => {
                                 </Button>
                             </div>
                         )}
+
+                        {/* GitHub Repository */}
+                        <div className="rounded-lg border bg-background/60 p-3">
+                            <div className="flex items-center gap-2 text-sm font-medium">
+                                <Github className="size-4 text-muted-foreground" />
+                                GitHub Repository
+                            </div>
+                            <div className="mt-2 flex flex-col md:flex-row gap-2">
+                                <Input
+                                    value={(project as any)?.githubRepoUrl || ""}
+                                    readOnly
+                                    placeholder="Chưa có URL repository GitHub"
+                                />
+                                <div className="flex gap-2">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => {
+                                            const url = ((project as any)?.githubRepoUrl || "").toString().trim();
+                                            if (!url) return;
+                                            window.open(url, "_blank", "noopener,noreferrer");
+                                        }}
+                                        disabled={!((project as any)?.githubRepoUrl || "").toString().trim()}
+                                    >
+                                        <ExternalLink className="mr-2 size-4" />
+                                        Mở GitHub
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={async () => {
+                                            const url = ((project as any)?.githubRepoUrl || "").toString().trim();
+                                            if (!url) return;
+                                            try {
+                                                await navigator.clipboard.writeText(url);
+                                                toast.success("Đã copy link GitHub repository");
+                                            } catch {
+                                                toast.error("Không thể copy link GitHub repository");
+                                            }
+                                        }}
+                                        disabled={!((project as any)?.githubRepoUrl || "").toString().trim()}
+                                    >
+                                        <Copy className="mr-2 size-4" />
+                                        Copy
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
                         
                         <div className='space-y-2'>
                             {isEditingDescription ? (
@@ -602,6 +662,12 @@ const ProjectDetails = () => {
                                                     }
                                                 >
                                                     {task.priority}
+                                                </Badge>
+                                                <Badge
+                                                    variant="outline"
+                                                    className="bg-slate-100 text-slate-800"
+                                                >
+                                                    {getDifficultyLabel((task as any).difficulty)}
                                                 </Badge>
                                             </div>
                                         </div>
@@ -930,13 +996,16 @@ const ProjectDetails = () => {
                             <th className="px-4 py-2 min-w-[100px] font-medium text-xs text-muted-foreground">
                               Ưu tiên
                             </th>
+                            <th className="px-4 py-2 min-w-[120px] font-medium text-xs text-muted-foreground">
+                              Độ khó
+                            </th>
                           </tr>
                         </thead>
                         <tbody>
                           {statusFilteredTasks.length === 0 ? (
                             <tr>
                               <td
-                                colSpan={4}
+                                colSpan={5}
                                 className="px-4 py-6 text-center text-sm text-muted-foreground"
                               >
                                 Chưa có task nào phù hợp
@@ -987,6 +1056,14 @@ const ProjectDetails = () => {
                                     )}
                                   >
                                     {task.priority}
+                                  </Badge>
+                                </td>
+                                <td className="px-4 py-2">
+                                  <Badge
+                                    variant="outline"
+                                    className={cn("text-xs bg-slate-100 text-slate-800")}
+                                  >
+                                    {getDifficultyLabel((task as any).difficulty)}
                                   </Badge>
                                 </td>
                               </tr>

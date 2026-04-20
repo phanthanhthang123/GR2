@@ -54,4 +54,48 @@ function predictOnboardingKpi(input) {
     }
 }
 
-module.exports = { predictOnboardingKpi };
+function predictInternalKpi(input) {
+    const python = process.env.PYTHON_PATH || 'python';
+    const hmRoot = process.env.HM_ROOT || path.resolve(__dirname, '../../../HM');
+    const script = path.join(hmRoot, 'src', 'predict_internal_cli.py');
+
+    const payload = JSON.stringify({
+        total_projects: Number(input.total_projects ?? 0),
+        total_tasks: Number(input.total_tasks ?? 0),
+        hard_tasks: Number(input.hard_tasks ?? 0),
+        years_at_company: Number(input.years_at_company ?? input.yearsAtCompany ?? 0),
+    });
+
+    const r = spawnSync(python, [script], {
+        cwd: hmRoot,
+        input: payload,
+        encoding: 'utf-8',
+        maxBuffer: 2 * 1024 * 1024,
+        timeout: 20000,
+        env: { ...process.env, PYTHONUTF8: '1' },
+    });
+
+    if (r.error) {
+        console.error('[kpiPython:internal] spawn error:', r.error);
+        return { err: 1, kpi: null, model: null, msg: String(r.error) };
+    }
+    if (r.status !== 0) {
+        console.error('[kpiPython:internal] stderr:', r.stderr);
+        return {
+            err: 1,
+            kpi: null,
+            model: null,
+            msg: (r.stderr && r.stderr.trim()) || `exit ${r.status}`,
+        };
+    }
+    try {
+        const out = JSON.parse((r.stdout || '').trim());
+        if (out.err) return out;
+        return { err: 0, kpi: out.kpi, model: out.model, msg: '' };
+    } catch (e) {
+        console.error('[kpiPython:internal] parse stdout:', r.stdout);
+        return { err: 1, kpi: null, model: null, msg: String(e) };
+    }
+}
+
+module.exports = { predictOnboardingKpi, predictInternalKpi };

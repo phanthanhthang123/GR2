@@ -340,6 +340,20 @@ export const adminUpdateUser = async (req, res) => {
     }
 }
 
+export const adminGetUserInternalStats = async (req, res) => {
+    try {
+        const { id } = req.params
+        const response = await services.adminGetUserInternalStatsService(id)
+        const status = response.err === 0 ? 200 : 400
+        return res.status(status).json(response)
+    } catch (error) {
+        return res.status(500).json({
+            err: -1,
+            msg: 'Failed at admin get internal stats controller: ' + error,
+        })
+    }
+}
+
 export const adminDeleteUser = async (req, res) => {
     try {
         const { id } = req.params;

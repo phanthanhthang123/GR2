@@ -147,7 +147,7 @@ export const TaskDueDate = ({ dueDate, taskId }: { dueDate: Date | string | null
                 </div>
             ) : (
                 <div className={cn(
-                    "px-3 py-2.5 rounded-lg flex items-center gap-3 text-sm font-medium border",
+                    "px-3 py-2.5 rounded-lg flex items-center gap-3 text-sm font-medium border flex-nowrap",
                     deadlineStatus?.status === 'overdue' && "bg-red-50 text-red-700 border-red-300",
                     deadlineStatus?.status === 'today' && "bg-orange-50 text-orange-700 border-orange-300",
                     deadlineStatus?.status === 'urgent' && "bg-yellow-50 text-yellow-700 border-yellow-300",
@@ -157,10 +157,9 @@ export const TaskDueDate = ({ dueDate, taskId }: { dueDate: Date | string | null
                     {deadlineStatus?.status === 'today' && <AlertCircle className='size-5 text-orange-600' />}
                     {deadlineStatus?.status === 'urgent' && <Clock className='size-5 text-yellow-600' />}
                     {deadlineStatus?.status === 'normal' && <CalendarIcon className='size-5 text-blue-600' />}
-                    <div className="flex-1">
-                        <div className="font-semibold">Hạn chót:</div>
-                        <div className="text-base font-bold mt-0.5">
-                            {format(new Date(dueDate!), "dd/MM/yyyy")}
+                    <div className="flex-1 min-w-0">
+                        <div className="text-base font-bold whitespace-nowrap overflow-hidden text-ellipsis">
+                            Hạn chót: {format(new Date(dueDate!), "dd/MM/yyyy")}
                         </div>
                     </div>
                     {deadlineStatus?.label && (

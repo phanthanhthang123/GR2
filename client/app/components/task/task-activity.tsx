@@ -5,6 +5,8 @@ import type { ActivityLog } from "@/type";
 import { getActivityIcon, getActivityMessage } from "./task-icon";
 import { ScrollArea } from "../ui/scroll-area";
 import { format } from "date-fns";
+import { Button } from "../ui/button";
+import { ExternalLink } from "lucide-react";
 
 export const TaskActivity = ({ resourceId }: { resourceId: string }) => {
 
@@ -82,6 +84,22 @@ export const TaskActivity = ({ resourceId }: { resourceId: string }) => {
                                                     }
                                                     return "";
                                                 })()}
+                                            </span>
+                                        )}
+                                        {activity.action === 'PULL_REQUEST_UPDATED' && activity.payload?.pullRequestUrl && (
+                                            <span className="ml-2 inline-flex items-center gap-2">
+                                                <Button
+                                                    type="button"
+                                                    variant="link"
+                                                    className="h-auto p-0 text-sm"
+                                                    onClick={() => {
+                                                        const url = String(activity.payload.pullRequestUrl);
+                                                        window.open(url, "_blank", "noopener,noreferrer");
+                                                    }}
+                                                >
+                                                    <ExternalLink className="mr-1 size-4" />
+                                                    Mở PR
+                                                </Button>
                                             </span>
                                         )}
                                     </p>

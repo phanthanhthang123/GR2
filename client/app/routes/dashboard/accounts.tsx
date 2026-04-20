@@ -101,6 +101,14 @@ const AccountsPage: React.FC = () => {
     model: string | null;
   } | null>(null);
   const [editingUser, setEditingUser] = React.useState<null | EditingUserRow>(null);
+  // controlled input: cho phép để trống ("") để user xoá số 0 rồi nhập lại
+  const [editYearsAtCompanyText, setEditYearsAtCompanyText] = React.useState<string>("0");
+  const [internalStats, setInternalStats] = React.useState<null | {
+    total_projects: number;
+    total_tasks: number;
+    hard_tasks: number;
+  }>(null);
+  const [internalStatsLoading, setInternalStatsLoading] = React.useState(false);
 
   // Chỉ Admin được vào trang này
   React.useEffect(() => {
@@ -142,7 +150,7 @@ const AccountsPage: React.FC = () => {
     }) => postData<AdminCreateUserResponse>("/auth/admin/users", payload),
     onSuccess: async (res) => {
       if (res.err === 0) {
-        queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+        queryClient.invalidateQueries({ queryKey: ["admin-users"], exact: false });
         const temp = res.response?.tempPassword || null;
         const createdEmail = res.response?.email || null;
         const createdUsername = res.response?.username || "";
@@ -176,8 +184,17 @@ const AccountsPage: React.FC = () => {
         toast.error(res.msg || "Không thể tạo tài khoản");
       }
     },
-    onError: () => {
-      toast.error("Không thể tạo tài khoản");
+    onError: (error: unknown) => {
+      const ax = error as {
+        response?: { data?: { msg?: string; message?: string } };
+        message?: string;
+      };
+      const msg =
+        ax?.response?.data?.msg ||
+        ax?.response?.data?.message ||
+        ax?.message ||
+        "Không thể tạo tài khoản";
+      toast.error(msg);
     },
   });
 
@@ -193,10 +210,13 @@ const AccountsPage: React.FC = () => {
       years_experience: number;
       num_projects: number;
       years_at_company: number;
+      total_projects?: number;
+      total_tasks?: number;
+      hard_tasks?: number;
     }) => updateData(`/auth/admin/users/${payload.id}`, payload),
     onSuccess: (res: any) => {
       if (res.err === 0) {
-        queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+        queryClient.invalidateQueries({ queryKey: ["admin-users"], exact: false });
         setIsDialogOpen(false);
         setEditingUser(null);
         const k = res.response?.kpiScore;
@@ -210,8 +230,17 @@ const AccountsPage: React.FC = () => {
         toast.error(res.msg || "Không thể cập nhật tài khoản");
       }
     },
-    onError: () => {
-      toast.error("Không thể cập nhật tài khoản");
+    onError: (error: unknown) => {
+      const ax = error as {
+        response?: { data?: { msg?: string; message?: string } };
+        message?: string;
+      };
+      const msg =
+        ax?.response?.data?.msg ||
+        ax?.response?.data?.message ||
+        ax?.message ||
+        "Không thể cập nhật tài khoản";
+      toast.error(msg);
     },
   });
 
@@ -225,8 +254,17 @@ const AccountsPage: React.FC = () => {
         toast.error(res.msg || "Không thể xóa tài khoản");
       }
     },
-    onError: () => {
-      toast.error("Không thể xóa tài khoản");
+    onError: (error: unknown) => {
+      const ax = error as {
+        response?: { data?: { msg?: string; message?: string } };
+        message?: string;
+      };
+      const msg =
+        ax?.response?.data?.msg ||
+        ax?.response?.data?.message ||
+        ax?.message ||
+        "Không thể xóa tài khoản";
+      toast.error(msg);
     },
   });
 
@@ -248,7 +286,7 @@ const AccountsPage: React.FC = () => {
       const cv_score = parseFloat(String(formData.get("cv_score") || ""));
       const years_experience = parseFloat(String(formData.get("years_experience") || "0"));
       const num_projects = parseInt(String(formData.get("num_projects") || "0"), 10);
-      const years_at_company = parseFloat(String(formData.get("years_at_company") || "0"));
+      const years_at_company = Number(editYearsAtCompanyText || 0);
       if (!Number.isFinite(cpa) || cpa < 0 || cpa > 4) {
         toast.error("CPA phải từ 0 đến 4");
         return;
@@ -273,6 +311,16 @@ const AccountsPage: React.FC = () => {
         toast.error("Số năm tại công ty không hợp lệ (0–50)");
         return;
       }
+      if (years_at_company >= 1) {
+        if (internalStatsLoading) {
+          toast.message("Đang lấy thống kê nội bộ, vui lòng chờ...");
+          return;
+        }
+        if (!internalStats) {
+          toast.error("Chưa lấy được thống kê nội bộ để tính KPI (model B).");
+          return;
+        }
+      }
       updateMutation.mutate({
         id: editingUser.id,
         username,
@@ -284,6 +332,13 @@ const AccountsPage: React.FC = () => {
         years_experience,
         num_projects,
         years_at_company,
+        ...(years_at_company >= 1 && internalStats
+          ? {
+              total_projects: internalStats.total_projects,
+              total_tasks: internalStats.total_tasks,
+              hard_tasks: internalStats.hard_tasks,
+            }
+          : {}),
       });
     } else {
       const cpa = parseFloat(String(formData.get("cpa") || ""));
@@ -349,12 +404,62 @@ const AccountsPage: React.FC = () => {
     setIsDialogOpen(true);
   };
 
+  React.useEffect(() => {
+    if (!editingUser) {
+      setEditYearsAtCompanyText("0");
+      setInternalStats(null);
+      setInternalStatsLoading(false);
+      return;
+    }
+    setEditYearsAtCompanyText(String(Number(editingUser.yearsAtCompany ?? 0)));
+    setInternalStats(null);
+    setInternalStatsLoading(false);
+  }, [editingUser?.id]);
+
+  const loadInternalStats = React.useCallback(async () => {
+    if (!editingUser?.id) return null;
+    setInternalStatsLoading(true);
+    try {
+      const res = await fetchData<{
+        err: number;
+        msg: string;
+        response?: { total_projects: number; total_tasks: number; hard_tasks: number } | null;
+      }>(`/auth/admin/users/${editingUser.id}/internal-stats`);
+      if (res.err !== 0 || !res.response) {
+        toast.error(res.msg || "Không lấy được thống kê nội bộ");
+        setInternalStats(null);
+        return null;
+      }
+      const next = {
+        total_projects: Number(res.response.total_projects ?? 0),
+        total_tasks: Number(res.response.total_tasks ?? 0),
+        hard_tasks: Number(res.response.hard_tasks ?? 0),
+      };
+      setInternalStats(next);
+      return next;
+    } catch (e: any) {
+      toast.error(e?.response?.data?.msg || "Không lấy được thống kê nội bộ");
+      setInternalStats(null);
+      return null;
+    } finally {
+      setInternalStatsLoading(false);
+    }
+  }, [editingUser?.id]);
+
+  React.useEffect(() => {
+    if (!editingUser) return;
+    const yac = Number(editYearsAtCompanyText || 0);
+    if (yac >= 1 && !internalStats && !internalStatsLoading) {
+      loadInternalStats();
+    }
+  }, [editYearsAtCompanyText, editingUser?.id]);
+
   const isSaving = createMutation.isPending || updateMutation.isPending;
 
   return (
     <div className="space-y-6">
       {/* Card sáng, dễ đọc hơn, đồng bộ với nền trắng của dashboard */}
-      <Card className="bg-white text-slate-900 border-slate-200 shadow-md">
+      <Card className="bg-white text-slate-900 border-slate-200 shadow-md ">
         <CardHeader className="flex items-center justify-between gap-4">
           <div>
             <CardTitle className="text-xl md:text-2xl">
@@ -384,7 +489,13 @@ const AccountsPage: React.FC = () => {
                 Thêm tài khoản
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent
+              className="w-[96vw] max-w-4xl max-h-[95vh] overflow-y-auto"
+              onOpenAutoFocus={(e) => {
+                // Tránh Radix auto-focus vào input đầu tiên (Họ tên)
+                e.preventDefault();
+              }}
+            >
               <DialogHeader>
                 <DialogTitle>
                   {editingUser ? "Chỉnh sửa tài khoản" : "Thêm tài khoản mới"}
@@ -542,7 +653,7 @@ const AccountsPage: React.FC = () => {
                           ) : null}
                         </div>
                       )}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div className="space-y-1">
                         <Label htmlFor="cpa">CPA (0–4)</Label>
                         <Input
@@ -591,7 +702,7 @@ const AccountsPage: React.FC = () => {
                         />
                       </div>
                       <div className="space-y-1">
-                        <Label htmlFor="years_experience">Năm kinh nghiệm (trước công ty)</Label>
+                        <Label htmlFor="years_experience">Năm kinh nghiệm(trước công ty)</Label>
                         <Input
                           id="years_experience"
                           name="years_experience"
@@ -615,13 +726,71 @@ const AccountsPage: React.FC = () => {
                           step="0.5"
                           min={0}
                           max={50}
-                          defaultValue={
-                            editingUser?.yearsAtCompany != null
-                              ? Number(editingUser.yearsAtCompany)
-                              : 0
-                          }
+                          value={editYearsAtCompanyText}
+                          onChange={(e) => {
+                            const nextText = e.target.value;
+                            setEditYearsAtCompanyText(nextText);
+                            const yac = Number(nextText || 0);
+                            if (!Number.isFinite(yac) || yac < 1) {
+                              // chuyển về onboarding → ẩn và clear stats nội bộ
+                              setInternalStats(null);
+                            }
+                          }}
                         />
                       </div>
+                      {Number(editYearsAtCompanyText || 0) >= 1 && (
+                        <div className="md:col-span-2 rounded-lg border border-slate-200 bg-slate-50 p-3">
+                          <div className="flex items-center justify-between gap-2">
+                            <p className="text-xs font-medium text-slate-700">
+                              KPI nội bộ (model B) — tự lấy theo task bạn tham gia
+                            </p>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="h-8 px-3 text-xs"
+                              disabled={internalStatsLoading}
+                              onClick={loadInternalStats}
+                            >
+                              {internalStatsLoading ? "Đang tải..." : "Làm mới"}
+                            </Button>
+                          </div>
+                          <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div className="space-y-1">
+                              <Label className="text-xs" htmlFor="internal_total_projects">
+                                Tổng project nội bộ
+                              </Label>
+                              <Input
+                                id="internal_total_projects"
+                                value={internalStats?.total_projects ?? 0}
+                                readOnly
+                                className="bg-white"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <Label className="text-xs" htmlFor="internal_total_tasks">
+                                Tổng task nội bộ
+                              </Label>
+                              <Input
+                                id="internal_total_tasks"
+                                value={internalStats?.total_tasks ?? 0}
+                                readOnly
+                                className="bg-white"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <Label className="text-xs" htmlFor="internal_hard_tasks">
+                                Task khó nội bộ
+                              </Label>
+                              <Input
+                                id="internal_hard_tasks"
+                                value={internalStats?.hard_tasks ?? 0}
+                                readOnly
+                                className="bg-white"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
                       <div className="space-y-1 sm:col-span-2">
                         <Label htmlFor="num_projects">Số project đã làm (trước đây)</Label>
                         <Input

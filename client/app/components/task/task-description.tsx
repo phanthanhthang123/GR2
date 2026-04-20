@@ -55,6 +55,7 @@ export const TaskDescription = ({ description, taskId }: { description: string, 
             <div className="flex items-center gap-2">
                 {
                     isEditing ? (
+                        <>
                         <Button
                             className="py-0"
                             size="sm"
@@ -63,6 +64,16 @@ export const TaskDescription = ({ description, taskId }: { description: string, 
                         >
                             Lưu
                         </Button>
+                        <Button
+                            className="py-0 px-3 border"
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setIsEditing(false)}
+                            disabled={isPending}
+                        >
+                            Hủy
+                        </Button>
+                        </>
                     ) : (
                         <Edit className="size-4 cursor-pointer" onClick={() => setIsEditing(true)} />
                     )

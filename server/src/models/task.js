@@ -62,6 +62,15 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.ENUM('Low', 'Medium', 'High'),
       allowNull: true
     },
+    difficulty: {
+      type: DataTypes.ENUM('Easy', 'Medium', 'Hard'),
+      allowNull: false,
+      defaultValue: 'Medium'
+    },
+    pullRequestUrl: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
     assigned_to: {
       type: DataTypes.STRING,
       allowNull: true,

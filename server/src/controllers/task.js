@@ -31,10 +31,10 @@ export const createTask = async (req, res) => {
                 msg: 'Missing required parameter: projectId'
             })
         }
-        if (!taskData || !taskData.title || !taskData.status || !taskData.priority) {
+        if (!taskData || !taskData.title || !taskData.status || !taskData.priority || !taskData.difficulty) {
             return res.status(400).json({
                 err: 1,
-                msg: 'Missing required parameter: taskData.title, taskData.status, or taskData.priority'
+                msg: 'Missing required parameter: taskData.title, taskData.status, taskData.priority, or taskData.difficulty'
             })
         }
         
@@ -51,6 +51,48 @@ export const createTask = async (req, res) => {
         return res.status(500).json({
             err: -1,
             msg: 'Failed at create task controller: ' + error
+        })
+    }
+}
+
+export const updateTaskPullRequestUrl = async (req, res) => {
+    try {
+        const { taskId } = req.params;
+        const { pullRequestUrl } = req.body;
+
+        if (!taskId) {
+            return res.status(400).json({
+                err: 1,
+                msg: 'Missing required parameter: taskId'
+            })
+        }
+
+        const userId = getUserIdFromToken(req);
+
+        // Optional field: allow null/empty to clear
+        const url = (pullRequestUrl ?? '').toString().trim();
+        const normalized = url === '' ? null : url;
+
+        // Validate github PR URL format when provided
+        if (normalized) {
+            const githubPrRegex = /^https?:\/\/github\.com\/[^/]+\/[^/]+\/pull\/\d+(?:\/)?(?:[#?].*)?$/i;
+            if (!githubPrRegex.test(normalized)) {
+                return res.status(400).json({
+                    err: 1,
+                    msg: 'Pull Request URL không hợp lệ (cần dạng https://github.com/<owner>/<repo>/pull/<number>)'
+                });
+            }
+        }
+
+        const response = await services.updateTaskPullRequestUrlService(taskId, normalized, userId);
+        if (response.err === 1) {
+            return res.status(404).json(response);
+        }
+        return res.status(200).json(response);
+    } catch (error) {
+        return res.status(500).json({
+            err: -1,
+            msg: 'Failed at update task pull request url controller: ' + error
         })
     }
 }
@@ -407,6 +449,54 @@ export const updateTaskPriority = async (req, res) => {
         return res.status(500).json({
             err: -1,
             msg: 'Failed at update task priority controller: ' + error
+        })
+    }
+}
+
+export const updateTaskDifficulty = async (req, res) => {
+    try {
+        const { taskId } = req.params;
+        const { difficulty } = req.body;
+
+        if (!taskId) {
+            return res.status(400).json({
+                err: 1,
+                msg: 'Missing required parameter: taskId'
+            })
+        }
+
+        if (!difficulty) {
+            return res.status(400).json({
+                err: 1,
+                msg: 'Missing required parameter: difficulty'
+            })
+        }
+
+        const authHeader = req.headers.authorization;
+        const token = authHeader?.startsWith('Bearer ')
+            ? authHeader.replace('Bearer ', '')
+            : (req.cookies?.accessToken || null);
+
+        let userId = null;
+        if (token) {
+            try {
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                userId = decoded.id;
+            } catch (error) {
+                console.error('Token verification failed:', error.message);
+            }
+        }
+
+        const response = await services.updateTaskDifficultyService(taskId, difficulty, userId);
+        if (response.err === 1) {
+            const statusCode = response.msg === 'TASK NOT FOUND' ? 404 : 400;
+            return res.status(statusCode).json(response);
+        }
+        return res.status(200).json(response);
+    } catch (error) {
+        return res.status(500).json({
+            err: -1,
+            msg: 'Failed at update task difficulty controller: ' + error
         })
     }
 }

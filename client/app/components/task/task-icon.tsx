@@ -21,6 +21,8 @@ import {
     EyeOff,
     Archive,
     Calendar,
+    Link as LinkIcon,
+    Gauge,
 } from "lucide-react";
 
 export const getActivityMessage = (action: ActionType): string => {
@@ -34,7 +36,9 @@ export const getActivityMessage = (action: ActionType): string => {
         case "ASSIGNEES_UPDATED":
             return "đã cập nhật người được giao";
         case "PRIORITY_UPDATED":
-            return "đã cập nhật độ ưu tiên";
+            return "đã chỉnh sửa độ ưu tiên";
+        case "DIFFICULTY_UPDATED":
+            return "đã chỉnh sửa độ khó";
         case "DUE_DATE_UPDATED":
             return "đã sửa hạn chót";
         case "created_task":
@@ -75,6 +79,8 @@ export const getActivityMessage = (action: ActionType): string => {
             return "đã lưu trữ task này";
         case "TASK_UNARCHIVED":
             return "đã bỏ lưu trữ task này";
+        case "PULL_REQUEST_UPDATED":
+            return "đã cập nhật Pull Request";
         default:
             return "đã thực hiện một hành động";
     }
@@ -230,6 +236,18 @@ export const getActivityIcon = (action: ActionType) => {
             return (
                 <div className="bg-blue-600/10 p-2 rounded-md">
                     <Archive className="h-5 w-5 text-blue-600 rounded-full" />
+                </div>
+            )
+        case "PULL_REQUEST_UPDATED":
+            return (
+                <div className="bg-blue-600/10 p-2 rounded-md">
+                    <LinkIcon className="h-5 w-5 text-blue-600 rounded-full" />
+                </div>
+            )
+        case "DIFFICULTY_UPDATED":
+            return (
+                <div className="bg-indigo-600/10 p-2 rounded-md">
+                    <Gauge className="h-5 w-5 text-indigo-600 rounded-full" />
                 </div>
             )
         default:

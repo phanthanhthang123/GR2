@@ -37,6 +37,7 @@ router.post('/forgot-password', controllers.forgotPassword);
 router.post('/reset-password', controllers.resetPassword);
 router.get('/users', controllers.getAllUsers);
 router.post('/admin/users', controllers.adminCreateUser);
+router.get('/admin/users/:id/internal-stats', controllers.adminGetUserInternalStats);
 router.post('/admin/users/send-credentials', controllers.adminSendUserCredentialsEmail);
 router.put('/admin/users/:id', controllers.adminUpdateUser);
 router.delete('/admin/users/:id', controllers.adminDeleteUser);

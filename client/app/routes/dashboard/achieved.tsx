@@ -140,13 +140,14 @@ const Achieved = () => {
                   </th>
                   <th className="px-4 py-2 text-left font-medium text-slate-700 w-[42%]">Task</th>
                   <th className="px-4 py-2 text-left font-medium text-slate-700">Ưu tiên</th>
+                  <th className="px-4 py-2 text-left font-medium text-slate-700">Độ khó</th>
                   <th className="px-4 py-2 text-left font-medium text-slate-700">Hạn chót</th>
                 </tr>
               </thead>
               <tbody>
                 {paginatedTasks.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="px-4 py-8 text-center text-sm text-muted-foreground">
+                    <td colSpan={5} className="px-4 py-8 text-center text-sm text-muted-foreground">
                       {taskSearchQuery ? "Không tìm thấy task phù hợp." : "Chưa có task hoàn thành."}
                     </td>
                   </tr>
@@ -194,6 +195,15 @@ const Achieved = () => {
                             }
                           >
                             {task.priority}
+                          </Badge>
+                        </td>
+                        <td className="px-4 py-2 align-top">
+                          <Badge className="bg-slate-100 text-slate-700 border border-slate-200">
+                            {(task as any).difficulty === "Easy"
+                              ? "Dễ"
+                              : (task as any).difficulty === "Hard"
+                                ? "Khó"
+                                : "Trung bình"}
                           </Badge>
                         </td>
                         <td className="px-4 py-2 align-top text-xs text-slate-700">

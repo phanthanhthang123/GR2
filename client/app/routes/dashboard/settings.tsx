@@ -91,9 +91,9 @@ const SettingPage = () => {
           </div>
         </CardHeader>
 
-        <CardContent className="h-[calc(100%-110px)] space-y-5 overflow-hidden">
-          <div className="flex flex-col md:flex-row md:items-center gap-4">
-            <Avatar className="size-12 cursor-pointer" onClick={() => avatarFileInputRef.current?.click()}>
+        <CardContent className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden px-4 pb-3 pt-0 sm:px-6">
+          <div className="flex shrink-0 flex-col gap-3 md:flex-row md:items-center">
+            <Avatar className="size-12 shrink-0 cursor-pointer" onClick={() => avatarFileInputRef.current?.click()}>
               <AvatarImage src={user?.avatarUrl || undefined} alt={user?.username || "User"} />
               <AvatarFallback className="text-sm font-semibold">
                 {getInitials(user?.username)}
@@ -106,10 +106,10 @@ const SettingPage = () => {
             </div>
           </div>
 
-          <Separator className="bg-slate-200" />
+          <Separator className="shrink-0 bg-slate-200" />
 
-          <Tabs defaultValue="profile" className="w-full h-full flex flex-col">
-            <TabsList className="w-full justify-start bg-slate-100">
+          <Tabs defaultValue="profile" className="flex min-h-0 w-full flex-1 flex-col gap-0 overflow-hidden">
+            <TabsList className="h-9 w-full shrink-0 justify-start bg-slate-100">
               <TabsTrigger value="profile" className="gap-2">
                 <User2 className="size-4" />
                 Hồ sơ
@@ -128,14 +128,19 @@ const SettingPage = () => {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="profile" className="pt-4 mt-0 flex-1 overflow-hidden">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pb-4">
-                <Card className="border-slate-200 shadow-sm">
-                  <CardHeader>
+            <TabsContent
+              value="profile"
+              className="mt-0 min-h-0 flex-1 overflow-hidden pt-3 outline-none"
+            >
+              <div className="grid h-full min-h-0 grid-cols-1 items-stretch gap-3 lg:grid-cols-2 lg:gap-3">
+                <Card className="flex min-h-0 flex-col gap-0 overflow-hidden border-slate-200 py-0 shadow-sm">
+                  <CardHeader className="shrink-0 space-y-1 px-4 py-3 sm:px-5">
                     <CardTitle className="text-base">Thông tin cá nhân</CardTitle>
-                    <CardDescription>Cập nhật tên hiển thị và giới thiệu ngắn.</CardDescription>
+                    <CardDescription className="text-xs sm:text-sm">
+                      Cập nhật tên hiển thị và giới thiệu ngắn.
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="flex min-h-0 flex-1 flex-col space-y-3 overflow-hidden px-4 pb-3 sm:px-5">
                     <div className="space-y-2">
                       <Label htmlFor="displayName">Họ tên</Label>
                       <Input
@@ -164,11 +169,12 @@ const SettingPage = () => {
                         id="bio"
                         value={bio}
                         onChange={(e) => setBio(e.target.value)}
-                        placeholder="Ví dụ: Leader nhóm UI/UX, thích tối ưu trải nghiệm người dùng..."
-                        className="bg-white"
+                        placeholder="Ví dụ: Leader nhóm UI/UX..."
+                        rows={2}
+                        className="h-[3rem] min-h-[3rem] resize-none bg-white text-sm leading-snug"
                       />
                     </div>
-                    <div className="flex justify-end gap-2">
+                    <div className="flex shrink-0 justify-end gap-2 pt-1">
                       <Button
                         variant="outline"
                         onClick={() => {
@@ -217,14 +223,14 @@ const SettingPage = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="border-slate-200 shadow-sm">
-                  <CardHeader>
+                <Card className="flex min-h-0 flex-col gap-0 overflow-hidden border-slate-200 py-0 shadow-sm">
+                  <CardHeader className="shrink-0 space-y-1 px-4 py-3 sm:px-5">
                     <CardTitle className="text-base">Ảnh đại diện</CardTitle>
-                    <CardDescription>
-                      JPEG, PNG, GIF hoặc WebP, tối đa 5MB. Ảnh được lưu trên Cloudinary.
+                    <CardDescription className="text-xs sm:text-sm">
+                      JPEG, PNG, GIF hoặc WebP, tối đa 5MB (Cloudinary).
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="flex min-h-0 flex-1 flex-col space-y-3 overflow-hidden px-4 pb-3 sm:px-5">
                     <input
                       ref={avatarFileInputRef}
                       type="file"
@@ -255,9 +261,8 @@ const SettingPage = () => {
                         });
                       }}
                     />
-                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
-                      Ảnh hiển thị trên toàn hệ thống (header, chat, thành viên workspace/project, v.v.). Sau khi đổi ảnh,
-                      trang sẽ tự đồng bộ khi bạn mở lại ứng dụng hoặc F5.
+                    <div className="shrink-0 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs leading-snug text-slate-700 sm:text-sm">
+                      Ảnh hiển thị trên toàn hệ thống (header, chat, workspace/project). F5 để đồng bộ nếu cần.
                     </div>
                     <div className="flex flex-wrap justify-end gap-2">
                       <Button
@@ -300,16 +305,19 @@ const SettingPage = () => {
               </div>
             </TabsContent>
 
-            <TabsContent value="security" className="pt-4 mt-0 flex-1 overflow-hidden">
-              <Card className="border-slate-200 shadow-sm">
-                <CardHeader>
+            <TabsContent
+              value="security"
+              className="mt-0 min-h-0 flex-1 overflow-hidden pt-3 outline-none"
+            >
+              <Card className="flex h-full min-h-0 flex-col gap-0 overflow-hidden border-slate-200 py-0 shadow-sm">
+                <CardHeader className="shrink-0 space-y-1 px-4 py-3 sm:px-5">
                   <CardTitle className="text-base">Đổi mật khẩu</CardTitle>
-                  <CardDescription>
-                    Dùng mật khẩu mạnh, tối thiểu 8 ký tự. (Hiện tại là UI; cần API để đổi thật.)
+                  <CardDescription className="text-xs sm:text-sm">
+                    Mật khẩu mạnh, tối thiểu 8 ký tự.
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <CardContent className="flex min-h-0 flex-1 flex-col space-y-3 overflow-hidden px-4 pb-3 sm:px-5">
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-3">
                     <div className="space-y-2">
                       <Label htmlFor="currentPassword">Mật khẩu hiện tại</Label>
                       <Input
@@ -342,7 +350,7 @@ const SettingPage = () => {
                     </div>
                   </div>
 
-                  <div className="flex justify-end gap-2">
+                  <div className="flex shrink-0 justify-end gap-2 pt-1">
                     <Button
                       variant="outline"
                       onClick={() => {
@@ -397,17 +405,20 @@ const SettingPage = () => {
               </Card>
             </TabsContent>
 
-            <TabsContent value="notifications" className="pt-4 mt-0 flex-1 overflow-hidden">
-              <Card className="border-slate-200 shadow-sm">
-                <CardHeader>
+            <TabsContent
+              value="notifications"
+              className="mt-0 min-h-0 flex-1 overflow-hidden pt-3 outline-none"
+            >
+              <Card className="flex h-full min-h-0 flex-col gap-0 overflow-hidden border-slate-200 py-0 shadow-sm">
+                <CardHeader className="shrink-0 space-y-1 px-4 py-3 sm:px-5">
                   <CardTitle className="text-base">Tuỳ chọn thông báo</CardTitle>
-                  <CardDescription>
-                    Lưu tuỳ chọn ở localStorage để bạn dùng ngay, không cần backend.
+                  <CardDescription className="text-xs sm:text-sm">
+                    Lưu ở localStorage, không cần backend.
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3 rounded-lg border border-slate-200 p-4">
+                <CardContent className="flex min-h-0 flex-1 flex-col space-y-2 overflow-hidden px-4 pb-3 sm:px-5">
+                  <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">
+                    <div className="flex shrink-0 items-start gap-2 rounded-lg border border-slate-200 p-3">
                       <Checkbox
                         checked={prefs.emailNotifications}
                         onCheckedChange={(v) =>
@@ -417,12 +428,12 @@ const SettingPage = () => {
                       />
                       <div className="min-w-0">
                         <p className="font-medium text-slate-900">Email notifications</p>
-                        <p className="text-sm text-slate-600">
+                        <p className="text-xs text-slate-600 sm:text-sm">
                           Nhận email khi có cập nhật quan trọng trong workspace/project.
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-start gap-3 rounded-lg border border-slate-200 p-4">
+                    <div className="flex shrink-0 items-start gap-2 rounded-lg border border-slate-200 p-3">
                       <Checkbox
                         checked={prefs.taskReminders}
                         onCheckedChange={(v) =>
@@ -432,12 +443,12 @@ const SettingPage = () => {
                       />
                       <div className="min-w-0">
                         <p className="font-medium text-slate-900">Nhắc việc (Task reminders)</p>
-                        <p className="text-sm text-slate-600">
+                        <p className="text-xs text-slate-600 sm:text-sm">
                           Nhắc khi task gần tới hạn hoặc bị trễ hạn.
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-start gap-3 rounded-lg border border-slate-200 p-4">
+                    <div className="flex shrink-0 items-start gap-2 rounded-lg border border-slate-200 p-3">
                       <Checkbox
                         checked={prefs.weeklySummary}
                         onCheckedChange={(v) =>
@@ -447,14 +458,14 @@ const SettingPage = () => {
                       />
                       <div className="min-w-0">
                         <p className="font-medium text-slate-900">Báo cáo tuần (Weekly summary)</p>
-                        <p className="text-sm text-slate-600">
+                        <p className="text-xs text-slate-600 sm:text-sm">
                           Tổng kết tiến độ theo tuần (nếu hệ thống có job gửi mail).
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex justify-end gap-2">
+                  <div className="flex shrink-0 justify-end gap-2 pt-1">
                     <Button
                       variant="outline"
                       onClick={() => {
@@ -479,24 +490,29 @@ const SettingPage = () => {
               </Card>
             </TabsContent>
 
-            <TabsContent value="system" className="pt-4 mt-0 flex-1 overflow-hidden">
-              <Card className="border-slate-200 shadow-sm">
-                <CardHeader>
+            <TabsContent
+              value="system"
+              className="mt-0 min-h-0 flex-1 overflow-hidden pt-3 outline-none"
+            >
+              <Card className="flex h-full min-h-0 flex-col gap-0 overflow-hidden border-slate-200 py-0 shadow-sm">
+                <CardHeader className="shrink-0 space-y-1 px-4 py-3 sm:px-5">
                   <CardTitle className="text-base">Thông tin hệ thống</CardTitle>
-                  <CardDescription>Thông tin nhanh để debug khi demo/đồ án.</CardDescription>
+                  <CardDescription className="text-xs sm:text-sm">
+                    Debug nhanh khi demo.
+                  </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-3 text-sm">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div className="rounded-lg border border-slate-200 p-4">
-                      <p className="text-slate-500">User ID</p>
-                      <p className="font-medium text-slate-900 break-all">{user?.id || "—"}</p>
+                <CardContent className="flex min-h-0 flex-1 flex-col space-y-2 overflow-hidden px-4 pb-3 text-sm sm:px-5">
+                  <div className="grid shrink-0 grid-cols-1 gap-2 md:grid-cols-2">
+                    <div className="rounded-lg border border-slate-200 p-3">
+                      <p className="text-xs text-slate-500">User ID</p>
+                      <p className="font-medium break-all text-slate-900">{user?.id || "—"}</p>
                     </div>
-                    <div className="rounded-lg border border-slate-200 p-4">
-                      <p className="text-slate-500">Vai trò</p>
+                    <div className="rounded-lg border border-slate-200 p-3">
+                      <p className="text-xs text-slate-500">Vai trò</p>
                       <p className="font-medium text-slate-900">{user?.role || "—"}</p>
                     </div>
                   </div>
-                  <div className="flex justify-end">
+                  <div className="flex shrink-0 justify-end">
                     <Button
                       variant="outline"
                       onClick={() => {

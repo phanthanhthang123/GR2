@@ -210,6 +210,37 @@ export const useUpdateTaskPriorityMutation = () => {
     })
 }
 
+export const useUpdateTaskDifficultyMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (data: { taskId: string, difficulty: "Easy" | "Medium" | "Hard" }) => {
+            return await updateData(`/task/${data.taskId}/update-difficulty`, { difficulty: data.difficulty });
+        },
+        onSuccess: async (response: any, variables: { taskId: string, difficulty: "Easy" | "Medium" | "Hard" }) => {
+            if (response?.response) {
+                const updatedTask: Task = {
+                    ...response.response,
+                    id: String(response.response.id),
+                    difficulty: response.response.difficulty || variables.difficulty
+                };
+                queryClient.setQueryData<Task>(["task", variables.taskId], updatedTask);
+            }
+            await queryClient.refetchQueries({
+                queryKey: ["task", variables.taskId],
+                type: "active"
+            });
+            await queryClient.refetchQueries({
+                queryKey: ["task-activity", String(variables.taskId)],
+                type: "active"
+            });
+        },
+        onError: (error: any) => {
+            const errorMessage = (error as any)?.response?.data?.message || "Không thể cập nhật độ khó";
+            toast.error(errorMessage);
+        }
+    })
+}
+
 export const useUpdateTaskDueDateMutation = () => {
     const queryClient = useQueryClient();
     return useMutation({
@@ -240,6 +271,32 @@ export const useUpdateTaskDueDateMutation = () => {
         },
         onError: (error: any) => {
             const errorMessage = (error as any)?.response?.data?.msg || "Không thể cập nhật hạn chót";
+            toast.error(errorMessage);
+        }
+    })
+}
+
+export const useUpdateTaskPullRequestUrlMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (data: { taskId: string, pullRequestUrl: string | null }) => {
+            return await updateData(`/task/${data.taskId}/update-pull-request-url`, { pullRequestUrl: data.pullRequestUrl });
+        },
+        onSuccess: async (response: any, variables: { taskId: string, pullRequestUrl: string | null }) => {
+            const taskIdStr = String(variables.taskId);
+            if (response?.response) {
+                const updatedTask: Task = {
+                    ...response.response,
+                    id: String(response.response.id),
+                };
+                queryClient.setQueryData<Task>(["task", taskIdStr], updatedTask);
+            }
+            await queryClient.invalidateQueries({ queryKey: ["task", taskIdStr] });
+            await queryClient.invalidateQueries({ queryKey: ["task-activity", taskIdStr] });
+            toast.success("Cập nhật Pull Request thành công");
+        },
+        onError: (error: any) => {
+            const errorMessage = (error as any)?.response?.data?.msg || "Không thể cập nhật Pull Request";
             toast.error(errorMessage);
         }
     })

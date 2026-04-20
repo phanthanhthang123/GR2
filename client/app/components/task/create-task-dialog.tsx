@@ -41,6 +41,7 @@ export const CreateTaskDialog = ({
             description: "",
             status: "To Do" as unknown as TaskStatus,
             priority: "Medium",
+            difficulty: "Medium",
             dueDate: "",
             assignees: [],
         },
@@ -57,6 +58,7 @@ export const CreateTaskDialog = ({
             description: data.description || "",
             status: data.status,
             priority: data.priority,
+            difficulty: data.difficulty,
             dueDate: data.dueDate || null,
             assignees: data.assignees || []
         };
@@ -163,6 +165,30 @@ export const CreateTaskDialog = ({
                                     />
 
                                 </div>
+
+                                <FormField
+                                    control={form.control}
+                                    name="difficulty"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Độ khó</FormLabel>
+                                            <Select onValueChange={field.onChange} value={field.value}>
+                                                <FormControl>
+                                                    <SelectTrigger className="w-full">
+                                                        <SelectValue placeholder="Chọn độ khó" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+
+                                                <SelectContent>
+                                                    <SelectItem value="Easy">Dễ</SelectItem>
+                                                    <SelectItem value="Medium">Trung bình</SelectItem>
+                                                    <SelectItem value="Hard">Khó</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
 
                                 <FormField
                                     control={form.control}

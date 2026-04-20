@@ -9,7 +9,7 @@ import {
     uploadAvatarBuffer,
     destroyCloudinaryAsset,
 } from '../config/cloudinary'
-import { predictOnboardingKpi } from './kpiPython'
+import { predictInternalKpi, predictOnboardingKpi } from './kpiPython'
 
 
 
@@ -596,6 +596,51 @@ export const adminUpdateUserService = (id, data) => new Promise(async (resolve, 
             updatePayload.yearsAtCompany = yac
         }
 
+        // Nếu admin nhập số liệu nội bộ → dùng Model B (internal) để tính KPI (max 1.0)
+        const internalKeys = ['total_projects', 'total_tasks', 'hard_tasks']
+        const hasInternalPatch = internalKeys.some((k) => data[k] !== undefined)
+        const nextYearsAtCompany =
+            updatePayload.yearsAtCompany !== undefined
+                ? Number(updatePayload.yearsAtCompany)
+                : Number(user.yearsAtCompany ?? 0)
+
+        if (hasInternalPatch && nextYearsAtCompany >= 1) {
+            const tp = Number(data.total_projects ?? 0)
+            const tt = Number(data.total_tasks ?? 0)
+            const ht = Number(data.hard_tasks ?? 0)
+            if (!Number.isFinite(tp) || tp < 0 || tp > 1000) {
+                return resolve({ err: 1, msg: 'total_projects không hợp lệ' })
+            }
+            if (!Number.isFinite(tt) || tt < 0 || tt > 100000) {
+                return resolve({ err: 1, msg: 'total_tasks không hợp lệ' })
+            }
+            if (!Number.isFinite(ht) || ht < 0 || ht > tt) {
+                return resolve({ err: 1, msg: 'hard_tasks không hợp lệ' })
+            }
+            const pred = predictInternalKpi({
+                total_projects: tp,
+                total_tasks: tt,
+                hard_tasks: ht,
+                years_at_company: nextYearsAtCompany,
+            })
+            if (!pred.err && pred.kpi != null) {
+                updatePayload.kpiScore = pred.kpi
+                updatePayload.kpiModelAtSignup = pred.model // "B"
+            } else if (pred.err) {
+                console.warn('[adminUpdateUser] KPI Python internal:', pred.msg)
+            }
+        }
+
+        // Nếu years_at_company < 1 thì coi như chưa đủ điều kiện dùng Model B.
+        // Đảm bảo KPI/model quay về onboarding (A) khi admin đặt years_at_company về 0.
+        if (nextYearsAtCompany < 1) {
+            // nếu đã tính onboarding ở trên (hasOnboardingPatch) thì pred.model sẽ là "A"
+            // còn nếu không có onboarding patch, force model về A để không bị kẹt "B"
+            if (updatePayload.kpiModelAtSignup === undefined) {
+                updatePayload.kpiModelAtSignup = 'A'
+            }
+        }
+
         if (Object.keys(updatePayload).length === 0) {
             return resolve({
                 err: 1,
@@ -615,6 +660,54 @@ export const adminUpdateUserService = (id, data) => new Promise(async (resolve, 
         reject(error);
     }
 });
+
+export const adminGetUserInternalStatsService = (userId) =>
+    new Promise(async (resolve) => {
+        try {
+            if (!userId) {
+                return resolve({ err: 1, msg: 'Thiếu userId', response: null })
+            }
+
+            // "Mình tham gia" = task được assign (assigned_to). Có thể mở rộng thêm watchers nếu cần.
+            const whereBase = { assigned_to: userId, isArchived: false }
+
+            const totalTasks = await db.Task.count({ where: whereBase })
+            const hardTasks = await db.Task.count({
+                where: { ...whereBase, priority: 'High' },
+            })
+
+            const projRows = await db.Task.findAll({
+                where: whereBase,
+                attributes: [
+                    [
+                        db.Sequelize.fn(
+                            'COUNT',
+                            db.Sequelize.fn('DISTINCT', db.Sequelize.col('project_id'))
+                        ),
+                        'cnt',
+                    ],
+                ],
+                raw: true,
+            })
+            const totalProjects = Number(projRows?.[0]?.cnt ?? 0)
+
+            return resolve({
+                err: 0,
+                msg: 'OK',
+                response: {
+                    total_projects: totalProjects,
+                    total_tasks: totalTasks,
+                    hard_tasks: hardTasks,
+                },
+            })
+        } catch (error) {
+            return resolve({
+                err: 1,
+                msg: 'FAILED TO GET INTERNAL STATS: ' + (error?.message || String(error)),
+                response: null,
+            })
+        }
+    })
 
 export const adminDeleteUserService = (id) => new Promise(async (resolve, reject) => {
     try {

@@ -61,6 +61,7 @@ export interface Project {
   createdAt: Date | null;  
   updatedAt: Date | null;
   isArchived?: boolean;
+  githubRepoUrl?: string | null;
 }
 
 export interface Subtask {
@@ -88,6 +89,8 @@ export interface Task {
   subtasks?: Subtask[];
   watchers?: User[] | string[] | null;
   attachments?: Attachment[];
+  difficulty?: 'Easy' | 'Medium' | 'Hard';
+  pullRequestUrl?: string | null;
 }
 
 export enum TaskStatus {
@@ -154,7 +157,9 @@ export type ActionType =
   | "UNWATCHED"
   | "TASK_ACHIEVED"
   | "TASK_ARCHIVED"
-  | "TASK_UNARCHIVED";
+  | "TASK_UNARCHIVED"
+  | "PULL_REQUEST_UPDATED"
+  | "DIFFICULTY_UPDATED";
 
 
   export interface ActivityLog {

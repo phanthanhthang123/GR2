@@ -34,6 +34,7 @@ export const createTaskService = (projectId, taskData, actorUserId) => new Promi
             description: taskData.description || "",
             status: taskData.status,
             priority: taskData.priority || 'Medium',
+            difficulty: taskData.difficulty || 'Medium',
             dueDate: taskData.dueDate || null,
             createdAt: new Date(),
             updatedAt: new Date()
@@ -72,6 +73,58 @@ export const createTaskService = (projectId, taskData, actorUserId) => new Promi
         resolve({
             err: 1,
             msg: 'FAILED TO CREATE TASK: ' + error.message
+        });
+    }
+});
+
+export const updateTaskPullRequestUrlService = (taskId, pullRequestUrl, userId) => new Promise(async (resolve) => {
+    try {
+        const task = await db.Task.findOne({
+            where: { id: taskId }
+        });
+
+        if (!task) {
+            return resolve({
+                err: 1,
+                msg: 'TASK NOT FOUND'
+            });
+        }
+
+        await task.update({
+            pullRequestUrl: pullRequestUrl || null,
+            updatedAt: new Date()
+        });
+
+        try {
+            const numericTaskId = typeof taskId === 'string' && !isNaN(taskId) ? parseInt(taskId, 10) : taskId;
+            await db.Task_Activity.create({
+                task_id: numericTaskId,
+                user_id: userId,
+                action: 'PULL_REQUEST_UPDATED',
+                payload: { pullRequestUrl: pullRequestUrl || null }
+            });
+        } catch (activityError) {
+            console.error('Failed to create activity:', activityError);
+        }
+
+        await task.reload({
+            include: [
+                { model: db.Users, as: 'assignedUser', attributes: ['id', 'username', 'email', 'avatarUrl'] },
+                { model: db.Project, as: 'project', attributes: ['id', 'name', 'description'] },
+                { model: db.Users, as: 'watchers', attributes: ['id', 'username', 'email', 'avatarUrl'], through: { attributes: [] } },
+                { model: db.Task_Activity, as: 'activities', include: [{ model: db.Users, as: 'user', attributes: ['id', 'username', 'email', 'avatarUrl'] }], order: [['createdAt', 'DESC']] }
+            ]
+        });
+
+        resolve({
+            err: 0,
+            msg: 'OK',
+            response: task
+        });
+    } catch (error) {
+        resolve({
+            err: 1,
+            msg: 'FAILED TO UPDATE TASK PULL REQUEST URL: ' + error.message
         });
     }
 });
@@ -597,6 +650,67 @@ export const updateTaskPriorityService = (taskId, priority, userId) => new Promi
         resolve({
             err: 1,
             msg: 'FAILED TO UPDATE TASK PRIORITY: ' + error.message
+        });
+    }
+});
+
+export const updateTaskDifficultyService = (taskId, difficulty, userId) => new Promise(async (resolve) => {
+    try {
+        const validDifficulties = ['Easy', 'Medium', 'Hard'];
+
+        if (!validDifficulties.includes(difficulty)) {
+            return resolve({
+                err: 1,
+                msg: 'INVALID DIFFICULTY. Must be one of: Easy, Medium, Hard'
+            });
+        }
+
+        const task = await db.Task.findOne({
+            where: { id: taskId }
+        });
+
+        if (!task) {
+            return resolve({
+                err: 1,
+                msg: 'TASK NOT FOUND'
+            });
+        }
+
+        await task.update({
+            difficulty: difficulty,
+            updatedAt: new Date()
+        });
+
+        try {
+            const numericTaskId = typeof taskId === 'string' && !isNaN(taskId) ? parseInt(taskId, 10) : taskId;
+            await db.Task_Activity.create({
+                task_id: numericTaskId,
+                user_id: userId,
+                action: 'DIFFICULTY_UPDATED',
+                payload: { difficulty }
+            });
+        } catch (activityError) {
+            console.error('Failed to create activity:', activityError);
+        }
+
+        await task.reload({
+            include: [
+                { model: db.Users, as: 'assignedUser', attributes: ['id', 'username', 'email', 'avatarUrl'] },
+                { model: db.Project, as: 'project', attributes: ['id', 'name', 'description'] },
+                { model: db.Users, as: 'watchers', attributes: ['id', 'username', 'email', 'avatarUrl'], through: { attributes: [] } },
+                { model: db.Task_Activity, as: 'activities', include: [{ model: db.Users, as: 'user', attributes: ['id', 'username', 'email', 'avatarUrl'] }], order: [['createdAt', 'DESC']] }
+            ]
+        });
+
+        resolve({
+            err: 0,
+            msg: 'OK',
+            response: task
+        });
+    } catch (error) {
+        resolve({
+            err: 1,
+            msg: 'FAILED TO UPDATE TASK DIFFICULTY: ' + error.message
         });
     }
 });

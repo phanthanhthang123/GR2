@@ -58,6 +58,19 @@ export const TaskCard = ({ task, onClick }: { task: Task; onClick: () => void })
     };
 
     const statusBadge = getStatusBadgeConfig();
+
+    const getDifficultyLabel = (difficulty?: string | null) => {
+        switch ((difficulty || "").toString()) {
+            case "Easy":
+                return "Dễ";
+            case "Hard":
+                return "Khó";
+            case "Medium":
+            default:
+                return "Trung bình";
+        }
+    };
+
     return (
         <Card
             onClick={onClick}
@@ -76,6 +89,12 @@ export const TaskCard = ({ task, onClick }: { task: Task; onClick: () => void })
                             }
                         >
                             {task.priority}
+                        </Badge>
+                        <Badge
+                            variant="outline"
+                            className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200"
+                        >
+                            {getDifficultyLabel((task as any).difficulty)}
                         </Badge>
                         {statusBadge && (
                             <Badge
