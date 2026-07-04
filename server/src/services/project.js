@@ -208,10 +208,13 @@ export const getProjectTasksService = async (projectId, userId) => {
 
         // Check if user is a project member
         if (userId) {
+            const currentUser = await db.Users.findOne({ where: { id: userId } });
+            const isSystemAdminOrLeader = currentUser?.role === 'Admin' || currentUser?.role === 'Leader';
+
             const isMember = project.members?.some((member) => {
                 const memberUserId = typeof member.user === 'string' ? member.user : member.user?.id || member.user_id;
                 return memberUserId === userId;
-            }) || project.leader_id === userId || project.created_by === userId;
+            }) || project.leader_id === userId || project.created_by === userId || isSystemAdminOrLeader;
 
             if (!isMember) {
                 return { 
@@ -277,8 +280,10 @@ export const updateProjectTitleService = (projectId, title, userId) => new Promi
             });
         }
 
-        // Check if user is leader or creator
-        const isLeader = project.leader_id === userId || project.created_by === userId;
+        // Check if user is Admin, leader or creator
+        const currentUser = await db.Users.findOne({ where: { id: userId } });
+        const isSystemAdmin = currentUser?.role === 'Admin';
+        const isLeader = project.leader_id === userId || project.created_by === userId || isSystemAdmin;
         if (!isLeader) {
             const member = await db.Project_Member.findOne({
                 where: {
@@ -340,8 +345,10 @@ export const updateProjectDescriptionService = (projectId, description, userId) 
             });
         }
 
-        // Check if user is leader or creator
-        const isLeader = project.leader_id === userId || project.created_by === userId;
+        // Check if user is Admin, leader or creator
+        const currentUser = await db.Users.findOne({ where: { id: userId } });
+        const isSystemAdmin = currentUser?.role === 'Admin';
+        const isLeader = project.leader_id === userId || project.created_by === userId || isSystemAdmin;
         if (!isLeader) {
             const member = await db.Project_Member.findOne({
                 where: {
@@ -387,8 +394,10 @@ export const addMemberToProjectService = (projectId, userId, role, currentUserId
             });
         }
 
-        // Check if current user is leader
-        const isLeader = project.leader_id === currentUserId || project.created_by === currentUserId;
+        // Check if current user is Admin, leader or creator
+        const currentUser = await db.Users.findOne({ where: { id: currentUserId } });
+        const isSystemAdmin = currentUser?.role === 'Admin';
+        const isLeader = project.leader_id === currentUserId || project.created_by === currentUserId || isSystemAdmin;
         if (!isLeader) {
             const member = await db.Project_Member.findOne({
                 where: {
@@ -466,8 +475,10 @@ export const removeMemberFromProjectService = (projectId, targetUserId, currentU
             });
         }
 
-        // Check if current user is leader
-        const isLeader = project.leader_id === currentUserId || project.created_by === currentUserId;
+        // Check if current user is Admin, leader or creator
+        const currentUser = await db.Users.findOne({ where: { id: currentUserId } });
+        const isSystemAdmin = currentUser?.role === 'Admin';
+        const isLeader = project.leader_id === currentUserId || project.created_by === currentUserId || isSystemAdmin;
         if (!isLeader) {
             const member = await db.Project_Member.findOne({
                 where: {
@@ -499,12 +510,17 @@ export const removeMemberFromProjectService = (projectId, targetUserId, currentU
             });
         }
 
-        // Prevent removing leader
+        // Prevent removing leader unless current user is a system Admin
         if (targetMember.role === 'Leader' && project.leader_id === targetUserId) {
-            return resolve({
-                err: 1,
-                msg: 'CANNOT REMOVE PROJECT LEADER'
-            });
+            if (!isSystemAdmin) {
+                return resolve({
+                    err: 1,
+                    msg: 'CANNOT REMOVE PROJECT LEADER'
+                });
+            } else {
+                // If system Admin is removing the project leader, clear the leader_id field
+                await project.update({ leader_id: null });
+            }
         }
 
         // Remove member
@@ -546,8 +562,10 @@ export const updateProjectStatusService = (projectId, status, userId) => new Pro
             });
         }
 
-        // Check if user is leader or creator
-        const isLeader = project.leader_id === userId || project.created_by === userId;
+        // Check if user is Admin, leader or creator
+        const currentUser = await db.Users.findOne({ where: { id: userId } });
+        const isSystemAdmin = currentUser?.role === 'Admin';
+        const isLeader = project.leader_id === userId || project.created_by === userId || isSystemAdmin;
         if (!isLeader) {
             const member = await db.Project_Member.findOne({
                 where: {

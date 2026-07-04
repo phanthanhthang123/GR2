@@ -207,9 +207,9 @@ export const predictProjectDelayService = async (projectId, userId) => {
                 role: 'Leader'
             }
         });
-        // Kiểm tra role Admin
+        // Kiểm tra role Admin/Leader hệ thống
         const currentUser = await db.Users.findOne({ where: { id: userId } });
-        if (!member && currentUser?.role !== 'Admin') {
+        if (!member && currentUser?.role !== 'Admin' && currentUser?.role !== 'Leader') {
             return { err: 1, msg: 'ONLY_LEADER_OR_ADMIN' };
         }
     }

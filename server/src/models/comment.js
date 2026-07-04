@@ -11,6 +11,14 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'user_id',
         as: 'user'
       });
+      Comment.hasMany(models.Comment, {
+        foreignKey: 'parent_id',
+        as: 'replies'
+      });
+      Comment.belongsTo(models.Comment, {
+        foreignKey: 'parent_id',
+        as: 'parent'
+      });
     }
   }
   Comment.init({
@@ -32,6 +40,14 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       references: {
         model: 'Users',
+        key: 'id'
+      }
+    },
+    parent_id: {
+      type: DataTypes.BIGINT,
+      allowNull: true,
+      references: {
+        model: 'Comments',
         key: 'id'
       }
     },

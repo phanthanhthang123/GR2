@@ -126,8 +126,9 @@ const TaskDetails = () => {
     const projectIdFromTask = project?.id || projectId;
     const projectName = project?.name || 'Unknown Project';
 
-    // Check project membership: nếu không thuộc project thì không cho xem task
+    // Check project membership: nếu không thuộc project thì không cho xem task (ngoại trừ Admin/Leader hệ thống)
     if (projectData?.project?.members && user?.id) {
+        const isSystemAdminOrLeader = user.role === 'Admin' || user.role === 'Leader';
         const isMember = projectData.project.members.some((m: any) => {
             const memberId =
                 typeof m.user === "string"
@@ -136,7 +137,7 @@ const TaskDetails = () => {
             return memberId?.toString() === user.id.toString();
         });
 
-        if (!isMember) {
+        if (!isMember && !isSystemAdminOrLeader) {
             toast.error("Bạn không có quyền truy cập task này.");
             goBack();
             return null;

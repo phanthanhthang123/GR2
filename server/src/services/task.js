@@ -211,6 +211,9 @@ export const getTaskByIdService = (taskId, userId) => new Promise(async (resolve
         if (userId) {
             const userIdStr = String(userId);
 
+            const currentUser = await db.Users.findOne({ where: { id: userIdStr } });
+            const isSystemAdminOrLeader = currentUser?.role === 'Admin' || currentUser?.role === 'Leader';
+
             // Cho phép nếu là người được assign trực tiếp
             const isAssigned =
                 task.assigned_to &&
@@ -227,7 +230,7 @@ export const getTaskByIdService = (taskId, userId) => new Promise(async (resolve
                 isProjectMember = !!membership;
             }
 
-            if (!isAssigned && !isProjectMember) {
+            if (!isAssigned && !isProjectMember && !isSystemAdminOrLeader) {
                 return resolve({
                     err: 2,
                     msg: 'FORBIDDEN: You do not have permission to access this task',

@@ -192,6 +192,10 @@ const ProjectDetails = () => {
     // Check if current user is leader - must be called before early return
     const isCurrentUserLeader = useMemo(() => {
         if (!user || !project) return false;
+        
+        // System Admins and system Leaders have leader privileges on all projects
+        if (user.role === 'Admin' || user.role === 'Leader') return true;
+
         const leaderId = typeof (project as any).leader_id === 'string'
             ? (project as any).leader_id
             : (project as any).leader?.id || (project as any).leader_id;
@@ -831,7 +835,8 @@ const ProjectDetails = () => {
                                         systemRole === 'leader' ||
                                         systemRole === 'kleader';
 
-                                    const canDelete = isCurrentUserLeader && !isLeader && memberUserId !== user?.id;
+                                    const canDelete = isCurrentUserLeader && 
+                                         (user?.role === 'Admin' ? memberUserId !== user?.id : (!isLeader && memberUserId !== user?.id));
 
                                     const getLastNameInitial = (username: string) => {
                                         if (!username || username.trim() === "") return "";

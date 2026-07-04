@@ -86,8 +86,8 @@ DoAnTotNghiep/
 ### Bước 1: Clone dự án
 
 ```bash
-git clone https://github.com/phanthanhthang123/GR2.git
-cd GR2
+git clone https://github.com/phanthanhthang123/DoAnTotNghiep.git
+cd DoAnTotNghiep
 ```
 
 ### Bước 2: Tạo database MySQL
@@ -284,6 +284,65 @@ npx sequelize-cli db:migrate:undo:all
 ```
 
 > Khi dùng Docker, migrations sẽ tự động chạy khi container khởi động.
+
+---
+
+## 📊 Dữ Liệu & Tài Khoản Mẫu (Seeding)
+
+Để thuận tiện cho việc kiểm thử toàn diện các tính năng của hệ thống (phân quyền, quản lý công việc, chat real-time, và dự đoán AI), dự án đã đi kèm sẵn một bộ dữ liệu mẫu gồm 40 người dùng, 8 workspaces, 40 projects và 40 tasks.
+
+### 🔑 Danh sách tài khoản đăng nhập mẫu
+Tất cả các tài khoản mẫu dưới đây đều dùng chung mật khẩu: **`password123`**
+
+| Vai Trò | Email | Tên tài khoản | Mô Tả |
+|---|---|---|---|
+| **Admin** | `john@example.com` | `john_doe` | Toàn quyền quản trị hệ thống, quản lý tài khoản |
+| **Leader** | `jane@example.com` | `jane_smith` | Tạo workspace, dự án, giao task, xem dự đoán trễ hạn từ AI |
+| **Member** | `bob@example.com` | `bob_wilson` | Thành viên tham gia dự án, nhận task, cập nhật tiến độ |
+| **Member** | `alice@example.com` | `alice_johnson` | Thành viên tham gia dự án, nhận task, cập nhật tiến độ |
+
+*Mẹo: Bạn có thể đăng nhập bằng bất kỳ email nào của 40 thành viên mẫu (như `strange@example.com`, `tony@example.com`, `bruce.wayne@example.com`,...) với mật khẩu `password123` để trải nghiệm các góc nhìn khác nhau.*
+
+### 🛠️ Cách nạp dữ liệu mẫu vào Database (Seed)
+
+Đảm bảo bạn đã chạy migrations để tạo đủ các bảng trước khi nạp dữ liệu.
+
+#### Cách 1: Nạp bằng Docker Compose (Khuyến nghị)
+Khi các container Docker đang chạy, mở terminal tại thư mục gốc của dự án và chạy:
+```bash
+docker-compose exec server npm run seed
+```
+
+#### Cách 2: Nạp thủ công (Không dùng Docker)
+Mở terminal tại thư mục `server/` và chạy:
+```bash
+cd server
+npm run seed
+```
+
+---
+
+## 🧪 Hướng Dẫn Kiểm Thử Nhanh (Testing Guide)
+
+Sau khi nạp dữ liệu mẫu thành công, bạn có thể thực hiện kiểm thử nhanh theo kịch bản sau:
+
+### Kịch bản 1: Kiểm thử Dự đoán trễ tiến độ dự án (AI/ML)
+1. Đăng nhập bằng tài khoản **Leader**: `jane@example.com` / `password123`.
+2. Truy cập vào Workspace **Tech Solutions** và chọn dự án **Website Redesign** (`P001`) hoặc **Mobile App** (`P002`).
+3. Click vào tab **AI Prediction** hoặc nhấn nút **Dự đoán tiến độ** (Predict).
+4. Hệ thống sẽ thu thập dữ liệu (số lượng task trễ, số task độ khó Hard chưa hoàn thành, KPI trung bình của team,...) và gọi Python thực thi mô hình Random Forest để trả về mức độ rủi ro trễ hạn (`Low`, `Medium`, `High`) kèm các gợi ý hành động cụ thể cho Leader.
+
+### Kịch bản 2: Quy trình làm việc và cập nhật Task (Member)
+1. Đăng nhập bằng tài khoản **Member**: `bob@example.com` / `password123`.
+2. Vào màn hình dự án **Website Redesign**, xem các task được giao cho Bob (ví dụ: *Task 3*).
+3. Chuyển trạng thái task từ `To Do` -> `In Progress` -> `Done`.
+4. Điền URL Pull Request (nếu có) để Leader kiểm tra.
+5. Kiểm tra thông báo real-time: khi Bob cập nhật trạng thái hoặc bình luận, Leader (Jane) sẽ nhận được thông báo ngay lập tức qua Socket.IO.
+
+### Kịch bản 3: Dự đoán KPI Onboarding cho nhân viên mới (Admin/Leader)
+1. Đăng nhập bằng tài khoản **Admin**: `john@example.com` / `password123`.
+2. Tạo mới một tài khoản nhân viên (Role: `Member`) và nhập các trường thông tin tuyển dụng: điểm GPA/CPA, điểm phỏng vấn, điểm CV, số năm kinh nghiệm.
+3. Khi lưu tài khoản, hệ thống sẽ tự động gọi mô hình Logistic Regression (Model A) để tính toán điểm dự đoán KPI ban đầu cho nhân viên này và hiển thị trên hồ sơ nhân sự.
 
 ---
 
