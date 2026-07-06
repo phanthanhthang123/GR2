@@ -227,7 +227,7 @@ const SettingPage = () => {
                   <CardHeader className="shrink-0 space-y-1 px-4 py-3 sm:px-5">
                     <CardTitle className="text-base">Ảnh đại diện</CardTitle>
                     <CardDescription className="text-xs sm:text-sm">
-                      JPEG, PNG, GIF hoặc WebP, tối đa 5MB (Cloudinary).
+                      JPEG, PNG, GIF hoặc WebP, dung lượng tối đa 5MB.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="flex min-h-0 flex-1 flex-col space-y-3 overflow-hidden px-4 pb-3 sm:px-5">
@@ -262,7 +262,7 @@ const SettingPage = () => {
                       }}
                     />
                     <div className="shrink-0 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs leading-snug text-slate-700 sm:text-sm">
-                      Ảnh hiển thị trên toàn hệ thống (header, chat, workspace/project). F5 để đồng bộ nếu cần.
+                      Ảnh hiển thị trên toàn hệ thống (ảnh đại diện, thanh menu, đoạn chat và các dự án).
                     </div>
                     <div className="flex flex-wrap justify-end gap-2">
                       <Button
@@ -413,7 +413,7 @@ const SettingPage = () => {
                 <CardHeader className="shrink-0 space-y-1 px-4 py-3 sm:px-5">
                   <CardTitle className="text-base">Tuỳ chọn thông báo</CardTitle>
                   <CardDescription className="text-xs sm:text-sm">
-                    Lưu ở localStorage, không cần backend.
+                    Cấu hình nhận thông báo qua email và hệ thống.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="flex min-h-0 flex-1 flex-col space-y-2 overflow-hidden px-4 pb-3 sm:px-5">

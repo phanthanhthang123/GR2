@@ -68,12 +68,32 @@ const deleteData = async <T>(path: string, config?: object): Promise<T> => {
       }
 }
 
-/** Multipart upload — bỏ Content-Type mặc định JSON để axios/browser gửi boundary đúng. */
+const apiForm = axios.create({
+  baseURL: BASE_URL,
+});
+
+apiForm.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+apiForm.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      window.dispatchEvent(new Event("force-logout"));
+    }
+    return Promise.reject(error);
+  }
+);
+
+/** Multipart upload — sử dụng apiForm không có default Content-Type để axios tự động detect boundary. */
 const postFormData = async <T>(path: string, formData: FormData): Promise<T> => {
       try {
-            const response = await api.post(path, formData, {
-                  headers: { "Content-Type": undefined },
-            });
+            const response = await apiForm.post(path, formData);
             return response.data;
       } catch (error) {
             throw error;

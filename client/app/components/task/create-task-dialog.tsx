@@ -13,7 +13,8 @@ import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { CalendarIcon } from "lucide-react";
+import { useState } from "react";
+import { CalendarIcon, Search } from "lucide-react";
 import { format } from "date-fns";
 import { Calendar } from "../ui/calendar";
 import { Checkbox } from "../ui/checkbox";
@@ -48,6 +49,7 @@ export const CreateTaskDialog = ({
     });
 
     const { mutate, isPending } = UseCreateTaskMutation();
+    const [searchQuery, setSearchQuery] = useState("");
 
     const onSubmit = (data: CreateTaskDialogFormData) => {
         console.log("data Task", data);
@@ -247,6 +249,15 @@ export const CreateTaskDialog = ({
                                         const getUserObject = (user: User | string): User | null => {
                                             return typeof user === 'object' ? user : null;
                                         };
+
+                                        const filteredMembers = projectMembers.filter((member) => {
+                                            const userObj = getUserObject(member.user);
+                                            if (!userObj) return false;
+                                            return (
+                                                userObj.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                                userObj.email?.toLowerCase().includes(searchQuery.toLowerCase())
+                                            );
+                                        });
                                         
                                         return (
                                             <FormItem>
@@ -280,39 +291,61 @@ export const CreateTaskDialog = ({
                                                             className="w-sm max-h-60 overflow-y-auto p-2"
                                                             align="start">
                                                             <div className="space-y-2">
+                                                                <div className="relative flex items-center mb-2">
+                                                                    <Search className="absolute left-2.5 size-3.5 text-muted-foreground" />
+                                                                    <Input
+                                                                        placeholder="Tìm kiếm thành viên..."
+                                                                        value={searchQuery}
+                                                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                                                        className="h-8 text-xs pl-8 pr-3 w-full"
+                                                                    />
+                                                                </div>
                                                                 {
-                                                                    projectMembers.map((member) => {
-                                                                        const userId = getUserId(member.user);
-                                                                        const userObj = getUserObject(member.user);
-                                                                        const selectedMember = selectedMembers.find(
-                                                                            (m) => m === userId
-                                                                        )
+                                                                    filteredMembers.length === 0 ? (
+                                                                        <div className="text-xs text-muted-foreground text-center py-4">
+                                                                            Không tìm thấy thành viên
+                                                                        </div>
+                                                                    ) : (
+                                                                        filteredMembers.map((member) => {
+                                                                            const userId = getUserId(member.user);
+                                                                            const userObj = getUserObject(member.user);
+                                                                            const selectedMember = selectedMembers.find(
+                                                                                (m) => m === userId
+                                                                            )
 
-                                                                        return (
-                                                                            <div
-                                                                                key={userId}
-                                                                                className="flex items-center gap-2 p-2 border rounded-md"
-                                                                            >
-                                                                                <Checkbox
-                                                                                    checked={!!selectedMember}
-                                                                                    onCheckedChange={(checked) => {
-                                                                                        if (checked) {
-                                                                                            field.onChange([...selectedMembers, userId]);
-                                                                                        } else {
-                                                                                            field.onChange(
-                                                                                                selectedMembers.filter(
-                                                                                                    (m) => m !== userId)
-                                                                                            );
-                                                                                        }
-                                                                                    }}
-                                                                                    id={`member-${userId}`}
-                                                                                />
-                                                                                <span className="flex-1 truncate">
-                                                                                    {userObj ? userObj.username : userId}
-                                                                                </span>
-                                                                            </div>
-                                                                        )
-                                                                    })
+                                                                            return (
+                                                                                <div
+                                                                                    key={userId}
+                                                                                    className="flex items-center justify-between p-2 border rounded-md"
+                                                                                >
+                                                                                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                                                                                        <Checkbox
+                                                                                            checked={!!selectedMember}
+                                                                                            onCheckedChange={(checked) => {
+                                                                                                if (checked) {
+                                                                                                    field.onChange([...selectedMembers, userId]);
+                                                                                                } else {
+                                                                                                    field.onChange(
+                                                                                                        selectedMembers.filter(
+                                                                                                            (m) => m !== userId)
+                                                                                                    );
+                                                                                                }
+                                                                                            }}
+                                                                                            id={`member-${userId}`}
+                                                                                        />
+                                                                                        <span className="text-sm truncate">
+                                                                                            {userObj ? userObj.username : userId}
+                                                                                        </span>
+                                                                                    </div>
+                                                                                    {userObj && userObj.kpiScore != null && (
+                                                                                        <span className="text-[10px] md:text-[11px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-600 font-medium whitespace-nowrap shrink-0">
+                                                                                            KPI: {Number(userObj.kpiScore).toFixed(3)}
+                                                                                        </span>
+                                                                                    )}
+                                                                                </div>
+                                                                            )
+                                                                        })
+                                                                    )
                                                                 }
                                                             </div>
                                                         </PopoverContent>

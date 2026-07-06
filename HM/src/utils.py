@@ -20,8 +20,9 @@ KPI_MAX_ONBOARDING = 0.9
 # Model B (nội bộ: projects/tasks/hard + years_at_company)
 KPI_MAX_INTERNAL = 1.0
 
-# Ngưỡng nhị phân khi train (KPI trong CSV thang [0, 1])
-KPI_TRAIN_THRESHOLD = 0.5
+# 9 ngưỡng nhị phân cho Multi-threshold Logistic Regression
+# Mỗi ngưỡng train 1 classifier, tổng hợp xác suất → KPI liên tục
+KPI_THRESHOLDS = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 
 # Thư mục gốc HM (cha của src/)
 ROOT_DIR = Path(__file__).resolve().parents[1]

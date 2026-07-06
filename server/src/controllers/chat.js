@@ -222,7 +222,7 @@ export const uploadAttachment = async (req, res) => {
       contentDisposition: `attachment; filename="${encodeURIComponent(originalName)}"`,
     });
 
-    const fileUrl = getSignedUrl(result.public_id, resourceType) || result.secure_url;
+    const fileUrl = result.secure_url;
 
     return res.status(200).json({
       err: 0,

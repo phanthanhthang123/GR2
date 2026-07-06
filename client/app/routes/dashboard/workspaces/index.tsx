@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { CreateWorkspace } from "@/components/workspace/create-workspace";
 import { useGetWorkspaceQuery } from "@/hooks/use-workspace";
 import type { Workspace } from "@/type";
-import { Loader, PlusCircle, Users, Search, MoreVertical, Eye, EyeOff, ChevronDown, ChevronRight } from "lucide-react";
+import { Loader, PlusCircle, Users, Search, MoreHorizontal, Eye, EyeOff, ChevronDown, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { NoDataFound } from "@/components/workspace/no-data-found";
 import { useAuth } from "@/provider/auth-context";
@@ -119,7 +119,7 @@ const Workspaces = () => {
                                         Không gian của bạn ({visibleWorkspaces.length})
                                     </h4>
                                 )}
-                                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                                <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                                     {visibleWorkspaces.map((ws) => (
                                         <WorkspaceCard
                                             key={ws.id}
@@ -148,7 +148,7 @@ const Workspaces = () => {
                                 </button>
 
                                 {!isHiddenCollapsed && (
-                                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                                    <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                                         {hiddenWorkspaces.map((ws) => (
                                             <WorkspaceCard
                                                 key={ws.id}
@@ -185,17 +185,17 @@ const WorkspaceCard = ({
     return (
         <div className="group relative">
             <Link to={`/workspaces/${workspace.id}`} className="block h-full">
-                <Card className="h-full transition-all hover:shadow-md hover:-translate-y-0.5 border border-border/60 hover:border-border">
-                    <CardHeader className="pb-3 flex flex-col justify-between h-full space-y-3">
-                        <div className="space-y-2">
+                <Card className="h-full transition-all hover:shadow-md hover:-translate-y-0.5 border border-border/60 hover:border-border p-3 gap-0">
+                    <CardHeader className="p-0 flex flex-col justify-between h-full space-y-2">
+                        <div className="space-y-1.5">
                             <div className="flex items-start justify-between gap-2">
-                                <div className="flex gap-3 items-center min-w-0">
+                                <div className="flex gap-3 items-center min-w-0 flex-1">
                                     <WorkspaceAvatar
                                         name={workspace?.name}
                                         color={workspace?.color}
                                     />
-                                    <div className="min-w-0 space-y-0.5">
-                                        <h3 className="font-semibold text-sm leading-tight text-foreground truncate max-w-[150px] sm:max-w-[180px]">
+                                    <div className="min-w-0 flex-1 space-y-0.5">
+                                        <h3 className="font-semibold text-sm leading-tight text-foreground truncate">
                                             {workspace.name}
                                         </h3>
                                         <span className="text-[10px] text-muted-foreground block">
@@ -216,10 +216,10 @@ const WorkspaceCard = ({
                                         <DropdownMenuTrigger asChild>
                                             <Button 
                                                 variant="ghost" 
-                                                size="icon" 
-                                                className="size-8 rounded-full hover:bg-muted/80 opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100"
+                                                size="icon-sm" 
+                                                className="rounded-full hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-all"
                                             >
-                                                <MoreVertical className="size-4" />
+                                                <MoreHorizontal className="size-4" />
                                             </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end" className="w-40">
@@ -241,12 +241,12 @@ const WorkspaceCard = ({
                                 </div>
                             </div>
 
-                            <CardDescription className="line-clamp-2 text-xs text-muted-foreground/90 mt-1">
+                            <CardDescription className="line-clamp-1 text-xs text-muted-foreground/90 mt-0.5">
                                 {workspace.description || "Chưa có mô tả"}
                             </CardDescription>
                         </div>
 
-                        <div className="flex items-center justify-between pt-2.5 border-t border-border/40 text-xs text-muted-foreground mt-auto">
+                        <div className="flex items-center justify-between pt-2 border-t border-border/40 text-xs text-muted-foreground mt-auto">
                             <span className="text-[11px] font-medium text-primary hover:underline">
                                 Xem chi tiết &rarr;
                             </span>

@@ -4,6 +4,9 @@ Chọn model theo ngữ cảnh user và trả về KPI score.
 - User mới / chưa có dữ liệu nội bộ → Model A (onboarding): CPA + interview + CV + num_projects + years_experience
 - User đã làm việc trong hệ thống → Model B (nội bộ): projects / tasks / hard_tasks / years_at_company
 
+Multi-threshold Logistic Regression:
+  KPI = step × (1 + Σ P(KPI ≥ tₖ))   (ordinal decomposition)
+
 Thang đầu ra:
 - Model A: [0, KPI_MAX_ONBOARDING] (mặc định 0.9)
 - Model B: [0, KPI_MAX_INTERNAL] (1.0)
@@ -63,13 +66,48 @@ def _load_bundle(model_key: str) -> dict[str, Any]:
     return joblib.load(p)
 
 
-def _proba_positive(pipe, X: np.ndarray) -> float:
-    proba = pipe.predict_proba(X)
-    return float(np.clip(proba[0, 1], 0.0, 1.0))
+def _predict_kpi_ensemble(bundle: dict, X: np.ndarray) -> float:
+    """
+    Multi-threshold prediction:
+    E[KPI] = ∫₀¹ P(KPI ≥ t) dt ≈ step × (1 + Σ P(KPI ≥ tₖ))
+
+    Với 9 ngưỡng [0.1..0.9], step = 0.1:
+    KPI ≈ 0.1 × (1 + P(≥0.1) + P(≥0.2) + ... + P(≥0.9))
+    - P(KPI ≥ 0) = 1 luôn luôn → cộng sẵn 1
+    """
+    scaler = bundle["scaler"]
+    classifiers = bundle["classifiers"]
+    thresholds = bundle["thresholds"]
+
+    X_scaled = scaler.transform(X)
+
+    # Thu thập P(KPI >= t_k) từ mỗi classifier
+    active_thresholds = []
+    probas = []
+    for clf, t in zip(classifiers, thresholds):
+        if clf is None:
+            continue
+        p = clf.predict_proba(X_scaled)
+        # predict_proba trả về [P(class=0), P(class=1)]
+        # P(class=1) = P(KPI >= threshold)
+        prob_positive = float(p[0, 1])
+        active_thresholds.append(t)
+        probas.append(prob_positive)
+
+    if not probas:
+        return 0.5  # fallback
+
+    # Công thức ordinal: step × (1 + Σ probas)
+    # step = 1 / (n_thresholds + 1) cho grid đều
+    n = len(thresholds)
+    step = 1.0 / (n + 1)  # 9 ngưỡng → step = 0.1
+    kpi = step * (1.0 + sum(probas))
+
+    return float(np.clip(kpi, 0.0, 1.0))
 
 
-def scale_kpi_to_business_range(raw_proba: float, model_key: str) -> float:
-    p = float(np.clip(raw_proba, 0.0, 1.0))
+def scale_kpi_to_business_range(raw_kpi: float, model_key: str) -> float:
+    p = float(np.clip(raw_kpi, 0.0, 1.0))
     if model_key == "A":
         return float(np.round(KPI_MAX_ONBOARDING * p, 6))
     if model_key == "B":
@@ -84,7 +122,6 @@ def select_model_key(is_internal_employee: bool) -> str:
 def predict_kpi_onboarding(user: UserOnboardingInput) -> tuple[float, str]:
     """KPI lúc tạo account — luôn Model A (vector đầy đủ onboarding)."""
     bundle = _load_bundle("A")
-    pipe = bundle["pipeline"]
     vec = np.array(
         [
             [
@@ -97,14 +134,13 @@ def predict_kpi_onboarding(user: UserOnboardingInput) -> tuple[float, str]:
         ],
         dtype=float,
     )
-    raw = _proba_positive(pipe, vec)
+    raw = _predict_kpi_ensemble(bundle, vec)
     score = scale_kpi_to_business_range(raw, "A")
     return score, "A"
 
 
 def predict_kpi_internal(user: UserInternalInput) -> tuple[float, str]:
     bundle = _load_bundle("B")
-    pipe = bundle["pipeline"]
     vec = np.array(
         [
             [
@@ -116,7 +152,7 @@ def predict_kpi_internal(user: UserInternalInput) -> tuple[float, str]:
         ],
         dtype=float,
     )
-    raw = _proba_positive(pipe, vec)
+    raw = _predict_kpi_ensemble(bundle, vec)
     score = scale_kpi_to_business_range(raw, "B")
     return score, "B"
 

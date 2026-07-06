@@ -641,15 +641,14 @@ const ProjectDetails = () => {
                             </Button>
                             {isCurrentUserLeader && (
                                 <Button
-                                    variant="outline"
                                     onClick={handlePredictDelay}
                                     disabled={isPredictingLocal}
-                                    className="w-full border-amber-500/50 text-amber-700 hover:bg-amber-50 hover:text-amber-800 dark:text-amber-400 dark:hover:bg-amber-950 dark:hover:text-amber-300"
+                                    className="w-full bg-gradient-to-r from-amber-500 via-orange-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white hover:text-white border-none shadow-md shadow-orange-500/30 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg font-semibold"
                                 >
                                     {isPredictingLocal ? (
-                                        <Loader2 className="mr-2 size-4 animate-spin" />
+                                        <Loader2 className="mr-2 size-4 animate-spin text-white" />
                                     ) : (
-                                        <BrainCircuit className="mr-2 size-4" />
+                                        <BrainCircuit className="mr-2 size-4 text-white" />
                                     )}
                                     {isPredictingLocal ? 'Đang phân tích...' : 'Đánh giá rủi ro (AI)'}
                                 </Button>

@@ -1,4 +1,5 @@
 import * as services from '../services/workspace';
+import db from '../models';
 
 export const createWorkspace = async (req,res)=>{
     try {
@@ -31,7 +32,14 @@ export const listWorkspaceByUser = async (req,res)=>{
                 msg : 'Missing required parameter: user_id'
             })
         }
-        const response = await services.listWorkspaceByUserService(user_id);
+        // Lấy role của user để check Admin
+        const userRow = await db.Users.findByPk(user_id, {
+            attributes: ['role'],
+            raw: true,
+        });
+        const userRole = userRow?.role || 'Member';
+
+        const response = await services.listWorkspaceByUserService(user_id, userRole);
         if(response.err === 1) {
             return res.status(400).json(response);
         }

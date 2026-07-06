@@ -39,28 +39,33 @@ export const createWorkspaceService = (name, description, color, owner_id) => ne
     }
 })
 
-export const listWorkspaceByUserService = (user_id) => new Promise(async (resolve, reject) => {
+export const listWorkspaceByUserService = (user_id, userRole) => new Promise(async (resolve, reject) => {
     try {
-        // 1. Tìm tất cả các workspace_id mà user tham gia
-        const userMemberships = await db.Workspace_Members.findAll({
-            where: { user_id: user_id },
-            attributes: ['workspace_id']
-        });
-        const workspaceIds = userMemberships.map(m => m.workspace_id);
+        let whereClause = {};
 
-        if (workspaceIds.length === 0) {
-            return resolve({
-                err: 0,
-                msg: 'OK',
-                response: []
+        // Admin thấy TẤT CẢ workspaces
+        if (userRole === 'Admin') {
+            // Không cần filter theo workspace_id
+        } else {
+            // User thường: chỉ thấy workspace mình tham gia
+            const userMemberships = await db.Workspace_Members.findAll({
+                where: { user_id: user_id },
+                attributes: ['workspace_id']
             });
+            const workspaceIds = userMemberships.map(m => m.workspace_id);
+
+            if (workspaceIds.length === 0) {
+                return resolve({
+                    err: 0,
+                    msg: 'OK',
+                    response: []
+                });
+            }
+            whereClause = { id: workspaceIds };
         }
 
-        // 2. Lấy thông tin các workspace đó cùng với toàn bộ thành viên của từng workspace
         const response = await db.Workspaces.findAll({
-            where: {
-                id: workspaceIds
-            },
+            where: whereClause,
             include: [
                 {
                     model: db.Workspace_Members,

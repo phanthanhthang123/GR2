@@ -1,5 +1,5 @@
 """
-HM — Hệ thống KPI user (2 model Logistic Regression: A onboarding, B nội bộ).
+HM — Hệ thống KPI user (2 model Multi-threshold Logistic Regression: A onboarding, B nội bộ).
 
 Chạy từ thư mục HM:
     pip install -r requirements.txt
@@ -39,7 +39,7 @@ def main() -> None:
     generate_project_data(force=False)
 
     print("\n=== Bước 2: Huấn luyện Model ===")
-    print("-> Đang huấn luyện Logistic Regression (KPI User)...")
+    print("-> Đang huấn luyện Multi-threshold Logistic Regression (KPI User)...")
     train_a()
     train_b()
     print("-> Đang huấn luyện Random Forest (Project Delay)...")
@@ -51,10 +51,11 @@ def main() -> None:
     print("\n=== Bước 4: Ví dụ KPI khi tạo account & sau 1 quý ===")
     demo_user_id = "user_demo_001"
 
+    # Test case 1: Sinh viên mới, CPA khá, không có KN
     cold_onb = UserOnboardingInput(
-        cpa=3.2,
-        interview_score=6.0,
-        cv_score=6.0,
+        cpa=3.24,
+        interview_score=7.2,
+        cv_score=7.3,
         years_experience=0.0,
         num_projects=0.0,
     )
@@ -62,21 +63,51 @@ def main() -> None:
         is_internal_employee=False,
         onboarding=cold_onb,
     )
-    print(f"\n[Tạo account — 0 năm, 0 project] Model {m_cold}, KPI = {kpi_cold:.4f}")
+    print(f"\n[SV mới — CPA 3.24, IV 7.2, CV 7.3, 0 năm, 0 project] Model {m_cold}, KPI = {kpi_cold:.4f}")
 
+    # Test case 2: Có kinh nghiệm
     exp_onb = UserOnboardingInput(
         cpa=3.4,
         interview_score=7.5,
         cv_score=8.0,
-        years_experience=4.0,
+        years_experience=5.0,
         num_projects=12.0,
     )
     kpi_exp, m_exp = predict_kpi_full(
         is_internal_employee=False,
         onboarding=exp_onb,
     )
-    print(f"[Tạo account — có KN] Model {m_exp}, KPI = {kpi_exp:.4f}")
+    print(f"[Có KN — CPA 3.4, IV 7.5, CV 8.0, 5 năm, 12 proj] Model {m_exp}, KPI = {kpi_exp:.4f}")
 
+    # Test case 3: Ứng viên xuất sắc
+    top_onb = UserOnboardingInput(
+        cpa=3.8,
+        interview_score=9.0,
+        cv_score=9.2,
+        years_experience=8.0,
+        num_projects=25.0,
+    )
+    kpi_top, m_top = predict_kpi_full(
+        is_internal_employee=False,
+        onboarding=top_onb,
+    )
+    print(f"[Xuất sắc — CPA 3.8, IV 9.0, CV 9.2, 8 năm, 25 proj] Model {m_top}, KPI = {kpi_top:.4f}")
+
+    # Test case 4: Ứng viên yếu
+    weak_onb = UserOnboardingInput(
+        cpa=2.2,
+        interview_score=3.5,
+        cv_score=3.0,
+        years_experience=0.0,
+        num_projects=0.0,
+    )
+    kpi_weak, m_weak = predict_kpi_full(
+        is_internal_employee=False,
+        onboarding=weak_onb,
+    )
+    print(f"[Yếu — CPA 2.2, IV 3.5, CV 3.0, 0 năm, 0 proj] Model {m_weak}, KPI = {kpi_weak:.4f}")
+
+    # Test case 5: Nội bộ
     internal_stats = UserInternalInput(
         total_projects=10,
         total_tasks=160,
@@ -100,14 +131,10 @@ def main() -> None:
         remaining_high_priority_tasks=20,
         elapsed_time_ratio=0.85,
         task_completion_ratio=0.45,
-        overdue_tasks_count=15
+        overdue_tasks_count=15,
+        avg_member_kpi=0.82,
     )
-    # Giả sử dự án có 2 thành viên
-    demo_members = [
-        UserInternalInput(total_projects=5, total_tasks=80, hard_tasks=20, years_at_company=1.5),
-        UserInternalInput(total_projects=2, total_tasks=30, hard_tasks=5, years_at_company=0.5)
-    ]
-    
+
     risk_level, top_reasons, model_metrics = predict_project_delay(demo_project)
     print(f"[Dự án Demo] Mức độ rủi ro trễ hạn: {risk_level}")
     print(f"[Độ chính xác mô hình] Accuracy: {model_metrics['accuracy']*100:.2f}%")

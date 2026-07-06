@@ -140,7 +140,7 @@ export const createProjectService = (workspaceId, projectData, createdBy) => new
                         {
                             model: db.Users,
                             as: 'user',
-                            attributes: ['id', 'username', 'email', 'avatarUrl']
+                            attributes: ['id', 'username', 'email', 'avatarUrl', 'role', 'kpiScore']
                         }
                     ]
                 },
@@ -177,7 +177,7 @@ export const getProjectTasksService = async (projectId, userId) => {
                 {
                     model: db.Users,
                     as: 'leader',   
-                    attributes: ['id', 'username', 'email', 'avatarUrl']
+                    attributes: ['id', 'username', 'email', 'avatarUrl', 'role', 'kpiScore']
                 },
                 {
                     model: db.Project_Member,
@@ -187,7 +187,7 @@ export const getProjectTasksService = async (projectId, userId) => {
                             model: db.Users,
                             as: 'user',
                             // Bao gồm luôn role hệ thống của user để FE hiển thị đúng Admin/Leader/Member
-                            attributes: ['id', 'username', 'email', 'avatarUrl', 'role']
+                            attributes: ['id', 'username', 'email', 'avatarUrl', 'role', 'kpiScore']
                         }
                     ]
                 },

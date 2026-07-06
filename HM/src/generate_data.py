@@ -1,6 +1,7 @@
 """
 Sinh dữ liệu synthetic — 2 tập:
 - data_A.csv: Model A (onboarding) — cpa, interview_score, cv_score, num_projects, years_experience, KPI [0,1]
+  • Trọng số thiên về năng lực (CPA, interview, CV) để sinh viên giỏi vẫn có KPI khá
   • years_experience=0 và num_projects=0 → KPI thấp hơn tương đối so với có ≥1 năm KN.
 - data_B.csv: Model B (nội bộ) — total_projects, total_tasks, hard_tasks, years_at_company, KPI [0,1]
 """
@@ -74,16 +75,18 @@ def _generate_onboarding_bulk(n: int) -> pd.DataFrame:
     proj_n = _b_proj_norm(num_projects.astype(float))
     senior = np.clip(years_experience / 22.0, 0.0, 1.0)
 
+    # Trọng số thiên về năng lực học vấn (CPA, interview, CV = 75%)
+    # để sinh viên giỏi nhưng chưa có KN vẫn có KPI hợp lý (~0.35-0.45)
     kpi_core = (
-        0.22 * cpa_n
-        + 0.20 * int_n
-        + 0.18 * cv_n
-        + 0.22 * proj_n
-        + 0.18 * senior
+        0.28 * cpa_n
+        + 0.25 * int_n
+        + 0.22 * cv_n
+        + 0.15 * proj_n
+        + 0.10 * senior
     )
     cold = (years_experience < 1.0) & (num_projects == 0)
-    kpi_core = np.where(cold, kpi_core - 0.18, kpi_core)
-    kpi = np.round(_clip01(kpi_core + RNG.normal(0, 0.06, n)), 4)
+    kpi_core = np.where(cold, kpi_core - 0.08, kpi_core)
+    kpi = np.round(_clip01(kpi_core + RNG.normal(0, 0.05, n)), 4)
 
     return pd.DataFrame(
         {
@@ -114,9 +117,9 @@ def _generate_onboarding_anchors(count: int) -> pd.DataFrame:
         cpa_n = (cpa - 2.0) / 2.0
         proj_n = float(_b_proj_norm(np.array([npj]))[0])
         senior = np.clip(years / 22.0, 0.0, 1.0)
-        kpi_core = 0.22 * cpa_n + 0.2 * (iv / 10) + 0.18 * (cv / 10) + 0.22 * proj_n + 0.18 * senior
+        kpi_core = 0.28 * cpa_n + 0.25 * (iv / 10) + 0.22 * (cv / 10) + 0.15 * proj_n + 0.10 * senior
         if years < 1.0 and npj == 0:
-            kpi_core -= 0.18
+            kpi_core -= 0.08
         kpi = float(np.round(_clip01(kpi_core), 4))
         rows.append(
             {

@@ -5,6 +5,8 @@ import { Checkbox } from "../ui/checkbox";
 import { Button } from "../ui/button";
 import { useUpdateTaskAssigneesMutation } from "@/hooks/use-task";
 import { toast } from "sonner";
+import { Input } from "../ui/input";
+import { Search } from "lucide-react";
 
 export const TaskAssignessSelector = ({
     task,
@@ -32,6 +34,7 @@ export const TaskAssignessSelector = ({
     const [selectedIds, setSelectedIds] = useState<string[]>(getAssigneeIds());
     const [dropDownOpen, setDropDownOpen] = useState(false);
     const [hasUserInteracted, setHasUserInteracted] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
     const {mutate , isPending } = useUpdateTaskAssigneesMutation();
 
     // Update selectedIds when assignees prop changes, but only if user hasn't interacted yet
@@ -112,6 +115,15 @@ export const TaskAssignessSelector = ({
     const assigneeUsers = getAssigneeUsers();
     const displayUsers = assigneeUsers;
 
+    const filteredMembers = projectMembers?.filter((m) => {
+        const user = typeof m.user === 'string' ? null : m.user;
+        if (!user) return false;
+        return (
+            user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            user.email?.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+    }) || [];
+
     return (
         <div className="mb-6">
             <h3 className="text-sm font-medium text-muted-foreground mb-2">Người được giao</h3>
@@ -158,36 +170,58 @@ export const TaskAssignessSelector = ({
                                     onClick={handleUnSelectAll}
                                 >Bỏ chọn tất cả</button>
                             </div>
+                            <div className="p-2 border-b relative flex items-center">
+                                <Search className="absolute left-4 size-3.5 text-muted-foreground" />
+                                <Input
+                                    placeholder="Tìm kiếm thành viên..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="h-8 text-xs pl-8 pr-3 w-full"
+                                />
+                            </div>
                             {
-                                projectMembers?.map((m) => {
-                                    const userId = typeof m.user === 'string' ? m.user : m.user.id;
-                                    const user = typeof m.user === 'string' ? null : m.user;
-                                    return (
-                                        <label
-                                            key={userId}
-                                            className="flex items-center px-3 py-2 cursor-pointer hover:bg-gray-50"
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                handleSelect(userId);
-                                            }}
-                                        >
-                                            <Checkbox
-                                                checked={selectedIds.includes(userId)}
-                                                onCheckedChange={() => handleSelect(userId)}
-                                                className="mr-2"
-                                            />
-                                            {user && (
-                                                <div className="flex items-center gap-2">
-                                                    <Avatar className="size-6">
-                                                        <AvatarImage src={user.avatarUrl || undefined} />
-                                                        <AvatarFallback>{user.username.charAt(0).toUpperCase()}</AvatarFallback>
-                                                    </Avatar>
-                                                    <span className="text-sm">{user.username}</span>
+                                filteredMembers.length === 0 ? (
+                                    <div className="text-xs text-muted-foreground text-center py-4">
+                                        Không tìm thấy thành viên
+                                    </div>
+                                ) : (
+                                    filteredMembers.map((m) => {
+                                        const userId = typeof m.user === 'string' ? m.user : m.user.id;
+                                        const user = typeof m.user === 'string' ? null : m.user;
+                                        return (
+                                            <label
+                                                key={userId}
+                                                className="flex items-center justify-between px-3 py-2 cursor-pointer hover:bg-gray-50 w-full"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    handleSelect(userId);
+                                                }}
+                                            >
+                                                <div className="flex items-center gap-2 flex-1 min-w-0">
+                                                    <Checkbox
+                                                        checked={selectedIds.includes(userId)}
+                                                        onCheckedChange={() => handleSelect(userId)}
+                                                        className="mr-1"
+                                                    />
+                                                    {user && (
+                                                        <div className="flex items-center gap-2 min-w-0 truncate">
+                                                            <Avatar className="size-6 shrink-0">
+                                                                <AvatarImage src={user.avatarUrl || undefined} />
+                                                                <AvatarFallback>{user.username.charAt(0).toUpperCase()}</AvatarFallback>
+                                                            </Avatar>
+                                                            <span className="text-sm truncate">{user.username}</span>
+                                                        </div>
+                                                    )}
                                                 </div>
-                                            )}
-                                        </label>
-                                    )
-                                })
+                                                {user && user.kpiScore != null && (
+                                                    <span className="text-[10px] md:text-[11px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-600 font-medium whitespace-nowrap shrink-0">
+                                                        KPI: {Number(user.kpiScore).toFixed(3)}
+                                                    </span>
+                                                )}
+                                            </label>
+                                        )
+                                    })
+                                )
                             }
                             <div className="flex justify-end gap-2 px-2 py-1">
                                 <Button
