@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchData, postData, updateData, deleteData } from "@/lib/fetch-utlis";
 import type { Conversation, Message, User } from "@/type";
@@ -182,8 +182,10 @@ export const useSendMessageMutation = () => {
 
 export const useTypingState = (conversationId?: string | null) => {
   const [typingUserIds, setTypingUserIds] = useState<string[]>([]);
+  const socket = getChatSocket();
+
   useEffect(() => {
-    const socket = getChatSocket();
+    if (!socket) return;
     const onTyping = (payload: { conversationId: string; userId: string; isTyping: boolean }) => {
       if (!conversationId || payload.conversationId !== conversationId) return;
       setTypingUserIds((prev) => {
@@ -195,15 +197,17 @@ export const useTypingState = (conversationId?: string | null) => {
     return () => {
       socket.off("typing:update", onTyping);
     };
-  }, [conversationId]);
+  }, [conversationId, socket]);
   return typingUserIds;
 };
 
 export const useOnlineUsers = () => {
   const [onlineUserIds, setOnlineUserIds] = useState<string[]>([]);
   const [lastSeenAtByUserId, setLastSeenAtByUserId] = useState<Record<string, string>>({});
+  const socket = getChatSocket();
+
   useEffect(() => {
-    const socket = getChatSocket();
+    if (!socket) return;
     const onPresence = (payload: { onlineUserIds: string[]; lastSeenAtByUserId?: Record<string, string> }) => {
       setOnlineUserIds((payload.onlineUserIds || []).map((id) => String(id)));
       const normalized: Record<string, string> = {};
@@ -217,20 +221,21 @@ export const useOnlineUsers = () => {
     return () => {
       socket.off("presence:update", onPresence);
     };
-  }, []);
+  }, [socket]);
   return { onlineUserIds, lastSeenAtByUserId };
 };
 
 export const useChatRealtime = (conversationId?: string | null) => {
   const queryClient = useQueryClient();
-  const socket = useMemo(() => getChatSocket(), []);
+  const socket = getChatSocket();
 
   useEffect(() => {
-    if (!conversationId) return;
+    if (!conversationId || !socket) return;
     socket.emit("conversation:join", { conversationId });
   }, [conversationId, socket]);
 
   useEffect(() => {
+    if (!socket) return;
     const onMessage = (payload: { conversationId: string; message: Message }) => {
       queryClient.setQueryData<Message[]>(["chat-messages", payload.conversationId], (old) => {
         const prev = old || [];

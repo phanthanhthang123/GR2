@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Header } from "@/components/layout/header";
 import { useAuth } from "@/provider/auth-context";
 import { Loader } from "@/components/loader";
-import { Outlet, useNavigate, useLocation, useLoaderData, useRevalidator } from "react-router";
+import { Outlet, useNavigate, useLocation, useLoaderData, useRevalidator, Navigate } from "react-router";
 import type { Workspace } from "@/type";
 import { SidebarComponent } from "@/components/layout/sidebar-component";
 import { CreateWorkspace } from "@/components/workspace/create-workspace";
@@ -116,12 +116,12 @@ const DashBoardLayout = () => {
     return <Loader/>
   }
   if(!isAuthenticated) {
-    return navigate("/sign-in");
+    return <Navigate to="/sign-in" replace />;
   }
 
   // Bắt buộc đổi mật khẩu lần đầu nếu server đánh dấu mustChangePassword = true
   if (user?.mustChangePassword && location.pathname !== "/first-change-password") {
-    return navigate("/first-change-password");
+    return <Navigate to="/first-change-password" replace />;
   }
 
   const handleWorkspaceSelected = (workspace: Workspace) => {

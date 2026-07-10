@@ -66,44 +66,21 @@ def _load_bundle(model_key: str) -> dict[str, Any]:
     return joblib.load(p)
 
 
-def _predict_kpi_ensemble(bundle: dict, X: np.ndarray) -> float:
+def _predict_kpi_probability(bundle: dict, X: np.ndarray) -> float:
     """
-    Multi-threshold prediction:
-    E[KPI] = ∫₀¹ P(KPI ≥ t) dt ≈ step × (1 + Σ P(KPI ≥ tₖ))
-
-    Với 9 ngưỡng [0.1..0.9], step = 0.1:
-    KPI ≈ 0.1 × (1 + P(≥0.1) + P(≥0.2) + ... + P(≥0.9))
-    - P(KPI ≥ 0) = 1 luôn luôn → cộng sẵn 1
+    Dự đoán KPI bằng xác suất của mô hình Logistic Regression đơn ngưỡng.
+    Trả về P(KPI >= 0.5 | X) trực tiếp làm điểm KPI thô.
     """
     scaler = bundle["scaler"]
-    classifiers = bundle["classifiers"]
-    thresholds = bundle["thresholds"]
+    clf = bundle["classifier"]
 
     X_scaled = scaler.transform(X)
 
-    # Thu thập P(KPI >= t_k) từ mỗi classifier
-    active_thresholds = []
-    probas = []
-    for clf, t in zip(classifiers, thresholds):
-        if clf is None:
-            continue
-        p = clf.predict_proba(X_scaled)
-        # predict_proba trả về [P(class=0), P(class=1)]
-        # P(class=1) = P(KPI >= threshold)
-        prob_positive = float(p[0, 1])
-        active_thresholds.append(t)
-        probas.append(prob_positive)
+    # predict_proba trả về [P(class=0), P(class=1)]
+    # P(class=1) là xác suất KPI >= 0.5
+    prob_positive = float(clf.predict_proba(X_scaled)[0, 1])
 
-    if not probas:
-        return 0.5  # fallback
-
-    # Công thức ordinal: step × (1 + Σ probas)
-    # step = 1 / (n_thresholds + 1) cho grid đều
-    n = len(thresholds)
-    step = 1.0 / (n + 1)  # 9 ngưỡng → step = 0.1
-    kpi = step * (1.0 + sum(probas))
-
-    return float(np.clip(kpi, 0.0, 1.0))
+    return float(np.clip(prob_positive, 0.0, 1.0))
 
 
 def scale_kpi_to_business_range(raw_kpi: float, model_key: str) -> float:
@@ -134,7 +111,7 @@ def predict_kpi_onboarding(user: UserOnboardingInput) -> tuple[float, str]:
         ],
         dtype=float,
     )
-    raw = _predict_kpi_ensemble(bundle, vec)
+    raw = _predict_kpi_probability(bundle, vec)
     score = scale_kpi_to_business_range(raw, "A")
     return score, "A"
 
@@ -152,9 +129,10 @@ def predict_kpi_internal(user: UserInternalInput) -> tuple[float, str]:
         ],
         dtype=float,
     )
-    raw = _predict_kpi_ensemble(bundle, vec)
+    raw = _predict_kpi_probability(bundle, vec)
     score = scale_kpi_to_business_range(raw, "B")
     return score, "B"
+
 
 
 def predict_kpi_full(

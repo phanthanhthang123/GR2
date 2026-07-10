@@ -33,17 +33,11 @@ def evaluate_and_plot():
         p = model_path(model_key)
         bundle = joblib.load(p)
         scaler = bundle["scaler"]
-        classifiers = bundle["classifiers"]
-        thresholds = bundle["thresholds"]
+        clf = bundle["classifier"]
         X_scaled = scaler.transform(X_test)
-        n = len(thresholds)
-        step = 1.0 / (n + 1)
-        
-        results = np.ones(X_scaled.shape[0]) * step
-        for clf in classifiers:
-            if clf is not None:
-                results += step * clf.predict_proba(X_scaled)[:, 1]
-        return np.clip(results, 0.0, 1.0)
+        probas = clf.predict_proba(X_scaled)[:, 1]
+        return np.clip(probas, 0.0, 1.0)
+
         
     y_pred_a = get_predictions("A", X_test_a)
     y_pred_b = get_predictions("B", X_test_b)
@@ -76,15 +70,21 @@ def evaluate_and_plot():
     axes[0].set_title('Chỉ số đánh giá mô hình KPI User (Hồi quy)', fontsize=12, fontweight='bold', pad=15)
     axes[0].set_xticks(x)
     axes[0].set_xticklabels(['MAE (Sai số tuyệt đối)', 'RMSE (Sai số bình phương)', 'R² (Hệ số xác định)'], fontsize=10)
-    axes[0].set_ylim(0, 1.1)
+    min_y = min(0.0, r2_a, r2_b) - 0.2
+    axes[0].set_ylim(min_y, 1.1)
     axes[0].grid(axis='y', linestyle='--', alpha=0.7)
     axes[0].legend(loc='upper right')
     
     # Add values on top of bars
     for i, val in enumerate([mae_a, rmse_a, r2_a]):
-        axes[0].text(i - width/2, val + 0.02, f'{val:.4f}', ha='center', va='bottom', fontsize=9, fontweight='bold')
+        va = 'bottom' if val >= 0 else 'top'
+        y_pos = val + 0.02 if val >= 0 else val - 0.05
+        axes[0].text(i - width/2, y_pos, f'{val:.4f}', ha='center', va=va, fontsize=9, fontweight='bold')
     for i, val in enumerate([mae_b, rmse_b, r2_b]):
-        axes[0].text(i + width/2, val + 0.02, f'{val:.4f}', ha='center', va='bottom', fontsize=9, fontweight='bold')
+        va = 'bottom' if val >= 0 else 'top'
+        y_pos = val + 0.02 if val >= 0 else val - 0.05
+        axes[0].text(i + width/2, y_pos, f'{val:.4f}', ha='center', va=va, fontsize=9, fontweight='bold')
+
         
     # Subplot 2: Classification Metrics for Project Delay (Random Forest)
     classes = ['Low', 'Medium', 'High']

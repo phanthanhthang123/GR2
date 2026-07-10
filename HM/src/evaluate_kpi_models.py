@@ -15,27 +15,18 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from src.train_common import train_multi_threshold_lr
-from src.utils import DATA_DIR, KPI_THRESHOLDS
+from src.train_common import train_single_threshold_lr
+from src.utils import DATA_DIR
 
 
 def _predict_kpi_from_bundle(bundle, X):
-    """Predict KPI cho nhiều samples cùng lúc."""
+    """Predict KPI cho nhiều samples cùng lúc dùng xác suất Logistic Regression đơn ngưỡng."""
     scaler = bundle["scaler"]
-    classifiers = bundle["classifiers"]
-    thresholds = bundle["thresholds"]
+    clf = bundle["classifier"]
     X_scaled = scaler.transform(X)
-    n = len(thresholds)
-    step = 1.0 / (n + 1)
-
-    results = np.ones(X_scaled.shape[0]) * step  # base = step × P(KPI>=0)=1
-    for clf in classifiers:
-        if clf is None:
-            continue
-        probas = clf.predict_proba(X_scaled)[:, 1]
-        results += step * probas
-
-    return np.clip(results, 0.0, 1.0)
+    # Lấy xác suất của lớp positive (KPI >= 0.5) làm điểm dự báo KPI thô
+    probas = clf.predict_proba(X_scaled)[:, 1]
+    return np.clip(probas, 0.0, 1.0)
 
 
 def evaluate_model(csv_path, feature_columns, name):
@@ -55,11 +46,12 @@ def evaluate_model(csv_path, feature_columns, name):
     tmp_path = DATA_DIR / f"_eval_tmp_{name}.csv"
     train_df.to_csv(tmp_path, index=False)
 
-    bundle = train_multi_threshold_lr(tmp_path, feature_columns, f"_eval_{name}")
+    bundle = train_single_threshold_lr(tmp_path, feature_columns, f"_eval_{name}")
     tmp_path.unlink(missing_ok=True)  # xóa file tạm
 
     # 3. Predict trên tập test
     y_pred = _predict_kpi_from_bundle(bundle, X_test)
+
 
     # 4. Metrics hồi quy
     mae = mean_absolute_error(y_test, y_pred)

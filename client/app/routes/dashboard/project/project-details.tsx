@@ -475,52 +475,67 @@ const ProjectDetails = () => {
                             </div>
                         )}
 
-                        {/* GitHub Repository */}
-                        <div className="rounded-lg border bg-background/60 p-3">
-                            <div className="flex items-center gap-2 text-sm font-medium">
-                                <Github className="size-4 text-muted-foreground" />
-                                GitHub Repository
-                            </div>
-                            <div className="mt-2 flex flex-col md:flex-row gap-2">
-                                <Input
-                                    value={(project as any)?.githubRepoUrl || ""}
-                                    readOnly
-                                    placeholder="Chưa có URL repository GitHub"
-                                />
-                                <div className="flex gap-2">
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        onClick={() => {
-                                            const url = ((project as any)?.githubRepoUrl || "").toString().trim();
-                                            if (!url) return;
-                                            window.open(url, "_blank", "noopener,noreferrer");
-                                        }}
-                                        disabled={!((project as any)?.githubRepoUrl || "").toString().trim()}
-                                    >
-                                        <ExternalLink className="mr-2 size-4" />
-                                        Mở GitHub
-                                    </Button>
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        onClick={async () => {
-                                            const url = ((project as any)?.githubRepoUrl || "").toString().trim();
-                                            if (!url) return;
-                                            try {
-                                                await navigator.clipboard.writeText(url);
-                                                toast.success("Đã copy link GitHub repository");
-                                            } catch {
-                                                toast.error("Không thể copy link GitHub repository");
-                                            }
-                                        }}
-                                        disabled={!((project as any)?.githubRepoUrl || "").toString().trim()}
-                                    >
-                                        <Copy className="mr-2 size-4" />
-                                        Copy
-                                    </Button>
+                        {/* GitHub Repository + Progress (same row for Member) */}
+                        <div className={cn("gap-3", user?.role === 'Member' ? "flex flex-col md:flex-row md:items-stretch" : "")}>
+                            <div className={cn("rounded-lg border bg-background/60 p-3", user?.role === 'Member' ? "flex-1" : "")}>
+                                <div className="flex items-center gap-2 text-sm font-medium">
+                                    <Github className="size-4 text-muted-foreground" />
+                                    GitHub Repository
+                                </div>
+                                <div className="mt-2 flex flex-col md:flex-row gap-2">
+                                    <Input
+                                        value={(project as any)?.githubRepoUrl || ""}
+                                        readOnly
+                                        placeholder="Chưa có URL repository GitHub"
+                                    />
+                                    <div className="flex gap-2">
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() => {
+                                                const url = ((project as any)?.githubRepoUrl || "").toString().trim();
+                                                if (!url) return;
+                                                window.open(url, "_blank", "noopener,noreferrer");
+                                            }}
+                                            disabled={!((project as any)?.githubRepoUrl || "").toString().trim()}
+                                        >
+                                            <ExternalLink className="mr-2 size-4" />
+                                            Mở GitHub
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={async () => {
+                                                const url = ((project as any)?.githubRepoUrl || "").toString().trim();
+                                                if (!url) return;
+                                                try {
+                                                    await navigator.clipboard.writeText(url);
+                                                    toast.success("Đã copy link GitHub repository");
+                                                } catch {
+                                                    toast.error("Không thể copy link GitHub repository");
+                                                }
+                                            }}
+                                            disabled={!((project as any)?.githubRepoUrl || "").toString().trim()}
+                                        >
+                                            <Copy className="mr-2 size-4" />
+                                            Copy
+                                        </Button>
+                                    </div>
                                 </div>
                             </div>
+
+                            {/* Progress Section - inline for Member role */}
+                            {user?.role === 'Member' && (
+                                <Card className="p-4 md:min-w-[280px] flex items-center">
+                                    <div className='space-y-2 w-full'>
+                                        <div className='flex items-center justify-between'>
+                                            <span className='text-sm font-medium'>Tiến độ dự án</span>
+                                            <span className='text-sm font-bold text-primary'>{projectProgess ? projectProgess : 0}%</span>
+                                        </div>
+                                        <Progress value={projectProgess ? projectProgess : 0} className='h-2.5' />
+                                    </div>
+                                </Card>
+                            )}
                         </div>
 
                         <div className='space-y-2'>
@@ -574,87 +589,90 @@ const ProjectDetails = () => {
                         </div>
                     </div>
 
-                    <div className='flex flex-col gap-4 md:min-w-[280px]'>
-                        {/* Progress Section */}
-                        <Card className="p-4">
-                            <div className='space-y-2'>
-                                <div className='flex items-center justify-between'>
-                                    <span className='text-sm font-medium'>Tiến độ dự án</span>
-                                    <span className='text-sm font-bold text-primary'>{projectProgess ? projectProgess : 0}%</span>
-                                </div>
-                                <Progress value={projectProgess ? projectProgess : 0} className='h-2.5' />
-                            </div>
-                        </Card>
-
-                        {/* Stored AI Prediction Card */}
-                        {(project as any)?.prediction && (
-                            <Card className={cn(
-                                "p-4 border-l-4",
-                                (project as any).prediction.delay_risk_level === 'High' ? "border-l-red-500 bg-red-50/30 dark:bg-red-950/10" :
-                                (project as any).prediction.delay_risk_level === 'Medium' ? "border-l-amber-500 bg-amber-50/30 dark:bg-amber-950/10" :
-                                "border-l-green-500 bg-green-50/30 dark:bg-green-950/10"
-                            )}>
-                                <div className="space-y-2">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Phân tích rủi ro gần nhất</span>
-                                        <Badge variant="outline" className={cn(
-                                            "text-[10px] py-0 px-1.5 font-bold",
-                                            (project as any).prediction.delay_risk_level === 'High' ? "bg-red-100 text-red-800 border-red-200" :
-                                            (project as any).prediction.delay_risk_level === 'Medium' ? "bg-amber-100 text-amber-800 border-amber-200" :
-                                            "bg-green-100 text-green-800 border-green-200"
-                                        )}>
-                                            {(project as any).prediction.delay_risk_level === 'High' ? 'Rủi ro Cao' :
-                                             (project as any).prediction.delay_risk_level === 'Medium' ? 'Trung bình' : 'Rủi ro Thấp'}
-                                        </Badge>
+                    {/* Right sidebar - only show for non-Member roles */}
+                    {user?.role !== 'Member' && (
+                        <div className='flex flex-col gap-4 md:min-w-[280px]'>
+                            {/* Progress Section */}
+                            <Card className="p-4">
+                                <div className='space-y-2'>
+                                    <div className='flex items-center justify-between'>
+                                        <span className='text-sm font-medium'>Tiến độ dự án</span>
+                                        <span className='text-sm font-bold text-primary'>{projectProgess ? projectProgess : 0}%</span>
                                     </div>
-                                    <div className="text-xs space-y-1">
-                                        {(project as any).prediction.estimated_completion_date && (
-                                            <p className="text-muted-foreground">
-                                                Hoàn thành dự kiến: <span className="font-medium text-foreground">{format(new Date((project as any).prediction.estimated_completion_date), "MMM d, yyyy")}</span>
-                                            </p>
-                                        )}
-                                        {(project as any).prediction.delay_reason && (project as any).prediction.delay_reason !== 'N/A' && (
-                                            <p className="text-[11px] italic text-muted-foreground line-clamp-2" title={(project as any).prediction.delay_reason}>
-                                                Nguyên nhân: {(project as any).prediction.delay_reason}
-                                            </p>
-                                        )}
-                                    </div>
+                                    <Progress value={projectProgess ? projectProgess : 0} className='h-2.5' />
                                 </div>
                             </Card>
-                        )}
 
-                        {/* Action Buttons */}
-                        <div className='flex flex-col gap-2'>
-                            {isCurrentUserLeader && (
-                                <Button
-                                    variant="outline"
-                                    onClick={() => setIsAddMemberDialogOpen(true)}
-                                    className="w-full"
-                                >
-                                    <UserPlus className="mr-2 size-4" />
-                                    Thêm Thành Viên
-                                </Button>
+                            {/* Stored AI Prediction Card */}
+                            {(project as any)?.prediction && (
+                                <Card className={cn(
+                                    "p-4 border-l-4",
+                                    (project as any).prediction.delay_risk_level === 'High' ? "border-l-red-500 bg-red-50/30 dark:bg-red-950/10" :
+                                    (project as any).prediction.delay_risk_level === 'Medium' ? "border-l-amber-500 bg-amber-50/30 dark:bg-amber-950/10" :
+                                    "border-l-green-500 bg-green-50/30 dark:bg-green-950/10"
+                                )}>
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Phân tích rủi ro gần nhất</span>
+                                            <Badge variant="outline" className={cn(
+                                                "text-[10px] py-0 px-1.5 font-bold",
+                                                (project as any).prediction.delay_risk_level === 'High' ? "bg-red-100 text-red-800 border-red-200" :
+                                                (project as any).prediction.delay_risk_level === 'Medium' ? "bg-amber-100 text-amber-800 border-amber-200" :
+                                                "bg-green-100 text-green-800 border-green-200"
+                                            )}>
+                                                {(project as any).prediction.delay_risk_level === 'High' ? 'Rủi ro Cao' :
+                                                 (project as any).prediction.delay_risk_level === 'Medium' ? 'Trung bình' : 'Rủi ro Thấp'}
+                                            </Badge>
+                                        </div>
+                                        <div className="text-xs space-y-1">
+                                            {(project as any).prediction.estimated_completion_date && (
+                                                <p className="text-muted-foreground">
+                                                    Hoàn thành dự kiến: <span className="font-medium text-foreground">{format(new Date((project as any).prediction.estimated_completion_date), "MMM d, yyyy")}</span>
+                                                </p>
+                                            )}
+                                            {(project as any).prediction.delay_reason && (project as any).prediction.delay_reason !== 'N/A' && (
+                                                <p className="text-[11px] italic text-muted-foreground line-clamp-2" title={(project as any).prediction.delay_reason}>
+                                                    Nguyên nhân: {(project as any).prediction.delay_reason}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </Card>
                             )}
-                            <Button onClick={() => setIsCreateTask(true)} className="w-full">
-                                <CheckSquare className="mr-2 size-4" />
-                                Thêm Task
-                            </Button>
-                            {isCurrentUserLeader && (
-                                <Button
-                                    onClick={handlePredictDelay}
-                                    disabled={isPredictingLocal}
-                                    className="w-full bg-gradient-to-r from-amber-500 via-orange-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white hover:text-white border-none shadow-md shadow-orange-500/30 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg font-semibold"
-                                >
-                                    {isPredictingLocal ? (
-                                        <Loader2 className="mr-2 size-4 animate-spin text-white" />
-                                    ) : (
-                                        <BrainCircuit className="mr-2 size-4 text-white" />
-                                    )}
-                                    {isPredictingLocal ? 'Đang phân tích...' : 'Đánh giá rủi ro (AI)'}
+
+                            {/* Action Buttons */}
+                            <div className='flex flex-col gap-2'>
+                                {isCurrentUserLeader && (
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => setIsAddMemberDialogOpen(true)}
+                                        className="w-full"
+                                    >
+                                        <UserPlus className="mr-2 size-4" />
+                                        Thêm Thành Viên
+                                    </Button>
+                                )}
+                                <Button onClick={() => setIsCreateTask(true)} className="w-full">
+                                    <CheckSquare className="mr-2 size-4" />
+                                    Thêm Task
                                 </Button>
-                            )}
+                                {isCurrentUserLeader && (
+                                    <Button
+                                        onClick={handlePredictDelay}
+                                        disabled={isPredictingLocal}
+                                        className="w-full bg-gradient-to-r from-amber-500 via-orange-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white hover:text-white border-none shadow-md shadow-orange-500/30 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg font-semibold"
+                                    >
+                                        {isPredictingLocal ? (
+                                            <Loader2 className="mr-2 size-4 animate-spin text-white" />
+                                        ) : (
+                                            <BrainCircuit className="mr-2 size-4 text-white" />
+                                        )}
+                                        {isPredictingLocal ? 'Đang phân tích...' : 'Đánh giá rủi ro (AI)'}
+                                    </Button>
+                                )}
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
 

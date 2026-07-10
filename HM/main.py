@@ -1,5 +1,5 @@
 """
-HM — Hệ thống KPI user (2 model Multi-threshold Logistic Regression: A onboarding, B nội bộ).
+HM — Hệ thống KPI user (2 model Logistic Regression: A onboarding, B nội bộ).
 
 Chạy từ thư mục HM:
     pip install -r requirements.txt
@@ -39,11 +39,12 @@ def main() -> None:
     generate_project_data(force=False)
 
     print("\n=== Bước 2: Huấn luyện Model ===")
-    print("-> Đang huấn luyện Multi-threshold Logistic Regression (KPI User)...")
+    print("-> Đang huấn luyện Logistic Regression (KPI User)...")
     train_a()
     train_b()
     print("-> Đang huấn luyện Random Forest (Project Delay)...")
     train_rf()
+
 
     print("\n=== Bước 3: Bonus — biểu đồ phân phối KPI ===")
     plot_kpi_distributions()

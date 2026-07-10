@@ -160,7 +160,7 @@ const SettingPage = () => {
                         className="bg-slate-50"
                       />
                       <p className="text-xs text-slate-500">
-                        Email đang dùng để đăng nhập (không chỉnh sửa ở đây).
+                        Email đang dùng để đăng nhập
                       </p>
                     </div>
                     <div className="space-y-2">

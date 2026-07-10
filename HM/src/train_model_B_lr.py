@@ -3,7 +3,7 @@ Huấn luyện Model B (nội bộ): total_projects, total_tasks, hard_tasks, ye
 """
 from pathlib import Path
 
-from src.train_common import train_multi_threshold_lr
+from src.train_common import train_single_threshold_lr
 from src.utils import DATA_DIR, ensure_dirs
 
 FEATURES_B = [
@@ -19,7 +19,8 @@ def train(data_path: Path | None = None) -> None:
     path = data_path or (DATA_DIR / "data_B.csv")
     if not path.exists():
         raise FileNotFoundError(f"Thiếu file dữ liệu: {path}. Chạy generate_data trước.")
-    train_multi_threshold_lr(path, FEATURES_B, "B")
+    train_single_threshold_lr(path, FEATURES_B, "B")
+
 
 
 if __name__ == "__main__":

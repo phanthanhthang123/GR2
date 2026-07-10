@@ -31,3 +31,7 @@ timestamp_utc,user_id,kpi,model_used,event
 2026-07-06T10:10:12.104192+00:00,user_demo_001,0.722227,B,quarterly_update
 2026-07-06T13:46:17.806753+00:00,user_demo_001,0.513537,A,account_created_cold
 2026-07-06T13:46:17.806753+00:00,user_demo_001,0.719523,B,quarterly_update
+2026-07-07T01:30:35.958840+00:00,user_demo_001,0.596602,A,account_created_cold
+2026-07-07T01:30:35.959457+00:00,user_demo_001,0.99994,B,quarterly_update
+2026-07-09T14:11:03.189432+00:00,user_demo_001,0.596602,A,account_created_cold
+2026-07-09T14:11:03.191449+00:00,user_demo_001,0.99994,B,quarterly_update

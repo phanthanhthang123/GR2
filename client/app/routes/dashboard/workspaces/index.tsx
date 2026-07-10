@@ -75,9 +75,11 @@ const Workspaces = () => {
                             Quản lý các không gian làm việc và dự án của bạn
                         </p>
                     </div>
-                    <Button onClick={() => setIsCreatingWorkspace(true)} className="shrink-0">
-                        <PlusCircle className="size-4 mr-2" /> Không Gian Mới
-                    </Button>
+                    {user?.role !== 'Member' && (
+                        <Button onClick={() => setIsCreatingWorkspace(true)} className="shrink-0">
+                            <PlusCircle className="size-4 mr-2" /> Không Gian Mới
+                        </Button>
+                    )}
                 </div>
 
                 {/* Filter and Search Bar */}
@@ -97,9 +99,9 @@ const Workspaces = () => {
                 {!hasWorkspaces ? (
                     <NoDataFound
                         title="Không tìm thấy không gian làm việc"
-                        description="Tạo một không gian làm việc mới để bắt đầu"
-                        buttonText="Tạo Không Gian Làm Việc"
-                        buttonAction={() => setIsCreatingWorkspace(true)}
+                        description={user?.role === 'Member' ? "Bạn chưa được thêm vào không gian làm việc nào" : "Tạo một không gian làm việc mới để bắt đầu"}
+                        buttonText={user?.role !== 'Member' ? "Tạo Không Gian Làm Việc" : undefined}
+                        buttonAction={user?.role !== 'Member' ? () => setIsCreatingWorkspace(true) : undefined}
                     />
                 ) : filteredWorkspaces.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-12 text-center border border-dashed rounded-lg border-border/60">
