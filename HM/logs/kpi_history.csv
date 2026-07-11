@@ -35,3 +35,5 @@ timestamp_utc,user_id,kpi,model_used,event
 2026-07-07T01:30:35.959457+00:00,user_demo_001,0.99994,B,quarterly_update
 2026-07-09T14:11:03.189432+00:00,user_demo_001,0.596602,A,account_created_cold
 2026-07-09T14:11:03.191449+00:00,user_demo_001,0.99994,B,quarterly_update
+2026-07-11T06:19:46.111366+00:00,user_demo_001,0.596602,A,account_created_cold
+2026-07-11T06:19:46.111366+00:00,user_demo_001,1.0,B,quarterly_update

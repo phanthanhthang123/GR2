@@ -3,7 +3,7 @@ import type { Workspace } from "@/type";
 import type { AppNotification } from "@/type";
 import { Button } from "../ui/button";
 import { useLoaderData, useLocation, useNavigate } from "react-router";
-import { Bell, LogOut, PlusCircle, Settings, Menu } from "lucide-react";
+import { Bell, LogOut, PlusCircle, Settings, Menu, ChevronRight } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,6 +23,8 @@ import {
   useMarkNotificationReadMutation,
   useMyNotificationsQuery,
 } from "@/hooks/use-notification";
+import { useGetWorkspaceQueryById } from "@/hooks/use-workspace";
+import { useProjectQueryById } from "@/hooks/use-project";
 
 interface HeaderProps {
   onWorkspaceSelected?: (workspace: Workspace) => void;

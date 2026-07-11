@@ -143,6 +143,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(1024),
       allowNull: true
     },
+    githubUsername: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
     avatarPublicId: {
       type: DataTypes.STRING(512),
       allowNull: true

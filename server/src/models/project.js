@@ -87,6 +87,14 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.TEXT,
       allowNull: true
     },
+    githubRepoOwner: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    githubRepoName: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
     start_date: {
       type: DataTypes.DATE,
       allowNull: false

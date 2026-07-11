@@ -21,7 +21,7 @@ const SignUp = () => {
   type SingUpFormData = z.infer<typeof singUpSchema>;
 
   const form = useForm<SingUpFormData>({
-    resolver: zodResolver(singUpSchema), // use zod schema for validation
+    resolver: zodResolver(singUpSchema) as any, // use zod schema for validation
     defaultValues: {
       email: '',
       password: '',

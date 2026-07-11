@@ -6,14 +6,19 @@ import { NoDataFound } from '@/components/workspace/no-data-found';
 import { StatCard } from '@/components/dashboard/stat-card';
 import { StatisticsCharts } from '@/components/dashboard/statistics-charts';
 import { useAuth } from '@/provider/auth-context';
+import AdminDashboard from './admin-dashboard';
 
 const DashBoard = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   
+  const isAdmin = user?.role === "Admin";
+
   // Get all workspaces this user is member of
-  const { data: workspaces, isLoading: isLoadingWorkspaces } = useGetWorkspaceQuery(user?.id || "");
+  const { data: workspaces, isLoading: isLoadingWorkspaces } = useGetWorkspaceQuery(user?.id || "", {
+    enabled: !isAdmin, // Không cần fetch list-by-user thông thường nếu là Admin ở đây
+  });
 
   const savedWorkspaceId =
     typeof window !== "undefined" ? localStorage.getItem("selectedWorkspaceId") || "" : "";
@@ -31,7 +36,13 @@ const DashBoard = () => {
     workspaceId = userWorkspaceIds[0];
   }
 
-  const { data, isLoading: isLoadingStats } = useGetWorkspaceStatsQuery(workspaceId);
+  const { data, isLoading: isLoadingStats } = useGetWorkspaceStatsQuery(workspaceId, {
+    enabled: !isAdmin && !!workspaceId,
+  });
+
+  if (isAdmin) {
+    return <AdminDashboard />;
+  }
 
   if (isLoadingWorkspaces || (workspaceId && isLoadingStats)) {
     return <Loader />

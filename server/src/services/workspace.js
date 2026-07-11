@@ -1,5 +1,6 @@
 import db from '../models';
 import { v4 } from 'uuid';
+import os from 'os';
 
 export const createWorkspaceService = (name, description, color, owner_id) => new Promise(async (resolve, reject) => {
     const transaction = await db.sequelize.transaction();
@@ -887,6 +888,283 @@ export const getWorkspaceTasksByStatusService = (workspaceId, status) => new Pro
             err: 0,
             msg: 'OK',
             response: tasks
+        });
+    } catch (error) {
+        reject(error);
+    }
+})
+
+// ADMIN GLOBAL STATS — Tổng quan toàn bộ hệ thống
+export const getAdminGlobalStatsService = (io) => new Promise(async (resolve, reject) => {
+    try {
+        // 1. Tổng workspace
+        const allWorkspaces = await db.Workspaces.findAll({
+            include: [
+                {
+                    model: db.Users,
+                    as: 'owner',
+                    attributes: ['id', 'username', 'email', 'avatarUrl']
+                },
+                {
+                    model: db.Workspace_Members,
+                    as: 'members',
+                    attributes: ['user_id']
+                }
+            ],
+            order: [['createdAt', 'DESC']]
+        });
+
+        // 2. Tổng users
+        const allUsers = await db.Users.findAll({
+            attributes: ['id', 'username', 'email', 'role', 'isActive', 'createdAt', 'avatarUrl']
+        });
+
+        // 3. Tổng projects với predictions
+        const allProjects = await db.Project.findAll({
+            include: [
+                {
+                    model: db.Task,
+                    as: 'tasks',
+                    where: { isArchived: false },
+                    required: false,
+                    attributes: ['id', 'status']
+                },
+                {
+                    model: db.Project_Prediction,
+                    as: 'prediction',
+                    required: false,
+                    attributes: ['delay_risk_level', 'estimated_completion_date', 'progress_percentage', 'delay_reason']
+                },
+                {
+                    model: db.Users,
+                    as: 'leader',
+                    attributes: ['id', 'username', 'avatarUrl']
+                },
+                {
+                    model: db.Workspaces,
+                    as: 'workspace',
+                    attributes: ['id', 'name']
+                }
+            ]
+        });
+
+        // 4. Tổng tasks (non-archived)
+        const allTasks = await db.Task.findAll({
+            include: [
+                {
+                    model: db.Project,
+                    as: 'project',
+                    required: true,
+                    attributes: ['id', 'name', 'workspace_id']
+                }
+            ],
+            where: { isArchived: false }
+        });
+
+        // ====== SUMMARY STATS ======
+        const totalWorkspaces = allWorkspaces.length;
+        const totalUsers = allUsers.length;
+        const activeUsers = allUsers.filter(u => u.isActive !== false).length;
+        const lockedUsers = totalUsers - activeUsers;
+        const totalProjects = allProjects.length;
+        const totalTasks = allTasks.length;
+        const totalTaskCompleted = allTasks.filter(t => t.status === 'Done').length;
+        const totalTaskInProgress = allTasks.filter(t => t.status === 'In Progress').length;
+        const totalTaskToDo = allTasks.filter(t => t.status === 'To Do').length;
+        const completionRate = totalTasks > 0 ? Math.round((totalTaskCompleted / totalTasks) * 100) : 0;
+
+        // Project risk counts
+        const highRiskProjectsCount = allProjects.filter(p => p.prediction?.delay_risk_level === 'High').length;
+        const mediumRiskProjectsCount = allProjects.filter(p => p.prediction?.delay_risk_level === 'Medium').length;
+        const lowRiskProjectsCount = allProjects.filter(p => p.prediction?.delay_risk_level === 'Low' || !p.prediction).length;
+
+        // ====== WORKSPACE TABLE DATA ======
+        const workspaceTableData = await Promise.all(allWorkspaces.map(async (ws) => {
+            const wsProjects = allProjects.filter(p => p.workspace_id === ws.id);
+            const wsTasks = wsProjects.reduce((acc, p) => acc.concat(p.tasks || []), []);
+            const wsTasksDone = wsTasks.filter(t => t.status === 'Done').length;
+            
+            const wsHighRisk = wsProjects.filter(p => p.prediction?.delay_risk_level === 'High').length;
+            const wsMediumRisk = wsProjects.filter(p => p.prediction?.delay_risk_level === 'Medium').length;
+            const wsLowRisk = wsProjects.filter(p => !p.prediction || p.prediction?.delay_risk_level === 'Low').length;
+
+            return {
+                id: ws.id,
+                name: ws.name,
+                color: ws.color,
+                status: ws.status,
+                owner: ws.owner ? { id: ws.owner.id, username: ws.owner.username, email: ws.owner.email, avatarUrl: ws.owner.avatarUrl } : null,
+                memberCount: ws.members ? ws.members.length : 0,
+                projectCount: wsProjects.length,
+                taskCount: wsTasks.length,
+                taskCompleted: wsTasksDone,
+                highRiskProjects: wsHighRisk,
+                mediumRiskProjects: wsMediumRisk,
+                lowRiskProjects: wsLowRisk,
+                createdAt: ws.createdAt
+            };
+        }));
+
+        // ====== USER ROLE DISTRIBUTION ======
+        const roleDistribution = [
+            { role: 'Admin', count: allUsers.filter(u => u.role === 'Admin').length },
+            { role: 'Leader', count: allUsers.filter(u => u.role === 'Leader').length },
+            { role: 'Member', count: allUsers.filter(u => u.role === 'Member').length }
+        ];
+
+        // ====== TASK DISTRIBUTION BY WORKSPACE (top 10) ======
+        const taskDistributionByWorkspace = workspaceTableData
+            .sort((a, b) => b.taskCount - a.taskCount)
+            .slice(0, 10)
+            .map(ws => ({
+                name: ws.name,
+                total: ws.taskCount,
+                completed: ws.taskCompleted
+            }));
+
+        // ====== RECENT USERS (last 5) ======
+        const recentUsers = allUsers
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .slice(0, 5)
+            .map(u => ({
+                id: u.id,
+                username: u.username,
+                email: u.email,
+                role: u.role,
+                avatarUrl: u.avatarUrl,
+                createdAt: u.createdAt
+            }));
+
+        // ====== RECENT WORKSPACES (last 5) ======
+        const recentWorkspaces = workspaceTableData.slice(0, 5);
+
+        // ====== DETAILED PROJECTS DATA FOR EXPLORER ======
+        const allProjectsData = allProjects.map(p => ({
+            id: p.id,
+            name: p.name,
+            status: p.status,
+            workspaceId: p.workspace_id,
+            workspaceName: p.workspace?.name || 'Unknown',
+            leaderName: p.leader?.username || 'Unknown',
+            leaderAvatar: p.leader?.avatarUrl,
+            taskCount: p.tasks?.length || 0,
+            taskCompleted: p.tasks?.filter(t => t.status === 'Done').length || 0,
+            riskLevel: p.prediction?.delay_risk_level || 'Low',
+            estimatedCompletion: p.prediction?.estimated_completion_date || p.end_date,
+            delayReason: p.prediction?.delay_reason || ''
+        }));
+
+        // ====== DETAILED USERS DATA ======
+        const allUsersData = allUsers.map(u => ({
+            id: u.id,
+            username: u.username,
+            email: u.email,
+            role: u.role,
+            isActive: u.isActive !== false,
+            createdAt: u.createdAt,
+            avatarUrl: u.avatarUrl
+        }));
+
+        // ====== REAL SERVER HEALTH METRICS ======
+        const totalMem = os.totalmem();
+        const freeMem = os.freemem();
+        const ramUsagePercent = Math.round(((totalMem - freeMem) / totalMem) * 100);
+
+        // CPU load calculation - dynamic/realistic
+        const cpus = os.cpus();
+        let totalIdle = 0, totalTick = 0;
+        cpus.forEach(cpu => {
+            for (const type in cpu.times) {
+                totalTick += cpu.times[type];
+            }
+            totalIdle += cpu.times.idle;
+        });
+        const cpuUsagePercent = Math.round(((totalTick - totalIdle) / totalTick) * 100) || 12;
+
+        let dbStatus = 'Connected';
+        try {
+            await db.sequelize.authenticate();
+        } catch (e) {
+            dbStatus = 'Disconnected';
+        }
+
+        const activeSocketsCount = io ? io.sockets.sockets.size : 0;
+        const nodeUptime = Math.round(process.uptime());
+
+        // ====== SYSTEM AUDIT LOGS (Dynamic feed) ======
+        const userLogs = allUsers.map(u => ({
+            id: `user-${u.id}`,
+            action: "Đăng ký tài khoản",
+            detail: `Thành viên ${u.username} (${u.email}) tham gia hệ thống`,
+            createdAt: u.createdAt,
+            type: "user"
+        }));
+
+        const workspaceLogs = allWorkspaces.map(ws => ({
+            id: `ws-${ws.id}`,
+            action: "Khởi tạo Workspace mới",
+            detail: `Workspace '${ws.name}' đã được tạo`,
+            createdAt: ws.createdAt,
+            type: "workspace"
+        }));
+
+        const projectLogs = allProjects.map(p => ({
+            id: `project-${p.id}`,
+            action: "Khởi tạo Dự án mới",
+            detail: `Dự án '${p.name}' đã được bắt đầu`,
+            createdAt: p.createdAt,
+            type: "workspace"
+        }));
+
+        const predictionLogs = allProjects
+            .filter(p => p.prediction)
+            .map(p => ({
+                id: `predict-${p.id}`,
+                action: "Dự báo trễ hạn (AI)",
+                detail: `AI phân tích dự án '${p.name}': Rủi ro ${p.prediction.delay_risk_level === 'High' ? 'Cao' : p.prediction.delay_risk_level === 'Medium' ? 'Trung bình' : 'Thấp'}`,
+                createdAt: p.prediction.updatedAt || p.updatedAt || p.createdAt,
+                type: "system"
+            }));
+
+        const systemAuditLogs = [...userLogs, ...workspaceLogs, ...projectLogs, ...predictionLogs]
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .slice(0, 10);
+
+        resolve({
+            err: 0,
+            msg: 'OK',
+            response: {
+                stats: {
+                    totalWorkspaces,
+                    totalUsers,
+                    activeUsers,
+                    lockedUsers,
+                    totalProjects,
+                    totalTasks,
+                    totalTaskCompleted,
+                    totalTaskInProgress,
+                    totalTaskToDo,
+                    completionRate,
+                    highRiskProjectsCount,
+                    mediumRiskProjectsCount,
+                    lowRiskProjectsCount
+                },
+                workspaceTableData,
+                roleDistribution,
+                taskDistributionByWorkspace,
+                recentUsers,
+                recentWorkspaces,
+                allProjectsData,
+                allUsersData,
+                systemStatus: {
+                    cpuUsage: cpuUsagePercent,
+                    ramUsage: ramUsagePercent,
+                    dbConnected: dbStatus === 'Connected',
+                    socketConnections: activeSocketsCount,
+                    uptime: nodeUptime
+                },
+                systemAuditLogs
+            }
         });
     } catch (error) {
         reject(error);

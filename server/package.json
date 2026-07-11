@@ -4,6 +4,7 @@
   "description": "Server for MentorHub",
   "main": "server.js",
   "dependencies": {
+    "axios": "^1.18.1",
     "bcrypt": "^6.0.0",
     "cloudinary": "^2.9.0",
     "cookie-parser": "^1.4.7",

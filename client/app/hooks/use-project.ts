@@ -213,3 +213,20 @@ export const useProjectDelayPrediction = () => {
         }
     });
 }
+
+export const useUpdateProjectGithubUrlMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (data: { projectId: string; githubRepoUrl: string }) => {
+            return await updateData(`/project/${data.projectId}/github-url`, { githubRepoUrl: data.githubRepoUrl });
+        },
+        onSuccess: (response: any, variables) => {
+            queryClient.invalidateQueries({ queryKey: ["project", variables.projectId] });
+            toast.success("Cập nhật link GitHub repository thành công");
+        },
+        onError: (error: any) => {
+            const errorMessage = error?.response?.data?.msg || "Không thể cập nhật link GitHub";
+            toast.error(errorMessage);
+        }
+    });
+}

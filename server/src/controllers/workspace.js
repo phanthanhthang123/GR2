@@ -297,3 +297,21 @@ export const getWorkspaceTasksByStatus = async (req, res) => {
         });
     }
 }
+
+// ADMIN GLOBAL STATS
+export const getAdminGlobalStats = async (req, res) => {
+    try {
+        const io = req.app.get('io');
+        const response = await services.getAdminGlobalStatsService(io);
+        if (response.err === 1) {
+            return res.status(400).json(response);
+        }
+        return res.status(200).json(response?.response);
+    } catch (error) {
+        console.error('Error in getAdminGlobalStats:', error);
+        return res.status(500).json({
+            err: -1,
+            msg: 'Internal server error'
+        });
+    }
+}

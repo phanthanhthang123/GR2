@@ -1,0 +1,645 @@
+{
+  "issues": [
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "5452395",
+      "self": "https://redhat.atlassian.net/rest/api/2/issue/5452395",
+      "key": "FAKELEAKS-9",
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 1,
+        "total": 1,
+        "histories": [
+          {
+            "id": "63465723",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=632daf193ac41ebde76a8c26",
+              "accountId": "632daf193ac41ebde76a8c26",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/5136af582913cad45b7b425843599d10?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBP-5.png",
+                "24x24": "https://secure.gravatar.com/avatar/5136af582913cad45b7b425843599d10?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBP-5.png",
+                "16x16": "https://secure.gravatar.com/avatar/5136af582913cad45b7b425843599d10?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBP-5.png",
+                "32x32": "https://secure.gravatar.com/avatar/5136af582913cad45b7b425843599d10?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBP-5.png"
+              },
+              "displayName": "Braxton Plaxco",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2025-01-23T20:02:40.035+0000",
+            "items": [
+              {
+                "field": "Attachment",
+                "fieldtype": "jira",
+                "fieldId": "attachment",
+                "from": null,
+                "fromString": null,
+                "to": "994896",
+                "toString": "file.txt"
+              }
+            ]
+          }
+        ]
+      },
+      "fields": {
+        "summary": "Base64 Encoded Secret",
+        "issuetype": {
+          "self": "https://redhat.atlassian.net/rest/api/2/issuetype/10014",
+          "id": "10014",
+          "description": "A small, distinct piece of work.",
+          "iconUrl": "https://redhat.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+          "name": "Task",
+          "subtask": false,
+          "avatarId": 10318,
+          "hierarchyLevel": 0
+        },
+        "created": "2025-01-23T20:00:51.357+0000",
+        "resolutiondate": null,
+        "duedate": null,
+        "assignee": null,
+        "priority": {
+          "self": "https://redhat.atlassian.net/rest/api/2/priority/10005",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/priorities/trivial.svg",
+          "name": "Undefined",
+          "id": "10005"
+        },
+        "updated": "2025-01-23T20:02:40.032+0000",
+        "status": {
+          "self": "https://redhat.atlassian.net/rest/api/2/status/10142",
+          "description": "Initial creation status. Implies nothing yet and should be very short lived; also can be a Bugzilla status.",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/statuses/generic.png",
+          "name": "New",
+          "id": "10142",
+          "statusCategory": {
+            "self": "https://redhat.atlassian.net/rest/api/2/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        }
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "5452399",
+      "self": "https://redhat.atlassian.net/rest/api/2/issue/5452399",
+      "key": "FAKELEAKS-8",
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 1,
+        "total": 1,
+        "histories": [
+          {
+            "id": "63465733",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=70121%3A315abc21-1206-4ff0-a6ff-259587a40c7d",
+              "accountId": "70121:315abc21-1206-4ff0-a6ff-259587a40c7d",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/20a0314895dce7e4b3ac43fd7ead3240?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJP-2.png",
+                "24x24": "https://secure.gravatar.com/avatar/20a0314895dce7e4b3ac43fd7ead3240?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJP-2.png",
+                "16x16": "https://secure.gravatar.com/avatar/20a0314895dce7e4b3ac43fd7ead3240?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJP-2.png",
+                "32x32": "https://secure.gravatar.com/avatar/20a0314895dce7e4b3ac43fd7ead3240?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJP-2.png"
+              },
+              "displayName": "Joshua Padman",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2024-10-23T19:29:10.021+0000",
+            "items": [
+              {
+                "field": "Attachment",
+                "fieldtype": "jira",
+                "fieldId": "attachment",
+                "from": null,
+                "fromString": null,
+                "to": "994900",
+                "toString": "inline-key"
+              }
+            ]
+          }
+        ]
+      },
+      "fields": {
+        "summary": "Testing attachment",
+        "issuetype": {
+          "self": "https://redhat.atlassian.net/rest/api/2/issuetype/10014",
+          "id": "10014",
+          "description": "A small, distinct piece of work.",
+          "iconUrl": "https://redhat.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+          "name": "Task",
+          "subtask": false,
+          "avatarId": 10318,
+          "hierarchyLevel": 0
+        },
+        "created": "2024-10-23T19:29:01.424+0000",
+        "resolutiondate": null,
+        "duedate": null,
+        "assignee": null,
+        "priority": {
+          "self": "https://redhat.atlassian.net/rest/api/2/priority/10005",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/priorities/trivial.svg",
+          "name": "Undefined",
+          "id": "10005"
+        },
+        "updated": "2024-10-23T19:29:10.020+0000",
+        "status": {
+          "self": "https://redhat.atlassian.net/rest/api/2/status/10142",
+          "description": "Initial creation status. Implies nothing yet and should be very short lived; also can be a Bugzilla status.",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/statuses/generic.png",
+          "name": "New",
+          "id": "10142",
+          "statusCategory": {
+            "self": "https://redhat.atlassian.net/rest/api/2/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        }
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "5452398",
+      "self": "https://redhat.atlassian.net/rest/api/2/issue/5452398",
+      "key": "FAKELEAKS-7",
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 2,
+        "total": 2,
+        "histories": [
+          {
+            "id": "63465731",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=70121%3A315abc21-1206-4ff0-a6ff-259587a40c7d",
+              "accountId": "70121:315abc21-1206-4ff0-a6ff-259587a40c7d",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/20a0314895dce7e4b3ac43fd7ead3240?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJP-2.png",
+                "24x24": "https://secure.gravatar.com/avatar/20a0314895dce7e4b3ac43fd7ead3240?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJP-2.png",
+                "16x16": "https://secure.gravatar.com/avatar/20a0314895dce7e4b3ac43fd7ead3240?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJP-2.png",
+                "32x32": "https://secure.gravatar.com/avatar/20a0314895dce7e4b3ac43fd7ead3240?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJP-2.png"
+              },
+              "displayName": "Joshua Padman",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2024-10-23T08:43:02.950+0000",
+            "items": [
+              {
+                "field": "Attachment",
+                "fieldtype": "jira",
+                "fieldId": "attachment",
+                "from": null,
+                "fromString": null,
+                "to": "994899",
+                "toString": "inline-key"
+              }
+            ]
+          },
+          {
+            "id": "63465732",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=632daf193ac41ebde76a8c26",
+              "accountId": "632daf193ac41ebde76a8c26",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/5136af582913cad45b7b425843599d10?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBP-5.png",
+                "24x24": "https://secure.gravatar.com/avatar/5136af582913cad45b7b425843599d10?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBP-5.png",
+                "16x16": "https://secure.gravatar.com/avatar/5136af582913cad45b7b425843599d10?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBP-5.png",
+                "32x32": "https://secure.gravatar.com/avatar/5136af582913cad45b7b425843599d10?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBP-5.png"
+              },
+              "displayName": "Braxton Plaxco",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2023-07-13T12:38:43.632+0000",
+            "items": [
+              {
+                "field": "description",
+                "fieldtype": "jira",
+                "fieldId": "description",
+                "from": null,
+                "fromString": null,
+                "to": null,
+                "toString": "This is just to test some things related to how history is viewed."
+              }
+            ]
+          }
+        ]
+      },
+      "fields": {
+        "summary": "Testing History",
+        "issuetype": {
+          "self": "https://redhat.atlassian.net/rest/api/2/issuetype/10014",
+          "id": "10014",
+          "description": "A small, distinct piece of work.",
+          "iconUrl": "https://redhat.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+          "name": "Task",
+          "subtask": false,
+          "avatarId": 10318,
+          "hierarchyLevel": 0
+        },
+        "created": "2023-07-13T12:38:17.877+0000",
+        "resolutiondate": null,
+        "duedate": null,
+        "assignee": null,
+        "priority": {
+          "self": "https://redhat.atlassian.net/rest/api/2/priority/10005",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/priorities/trivial.svg",
+          "name": "Undefined",
+          "id": "10005"
+        },
+        "updated": "2024-10-23T08:43:02.949+0000",
+        "status": {
+          "self": "https://redhat.atlassian.net/rest/api/2/status/10142",
+          "description": "Initial creation status. Implies nothing yet and should be very short lived; also can be a Bugzilla status.",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/statuses/generic.png",
+          "name": "New",
+          "id": "10142",
+          "statusCategory": {
+            "self": "https://redhat.atlassian.net/rest/api/2/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        }
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "5452393",
+      "self": "https://redhat.atlassian.net/rest/api/2/issue/5452393",
+      "key": "FAKELEAKS-6",
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 7,
+        "total": 7,
+        "histories": [
+          {
+            "id": "63465738",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=632daf193ac41ebde76a8c26",
+              "accountId": "632daf193ac41ebde76a8c26",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/5136af582913cad45b7b425843599d10?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBP-5.png",
+                "24x24": "https://secure.gravatar.com/avatar/5136af582913cad45b7b425843599d10?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBP-5.png",
+                "16x16": "https://secure.gravatar.com/avatar/5136af582913cad45b7b425843599d10?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBP-5.png",
+                "32x32": "https://secure.gravatar.com/avatar/5136af582913cad45b7b425843599d10?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBP-5.png"
+              },
+              "displayName": "Braxton Plaxco",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2024-02-05T18:39:17.824+0000",
+            "items": [
+              {
+                "field": "timeestimate",
+                "fieldtype": "jira",
+                "fieldId": "timeestimate",
+                "from": null,
+                "fromString": null,
+                "to": "0",
+                "toString": "0"
+              },
+              {
+                "field": "timespent",
+                "fieldtype": "jira",
+                "fieldId": "timespent",
+                "from": null,
+                "fromString": null,
+                "to": "201600",
+                "toString": "201600"
+              },
+              {
+                "field": "WorklogId",
+                "fieldtype": "jira",
+                "from": null,
+                "fromString": null,
+                "to": "614512",
+                "toString": "614512"
+              }
+            ]
+          },
+          {
+            "id": "63465739",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=70121%3A315abc21-1206-4ff0-a6ff-259587a40c7d",
+              "accountId": "70121:315abc21-1206-4ff0-a6ff-259587a40c7d",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/20a0314895dce7e4b3ac43fd7ead3240?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJP-2.png",
+                "24x24": "https://secure.gravatar.com/avatar/20a0314895dce7e4b3ac43fd7ead3240?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJP-2.png",
+                "16x16": "https://secure.gravatar.com/avatar/20a0314895dce7e4b3ac43fd7ead3240?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJP-2.png",
+                "32x32": "https://secure.gravatar.com/avatar/20a0314895dce7e4b3ac43fd7ead3240?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJP-2.png"
+              },
+              "displayName": "Joshua Padman",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2023-06-30T04:02:54.758+0000",
+            "items": [
+              {
+                "field": "Attachment",
+                "fieldtype": "jira",
+                "fieldId": "attachment",
+                "from": null,
+                "fromString": null,
+                "to": "994903",
+                "toString": "secret.txt"
+              }
+            ]
+          },
+          {
+            "id": "67472890",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=632daf193ac41ebde76a8c26",
+              "accountId": "632daf193ac41ebde76a8c26",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/5136af582913cad45b7b425843599d10?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBP-5.png",
+                "24x24": "https://secure.gravatar.com/avatar/5136af582913cad45b7b425843599d10?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBP-5.png",
+                "16x16": "https://secure.gravatar.com/avatar/5136af582913cad45b7b425843599d10?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBP-5.png",
+                "32x32": "https://secure.gravatar.com/avatar/5136af582913cad45b7b425843599d10?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBP-5.png"
+              },
+              "displayName": "Braxton Plaxco",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2023-06-29T12:31:47.089+0000",
+            "items": [
+              {
+                "field": "Attachment",
+                "fieldtype": "jira",
+                "fieldId": "attachment",
+                "from": "",
+                "fromString": "test-remove.txt",
+                "to": null,
+                "toString": null
+              }
+            ]
+          },
+          {
+            "id": "67472891",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=632daf193ac41ebde76a8c26",
+              "accountId": "632daf193ac41ebde76a8c26",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/5136af582913cad45b7b425843599d10?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBP-5.png",
+                "24x24": "https://secure.gravatar.com/avatar/5136af582913cad45b7b425843599d10?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBP-5.png",
+                "16x16": "https://secure.gravatar.com/avatar/5136af582913cad45b7b425843599d10?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBP-5.png",
+                "32x32": "https://secure.gravatar.com/avatar/5136af582913cad45b7b425843599d10?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBP-5.png"
+              },
+              "displayName": "Braxton Plaxco",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2023-06-29T12:31:22.212+0000",
+            "items": [
+              {
+                "field": "Attachment",
+                "fieldtype": "jira",
+                "fieldId": "attachment",
+                "from": null,
+                "fromString": null,
+                "to": "",
+                "toString": "test-remove.txt"
+              }
+            ]
+          },
+          {
+            "id": "67472893",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=632daf193ac41ebde76a8c26",
+              "accountId": "632daf193ac41ebde76a8c26",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/5136af582913cad45b7b425843599d10?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBP-5.png",
+                "24x24": "https://secure.gravatar.com/avatar/5136af582913cad45b7b425843599d10?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBP-5.png",
+                "16x16": "https://secure.gravatar.com/avatar/5136af582913cad45b7b425843599d10?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBP-5.png",
+                "32x32": "https://secure.gravatar.com/avatar/5136af582913cad45b7b425843599d10?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBP-5.png"
+              },
+              "displayName": "Braxton Plaxco",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2023-06-29T12:30:52.147+0000",
+            "items": [
+              {
+                "field": "Attachment",
+                "fieldtype": "jira",
+                "fieldId": "attachment",
+                "from": "",
+                "fromString": "test-remove.txt",
+                "to": null,
+                "toString": null
+              }
+            ]
+          },
+          {
+            "id": "67472895",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=632daf193ac41ebde76a8c26",
+              "accountId": "632daf193ac41ebde76a8c26",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/5136af582913cad45b7b425843599d10?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBP-5.png",
+                "24x24": "https://secure.gravatar.com/avatar/5136af582913cad45b7b425843599d10?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBP-5.png",
+                "16x16": "https://secure.gravatar.com/avatar/5136af582913cad45b7b425843599d10?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBP-5.png",
+                "32x32": "https://secure.gravatar.com/avatar/5136af582913cad45b7b425843599d10?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBP-5.png"
+              },
+              "displayName": "Braxton Plaxco",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2023-06-29T12:30:45.414+0000",
+            "items": [
+              {
+                "field": "Attachment",
+                "fieldtype": "jira",
+                "fieldId": "attachment",
+                "from": null,
+                "fromString": null,
+                "to": "",
+                "toString": "test-remove.txt"
+              }
+            ]
+          },
+          {
+            "id": "63465740",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=70121%3A315abc21-1206-4ff0-a6ff-259587a40c7d",
+              "accountId": "70121:315abc21-1206-4ff0-a6ff-259587a40c7d",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/20a0314895dce7e4b3ac43fd7ead3240?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJP-2.png",
+                "24x24": "https://secure.gravatar.com/avatar/20a0314895dce7e4b3ac43fd7ead3240?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJP-2.png",
+                "16x16": "https://secure.gravatar.com/avatar/20a0314895dce7e4b3ac43fd7ead3240?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJP-2.png",
+                "32x32": "https://secure.gravatar.com/avatar/20a0314895dce7e4b3ac43fd7ead3240?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJP-2.png"
+              },
+              "displayName": "Joshua Padman",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2023-06-28T23:27:47.302+0000",
+            "items": [
+              {
+                "field": "Attachment",
+                "fieldtype": "jira",
+                "fieldId": "attachment",
+                "from": null,
+                "fromString": null,
+                "to": "994902",
+                "toString": "second_secret.txt"
+              }
+            ]
+          }
+        ]
+      },
+      "fields": {
+        "summary": "Secret in json attachment",
+        "issuetype": {
+          "self": "https://redhat.atlassian.net/rest/api/2/issuetype/10014",
+          "id": "10014",
+          "description": "A small, distinct piece of work.",
+          "iconUrl": "https://redhat.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+          "name": "Task",
+          "subtask": false,
+          "avatarId": 10318,
+          "hierarchyLevel": 0
+        },
+        "created": "2023-06-28T04:53:49.744+0000",
+        "resolutiondate": null,
+        "duedate": null,
+        "assignee": null,
+        "priority": {
+          "self": "https://redhat.atlassian.net/rest/api/2/priority/10005",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/priorities/trivial.svg",
+          "name": "Undefined",
+          "id": "10005"
+        },
+        "updated": "2024-02-05T18:39:17.820+0000",
+        "status": {
+          "self": "https://redhat.atlassian.net/rest/api/2/status/10142",
+          "description": "Initial creation status. Implies nothing yet and should be very short lived; also can be a Bugzilla status.",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/statuses/generic.png",
+          "name": "New",
+          "id": "10142",
+          "statusCategory": {
+            "self": "https://redhat.atlassian.net/rest/api/2/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        }
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "5452392",
+      "self": "https://redhat.atlassian.net/rest/api/2/issue/5452392",
+      "key": "FAKELEAKS-5",
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 0,
+        "total": 0,
+        "histories": []
+      },
+      "fields": {
+        "summary": "Asymmetric Private Key",
+        "issuetype": {
+          "self": "https://redhat.atlassian.net/rest/api/2/issuetype/10014",
+          "id": "10014",
+          "description": "A small, distinct piece of work.",
+          "iconUrl": "https://redhat.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+          "name": "Task",
+          "subtask": false,
+          "avatarId": 10318,
+          "hierarchyLevel": 0
+        },
+        "created": "2023-06-27T14:14:21.970+0000",
+        "resolutiondate": null,
+        "duedate": null,
+        "assignee": null,
+        "priority": {
+          "self": "https://redhat.atlassian.net/rest/api/2/priority/10005",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/priorities/trivial.svg",
+          "name": "Undefined",
+          "id": "10005"
+        },
+        "updated": "2025-01-23T14:05:02.851+0000",
+        "status": {
+          "self": "https://redhat.atlassian.net/rest/api/2/status/10142",
+          "description": "Initial creation status. Implies nothing yet and should be very short lived; also can be a Bugzilla status.",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/statuses/generic.png",
+          "name": "New",
+          "id": "10142",
+          "statusCategory": {
+            "self": "https://redhat.atlassian.net/rest/api/2/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        }
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "5452397",
+      "self": "https://redhat.atlassian.net/rest/api/2/issue/5452397",
+      "key": "FAKELEAKS-4",
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 0,
+        "total": 0,
+        "histories": []
+      },
+      "fields": {
+        "summary": "General Secret",
+        "issuetype": {
+          "self": "https://redhat.atlassian.net/rest/api/2/issuetype/10014",
+          "id": "10014",
+          "description": "A small, distinct piece of work.",
+          "iconUrl": "https://redhat.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+          "name": "Task",
+          "subtask": false,
+          "avatarId": 10318,
+          "hierarchyLevel": 0
+        },
+        "created": "2023-05-04T17:54:11.182+0000",
+        "resolutiondate": null,
+        "duedate": null,
+        "assignee": null,
+        "priority": {
+          "self": "https://redhat.atlassian.net/rest/api/2/priority/10005",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/priorities/trivial.svg",
+          "name": "Undefined",
+          "id": "10005"
+        },
+        "updated": "2023-09-21T15:11:38.493+0000",
+        "status": {
+          "self": "https://redhat.atlassian.net/rest/api/2/status/10142",
+          "description": "Initial creation status. Implies nothing yet and should be very short lived; also can be a Bugzilla status.",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/statuses/generic.png",
+          "name": "New",
+          "id": "10142",
+          "statusCategory": {
+            "self": "https://redhat.atlassian.net/rest/api/2/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        }
+      }
+    }
+  ],
+  "isLast": true
+}

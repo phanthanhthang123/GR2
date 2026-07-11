@@ -10,6 +10,7 @@ export interface User {
   createdAt: Date;
   updatedAt: Date;
   avatarUrl?: string | null;
+  githubUsername?: string | null;
   /** KPI khởi tạo (Logistic Regression HM) */
   kpiScore?: number | null;
   kpiModelAtSignup?: "A" | "B" | string | null;
@@ -57,12 +58,16 @@ export interface Project {
   members?: {
     user: User | string;
     role: 'Admin' | 'Leader' | 'Member';
+    status?: 'Pending' | 'Active';
+    githubInvitationId?: string | null;
   }[];
   status: 'Active' | 'Archived' | 'Deleted';
   createdAt: Date | null;  
   updatedAt: Date | null;
   isArchived?: boolean;
   githubRepoUrl?: string | null;
+  githubRepoOwner?: string | null;
+  githubRepoName?: string | null;
 }
 
 export interface Subtask {
@@ -92,6 +97,8 @@ export interface Task {
   attachments?: Attachment[];
   difficulty?: 'Easy' | 'Medium' | 'Hard';
   pullRequestUrl?: string | null;
+  githubIssueNumber?: number | null;
+  githubIssueUrl?: string | null;
 }
 
 export enum TaskStatus {

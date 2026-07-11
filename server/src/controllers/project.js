@@ -362,3 +362,54 @@ export const updateProjectStatus = async (req, res) => {
         });
     }
 }
+
+export const updateProjectGithubUrl = async (req, res) => {
+    try {
+        const { projectId } = req.params;
+        const { githubRepoUrl } = req.body;
+
+        if (!projectId) {
+            return res.status(400).json({
+                err: 1,
+                msg: 'Missing required parameter: projectId'
+            });
+        }
+
+        // Get userId from token
+        const authHeader = req.headers.authorization;
+        const token = authHeader?.startsWith('Bearer ') 
+            ? authHeader.replace('Bearer ', '') 
+            : (req.cookies?.accessToken || null);
+        
+        let userId = null;
+        if (token) {
+            try {
+                const jwt = require('jsonwebtoken');
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                userId = decoded.id;
+            } catch (error) {
+                return res.status(401).json({
+                    err: 1,
+                    msg: 'UNAUTHORIZED: Invalid or expired token'
+                });
+            }
+        } else {
+            return res.status(401).json({
+                err: 1,
+                msg: 'UNAUTHORIZED: No token provided'
+            });
+        }
+
+        const response = await services.updateProjectGithubUrlService(projectId, githubRepoUrl, userId);
+        if (response.err === 1) {
+            const statusCode = response.msg === 'PROJECT NOT FOUND' ? 404 : 403;
+            return res.status(statusCode).json(response);
+        }
+        return res.status(200).json(response);
+    } catch (error) {
+        return res.status(500).json({
+            err: -1,
+            msg: 'Failed at update project github url controller: ' + error
+        });
+    }
+}

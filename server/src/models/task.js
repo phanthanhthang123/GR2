@@ -100,6 +100,14 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: false
     },
+    githubIssueNumber: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    githubIssueUrl: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,

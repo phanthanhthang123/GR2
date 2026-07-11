@@ -20,14 +20,14 @@ export const useCreateWorkspaceMutation = () => {
 }
 
 
-export const useGetWorkspaceQuery = (user_id: string)=>{
+export const useGetWorkspaceQuery = (user_id: string, options?: { enabled?: boolean })=>{
     return useQuery({
         queryKey: ["workspaces", user_id],
         queryFn: async ()=> {
             const userInfo = JSON.parse(localStorage.getItem("user") || "{}");
             return postData<Workspace[]>("/workspace/list-workspace-by-user", { user_id: userInfo.id });
         },
-        enabled: !!user_id
+        enabled: options?.enabled !== false && !!user_id
     })
 }
 
@@ -94,13 +94,13 @@ export const useRemoveMemberFromWorkspaceMutation = () => {
     });
 }
 
-export const useGetWorkspaceStatsQuery = (workspace_id: string)=>{
+export const useGetWorkspaceStatsQuery = (workspace_id: string, options?: { enabled?: boolean })=>{
     return useQuery({
         queryKey: ["workspace-stats", workspace_id],
         queryFn: async ()=> {
             return fetchData(`/workspace/${workspace_id}/stats`);
         },
-        enabled: !!workspace_id
+        enabled: options?.enabled !== false && !!workspace_id
     })
 }
 
@@ -147,5 +147,16 @@ export const useGetWorkspaceTasksByStatusQuery = (workspaceId: string, status: s
             return await fetchData(`/workspace/${workspaceId}/tasks-by-status/${status}`);
         },
         enabled: !!workspaceId && !!status && enabled
+    });
+}
+
+/** Admin Global Stats — Tổng quan toàn bộ hệ thống (chỉ dành cho Admin) */
+export const useGetAdminGlobalStatsQuery = () => {
+    return useQuery({
+        queryKey: ["admin-global-stats"],
+        queryFn: async () => {
+            return await fetchData(`/workspace/admin/global-stats`);
+        },
+        staleTime: 60000, // Cache 1 phút
     });
 }

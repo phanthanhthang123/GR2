@@ -2,11 +2,11 @@ import { Button } from "@/components/ui/button";
 import { CreateWorkspace } from "@/components/workspace/create-workspace";
 import { useGetWorkspaceQuery } from "@/hooks/use-workspace";
 import type { Workspace } from "@/type";
-import { Loader, PlusCircle, Users, Search, MoreHorizontal, Eye, EyeOff, ChevronDown, ChevronRight } from "lucide-react";
+import { Loader, PlusCircle, Users, Search, MoreHorizontal, Eye, EyeOff, ChevronDown, ChevronRight, ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { NoDataFound } from "@/components/workspace/no-data-found";
 import { useAuth } from "@/provider/auth-context";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { WorkspaceAvatar } from "@/components/workspace/workspace-avatar";
 import { format } from "date-fns";
@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const Workspaces = () => {
+    const navigate = useNavigate();
     const [isCreatingWorkspace, setIsCreatingWorkspace] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [isHiddenCollapsed, setIsHiddenCollapsed] = useState(true);

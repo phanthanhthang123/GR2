@@ -5,6 +5,7 @@ import * as controllers from '../controllers/workspace'
 const router = express.Router();
 router.post('/create',controllers.createWorkspace);
 router.post('/list-workspace-by-user',controllers.listWorkspaceByUser);
+router.get('/admin/global-stats',controllers.getAdminGlobalStats);
 router.get('/get-by-id/:id/projects',controllers.getWorkspaceById);
 router.post('/:workspaceId/add-member',controllers.addMemberToWorkspace);
 router.delete('/:workspaceId/remove-member/:userId',controllers.removeMemberFromWorkspace);
@@ -13,6 +14,7 @@ router.get('/:workspaceId/projects-detail',controllers.getWorkspaceProjectsDetai
 router.get('/:workspaceId/tasks-detail',controllers.getWorkspaceTasksDetail);
 router.get('/:workspaceId/members-detail',controllers.getWorkspaceMembersDetail);
 router.get('/:workspaceId/tasks-by-status/:status',controllers.getWorkspaceTasksByStatus);
+
 // router.get('/get-workspace-by-id',controllers.getWorkspaceById);
 // router.put('/update',controllers.updateWorkspace);
 // router.delete('/delete',controllers.deleteWorkspace);

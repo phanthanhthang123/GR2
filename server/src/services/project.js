@@ -1,5 +1,18 @@
 import db from '../models';
 import { v4 } from 'uuid';
+import { inviteMemberToRepo, removeMemberFromRepo } from './github';
+
+const parseGithubUrl = (url) => {
+    if (!url) return null;
+    const match = url.match(/github\.com[\/:]([^\/]+)\/([^\/\s#\?.]+)/);
+    if (match) {
+        return {
+            owner: match[1],
+            repo: match[2]
+        };
+    }
+    return null;
+};
 
 //GET ALL PROJECTS
 export const getAllProjectsService = () => new Promise(async (resolve, reject) => {
@@ -84,12 +97,17 @@ export const createProjectService = (workspaceId, projectData, createdBy) => new
             }
         }
 
+        const parsed = parseGithubUrl(projectData.githubRepoUrl);
+
         // Create project
         const project = await db.Project.create({
             id: projectId,
             workspace_id: workspaceId,
             name: projectData.name.trim(),
             description: projectData.description || null,
+            githubRepoUrl: projectData.githubRepoUrl || null,
+            githubRepoOwner: parsed ? parsed.owner : null,
+            githubRepoName: parsed ? parsed.repo : null,
             start_date: new Date(projectData.startDate),
             end_date: new Date(projectData.dueDate),
             status: statusMapping[projectData.status] || 'Pending',
@@ -177,7 +195,7 @@ export const getProjectTasksService = async (projectId, userId) => {
                 {
                     model: db.Users,
                     as: 'leader',   
-                    attributes: ['id', 'username', 'email', 'avatarUrl', 'role', 'kpiScore']
+                    attributes: ['id', 'username', 'email', 'avatarUrl', 'role', 'kpiScore', 'githubUsername']
                 },
                 {
                     model: db.Project_Member,
@@ -187,7 +205,7 @@ export const getProjectTasksService = async (projectId, userId) => {
                             model: db.Users,
                             as: 'user',
                             // Bao gồm luôn role hệ thống của user để FE hiển thị đúng Admin/Leader/Member
-                            attributes: ['id', 'username', 'email', 'avatarUrl', 'role', 'kpiScore']
+                            attributes: ['id', 'username', 'email', 'avatarUrl', 'role', 'kpiScore', 'githubUsername']
                         }
                     ]
                 },
@@ -441,12 +459,35 @@ export const addMemberToProjectService = (projectId, userId, role, currentUserId
             });
         }
 
+        let memberStatus = 'Active';
+        let invitationId = null;
+
+        if (project.githubRepoUrl && user.githubUsername) {
+            const parsed = parseGithubUrl(project.githubRepoUrl);
+            if (parsed) {
+                const { owner, repo } = parsed;
+                // update project fields if empty
+                if (!project.githubRepoOwner || !project.githubRepoName) {
+                    await project.update({
+                        githubRepoOwner: owner,
+                        githubRepoName: repo
+                    });
+                }
+                
+                const inviteResult = await inviteMemberToRepo(owner, repo, user.githubUsername);
+                invitationId = inviteResult.invitationId;
+                memberStatus = inviteResult.status; // 'Pending' or 'Active'
+            }
+        }
+
         // Add member
         await db.Project_Member.create({
             id: v4(),
             project_id: projectId,
             user_id: userId,
             role: role || 'Developer',
+            status: memberStatus,
+            githubInvitationId: invitationId,
             joined_at: new Date(),
             createdAt: new Date(),
             updatedAt: new Date()
@@ -523,6 +564,15 @@ export const removeMemberFromProjectService = (projectId, targetUserId, currentU
             }
         }
 
+        // Remove collaborator from GitHub if applicable
+        const targetUser = await db.Users.findOne({ where: { id: targetUserId } });
+        if (project.githubRepoUrl && targetUser && targetUser.githubUsername) {
+            const parsed = parseGithubUrl(project.githubRepoUrl);
+            if (parsed) {
+                await removeMemberFromRepo(parsed.owner, parsed.repo, targetUser.githubUsername);
+            }
+        }
+
         // Remove member
         await db.Project_Member.destroy({
             where: {
@@ -584,6 +634,59 @@ export const updateProjectStatusService = (projectId, status, userId) => new Pro
 
         await project.update({
             status: status,
+            updatedAt: new Date()
+        });
+
+        resolve({
+            err: 0,
+            msg: 'OK',
+            response: project
+        });
+    } catch (error) {
+        reject(error);
+    }
+});
+
+// UPDATE PROJECT GITHUB URL
+export const updateProjectGithubUrlService = (projectId, githubRepoUrl, userId) => new Promise(async (resolve, reject) => {
+    try {
+        const project = await db.Project.findOne({
+            where: { id: projectId }
+        });
+
+        if (!project) {
+            return resolve({
+                err: 1,
+                msg: 'PROJECT NOT FOUND'
+            });
+        }
+
+        // Check if user is Admin, leader or creator
+        const currentUser = await db.Users.findOne({ where: { id: userId } });
+        const isSystemAdmin = currentUser?.role === 'Admin';
+        const isLeader = project.leader_id === userId || project.created_by === userId || isSystemAdmin;
+        if (!isLeader) {
+            const member = await db.Project_Member.findOne({
+                where: {
+                    project_id: projectId,
+                    user_id: userId,
+                    role: 'Leader'
+                }
+            });
+            if (!member) {
+                return resolve({
+                    err: 1,
+                    msg: 'ONLY LEADER CAN UPDATE PROJECT GITHUB URL'
+                });
+            }
+        }
+
+        const parsed = parseGithubUrl(githubRepoUrl);
+
+        await project.update({
+            githubRepoUrl: githubRepoUrl ? githubRepoUrl.trim() : null,
+            githubRepoOwner: parsed ? parsed.owner : null,
+            githubRepoName: parsed ? parsed.repo : null,
             updatedAt: new Date()
         });
 

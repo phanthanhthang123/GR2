@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router';
 import type { Task } from '@/type';
-import { useProjectQueryById, useUpdateProjectTitleMutation, useUpdateProjectDescriptionMutation, useUpdateProjectStatusMutation, useAddMemberToProjectMutation, useRemoveMemberFromProjectMutation, useProjectDelayPrediction } from '@/hooks/use-project';
+import { useProjectQueryById, useUpdateProjectTitleMutation, useUpdateProjectDescriptionMutation, useUpdateProjectStatusMutation, useAddMemberToProjectMutation, useRemoveMemberFromProjectMutation, useProjectDelayPrediction, useUpdateProjectGithubUrlMutation } from '@/hooks/use-project';
 import type { PredictionResult, ModelEvaluation } from '@/hooks/use-project';
 import type { TaskStatus } from '@/type';
 import { Loader } from '@/components/loader';
@@ -17,7 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useArchiveTaskMutation } from '@/hooks/use-task';
-import { Archive, CheckSquare, Users, Edit, Trash2, UserPlus, CalendarDays, Search, ChevronDown, ChevronRight, ExternalLink, Copy, Github, BrainCircuit, AlertTriangle, Lightbulb, ShieldCheck, ShieldAlert, Loader2, BarChart3, Target, TrendingUp, Activity } from 'lucide-react';
+import { Archive, CheckSquare, Users, Edit, Trash2, UserPlus, CalendarDays, Search, ChevronDown, ChevronRight, ExternalLink, Copy, Github, BrainCircuit, AlertTriangle, Lightbulb, ShieldCheck, ShieldAlert, Loader2, BarChart3, Target, TrendingUp, Activity, GitBranch, GitCommit } from 'lucide-react';
 import {
     Pagination,
     PaginationContent,
@@ -26,7 +26,8 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from '@/components/ui/pagination';
-import { format } from 'date-fns';
+import { format, differenceInDays, isAfter, isBefore, addDays } from 'date-fns';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -35,6 +36,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/provider/auth-context';
+import { getChatSocket } from '@/hooks/use-chat';
 import { useGetAllUsersQuery } from '@/hooks/use-workspace';
 import { useMemo } from 'react';
 
@@ -82,6 +84,90 @@ const ProjectDetails = () => {
     // Extract project and tasks early (before any hooks that depend on them)
     const project = data?.project;
     const tasks = data?.tasks || [];
+
+    const [isEditingGitUrl, setIsEditingGitUrl] = useState(false);
+    const [newGitUrl, setNewGitUrl] = useState('');
+    const updateGithubUrlMutation = useUpdateProjectGithubUrlMutation();
+    const [isSyncingGithub, setIsSyncingGithub] = useState(false);
+    const [githubStats, setGithubStats] = useState<{
+        branchesCount: number;
+        commitsCount: number;
+        branches: string[];
+        latestCommits: Array<{ sha: string; message: string; author: string; date: string; branch?: string }>;
+    } | null>(null);
+
+    const handleSyncGithub = async () => {
+        if (!projectId) return;
+        try {
+            setIsSyncingGithub(true);
+            const { postData } = await import("@/lib/fetch-utlis");
+            const res = await postData<any>("/github/sync", { projectId });
+            if (res?.err === 0) {
+                toast.success(res.msg || "Đã đồng bộ thông tin từ GitHub thành công!");
+                if (res.stats) {
+                    setGithubStats(res.stats);
+                }
+                queryClient.invalidateQueries({ queryKey: ["project", projectId] });
+            } else {
+                toast.error(res?.msg || "Không thể đồng bộ GitHub");
+            }
+        } catch (e: any) {
+            toast.error(e?.response?.data?.msg || "Có lỗi xảy ra khi đồng bộ GitHub");
+        } finally {
+            setIsSyncingGithub(false);
+        }
+    };
+
+    useEffect(() => {
+        if (project?.githubRepoUrl && projectId) {
+            const fetchStatsOnLoad = async () => {
+                try {
+                    const { postData } = await import("@/lib/fetch-utlis");
+                    const res = await postData<any>("/github/sync", { projectId });
+                    if (res?.err === 0 && res.stats) {
+                        setGithubStats(res.stats);
+                    }
+                } catch (e) {
+                    console.error("Error fetching stats on load:", e);
+                }
+            };
+            fetchStatsOnLoad();
+        }
+    }, [project?.githubRepoUrl, projectId]);
+
+    useEffect(() => {
+        if (project && !isEditingGitUrl) {
+            setNewGitUrl(project.githubRepoUrl || '');
+        }
+    }, [project, isEditingGitUrl]);
+
+    useEffect(() => {
+        if (!projectId) return;
+        const socket = getChatSocket();
+        if (!socket) return;
+
+        const onMembersUpdated = () => {
+            queryClient.invalidateQueries({ queryKey: ["project", projectId] });
+            toast.info("Đã đồng bộ thành viên dự án qua GitHub");
+        };
+
+        const onGithubActivity = (payload?: { stats?: any }) => {
+            if (payload?.stats) {
+                setGithubStats(payload.stats);
+            } else {
+                handleSyncGithub();
+            }
+            toast.info("Có hoạt động GitHub mới trên Repository");
+        };
+
+        socket.on(`project-members-updated:${projectId}`, onMembersUpdated);
+        socket.on(`project-github-activity:${projectId}`, onGithubActivity);
+
+        return () => {
+            socket.off(`project-members-updated:${projectId}`, onMembersUpdated);
+            socket.off(`project-github-activity:${projectId}`, onGithubActivity);
+        };
+    }, [projectId, queryClient]);
 
     // Filter out archived tasks from main view
     const activeTasks = useMemo(() => tasks?.filter(task => !task.isArchived) || [], [tasks]);
@@ -188,6 +274,93 @@ const ProjectDetails = () => {
     // Get project statistics
     const totalTasksInProject = useMemo(() => tasks?.length || 0, [tasks]);
     const totalMembersInProject = useMemo(() => (project as any)?.members?.length || 0, [project]);
+
+    // === QUICK WIN ANALYTICS ===
+
+    // 1. Task sắp hết hạn trong 3 ngày (chưa Done)
+    const upcomingDeadlineTasks = useMemo(() => {
+        const now = new Date();
+        const threshold = addDays(now, 3);
+        return activeTasks.filter((task) => {
+            if (!task.dueDate || task.status === 'Done') return false;
+            const due = new Date(task.dueDate);
+            return !isAfter(due, threshold) || isBefore(due, now);
+        }).sort((a, b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime());
+    }, [activeTasks]);
+
+    // Task đã quá hạn (dueDate < now và chưa Done)
+    const overdueCount = useMemo(() => {
+        const now = new Date();
+        return activeTasks.filter((task) => {
+            if (!task.dueDate || task.status === 'Done') return false;
+            return isBefore(new Date(task.dueDate), now);
+        }).length;
+    }, [activeTasks]);
+
+    // 2. Phân bổ task theo thành viên
+    const memberTaskDistribution = useMemo(() => {
+        const members = (project as any)?.members || [];
+        const memberMap: Record<string, { name: string; todo: number; inProgress: number; done: number }> = {};
+        members.forEach((m: any) => {
+            const u = typeof m.user === 'object' ? m.user : null;
+            const id = typeof m.user === 'string' ? m.user : u?.id || m.user_id;
+            if (id) {
+                memberMap[id] = {
+                    name: u?.username?.split(' ').pop() || 'N/A',
+                    todo: 0,
+                    inProgress: 0,
+                    done: 0,
+                };
+            }
+        });
+        activeTasks.forEach((task) => {
+            const rawAssignedTo = task.assigned_to;
+            let assignedId: string | null = null;
+            if (typeof rawAssignedTo === 'string') {
+                assignedId = rawAssignedTo;
+            } else if (Array.isArray(rawAssignedTo) && rawAssignedTo.length > 0) {
+                assignedId = (rawAssignedTo[0] as any)?.id || null;
+            }
+            if (assignedId && memberMap[assignedId]) {
+                if (task.status === 'To Do') memberMap[assignedId].todo++;
+                else if (task.status === 'In Progress') memberMap[assignedId].inProgress++;
+                else if (task.status === 'Done') memberMap[assignedId].done++;
+            }
+        });
+        return Object.values(memberMap).filter((m) => m.todo + m.inProgress + m.done > 0);
+    }, [activeTasks, project]);
+
+    // 3. Tốc độ hoàn thành 7 ngày qua
+    const weeklyCompletionData = useMemo(() => {
+        const days: { label: string; count: number }[] = [];
+        for (let i = 6; i >= 0; i--) {
+            const day = addDays(new Date(), -i);
+            const dayLabel = format(day, 'dd/MM');
+            const count = tasks.filter((t) => {
+                if (t.status !== 'Done' || !t.updatedAt) return false;
+                const updated = new Date(t.updatedAt);
+                return format(updated, 'dd/MM/yyyy') === format(day, 'dd/MM/yyyy');
+            }).length;
+            days.push({ label: dayLabel, count });
+        }
+        return days;
+    }, [tasks]);
+
+    // 4. Timeline progress (% thời gian đã dùng)
+    const timelineInfo = useMemo(() => {
+        const startDate = (project as any)?.start_date;
+        const endDate = (project as any)?.end_date;
+        if (!startDate || !endDate) return null;
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const now = new Date();
+        const total = differenceInDays(end, start);
+        const elapsed = Math.min(Math.max(differenceInDays(now, start), 0), total);
+        const remaining = Math.max(differenceInDays(end, now), 0);
+        const percentTime = total > 0 ? Math.round((elapsed / total) * 100) : 0;
+        const isOverdue = isAfter(now, end);
+        return { start, end, total, elapsed, remaining, percentTime, isOverdue };
+    }, [project]);
 
     // Check if current user is leader - must be called before early return
     const isCurrentUserLeader = useMemo(() => {
@@ -383,144 +556,201 @@ const ProjectDetails = () => {
     return (
         <div className='space-y-6'>
             {/* Header Section */}
+            {/* Header Section */}
             <div className='bg-gradient-to-r from-background to-muted/30 rounded-lg border p-4 md:p-6 shadow-sm'>
                 <BackButton />
-                <div className='flex flex-col md:flex-row md:items-start justify-between gap-6 mt-4'>
-                    <div className='flex-1 space-y-4'>
-                        <div className='flex items-center gap-3'>
-                            {isEditingTitle ? (
-                                <Input
-                                    className="text-2xl md:text-3xl font-bold h-auto py-2"
-                                    type="text"
-                                    value={newTitle}
-                                    onChange={(e) => setNewTitle(e.target.value)}
-                                    disabled={isUpdatingTitle}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') handleSaveTitle();
-                                        if (e.key === 'Escape') handleCancelTitle();
-                                    }}
-                                    autoFocus
-                                />
-                            ) : (
-                                <>
-                                    <h1 className='text-2xl md:text-3xl font-bold text-foreground'>{project?.name}</h1>
-                                    {isCurrentUserLeader && (
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={handleEditTitle}
-                                            className="h-8 w-8 p-0"
-                                        >
-                                            <Edit className="size-4" />
-                                        </Button>
-                                    )}
-                                    {isCurrentUserLeader ? (
-                                        <select
-                                            value={(project as any)?.status || 'Pending'}
-                                            onChange={(e) => {
-                                                updateStatus({ projectId: projectId!, status: e.target.value });
-                                            }}
-                                            disabled={isUpdatingStatus}
-                                            className={cn(
-                                                "ml-2 h-8 rounded-md border px-2 py-1 text-xs font-semibold shadow-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors",
-                                                (project as any)?.status === 'Completed'
-                                                    ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-400 dark:border-green-800"
-                                                    : (project as any)?.status === 'In Progress'
-                                                        ? "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-800"
-                                                        : "bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800",
-                                                isUpdatingStatus && "opacity-50 cursor-not-allowed"
-                                            )}
-                                        >
-                                            <option value="Pending">Đang chờ</option>
-                                            <option value="In Progress">Đang tiến hành</option>
-                                            <option value="Completed">Hoàn thành</option>
-                                        </select>
-                                    ) : (
-                                        <Badge
-                                            variant="outline"
-                                            className={cn(
-                                                "ml-2 text-xs font-semibold",
-                                                (project as any)?.status === 'Completed'
-                                                    ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-400 dark:border-green-800"
-                                                    : (project as any)?.status === 'In Progress'
-                                                        ? "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-800"
-                                                        : "bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800"
-                                            )}
-                                        >
-                                            {(project as any)?.status === 'Completed' ? 'Hoàn thành'
-                                                : (project as any)?.status === 'In Progress' ? 'Đang tiến hành'
-                                                : 'Đang chờ'}
-                                        </Badge>
-                                    )}
-                                </>
-                            )}
-                        </div>
-                        {isEditingTitle && (
-                            <div className="flex items-center gap-2">
-                                <Button
-                                    size="sm"
-                                    onClick={handleSaveTitle}
-                                    disabled={isUpdatingTitle}
-                                >
-                                    Lưu
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={handleCancelTitle}
-                                    disabled={isUpdatingTitle}
-                                >
-                                    Hủy
-                                </Button>
-                            </div>
+                
+                {/* Title & Status Block relocated here above the column split */}
+                <div className='mt-4 mb-4 space-y-4'>
+                    <div className='flex items-center gap-3'>
+                        {isEditingTitle ? (
+                            <Input
+                                className="text-2xl md:text-3xl font-bold h-auto py-2"
+                                type="text"
+                                value={newTitle}
+                                onChange={(e) => setNewTitle(e.target.value)}
+                                disabled={isUpdatingTitle}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') handleSaveTitle();
+                                    if (e.key === 'Escape') handleCancelTitle();
+                                }}
+                                autoFocus
+                            />
+                        ) : (
+                            <>
+                                <h1 className='text-2xl md:text-3xl font-bold text-foreground'>{project?.name}</h1>
+                                {isCurrentUserLeader && (
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={handleEditTitle}
+                                        className="h-8 w-8 p-0"
+                                    >
+                                        <Edit className="size-4" />
+                                    </Button>
+                                )}
+                                {isCurrentUserLeader ? (
+                                    <select
+                                        value={(project as any)?.status || 'Pending'}
+                                        onChange={(e) => {
+                                            updateStatus({ projectId: projectId!, status: e.target.value });
+                                        }}
+                                        disabled={isUpdatingStatus}
+                                        className={cn(
+                                            "ml-2 h-8 rounded-md border px-2 py-1 text-xs font-semibold shadow-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors",
+                                            (project as any)?.status === 'Completed'
+                                                ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-400 dark:border-green-800"
+                                                : (project as any)?.status === 'In Progress'
+                                                    ? "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-800"
+                                                    : "bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800",
+                                            isUpdatingStatus && "opacity-50 cursor-not-allowed"
+                                        )}
+                                    >
+                                        <option value="Pending">Đang chờ</option>
+                                        <option value="In Progress">Đang tiến hành</option>
+                                        <option value="Completed">Hoàn thành</option>
+                                    </select>
+                                ) : (
+                                    <Badge
+                                        variant="outline"
+                                        className={cn(
+                                            "ml-2 text-xs font-semibold",
+                                            (project as any)?.status === 'Completed'
+                                                ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-400 dark:border-green-800"
+                                                : (project as any)?.status === 'In Progress'
+                                                    ? "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-800"
+                                                    : "bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800"
+                                        )}
+                                    >
+                                        {(project as any)?.status === 'Completed' ? 'Hoàn thành'
+                                            : (project as any)?.status === 'In Progress' ? 'Đang tiến hành'
+                                            : 'Đang chờ'}
+                                    </Badge>
+                                )}
+                            </>
                         )}
+                    </div>
+                    {isEditingTitle && (
+                        <div className="flex items-center gap-2">
+                            <Button
+                                size="sm"
+                                onClick={handleSaveTitle}
+                                disabled={isUpdatingTitle}
+                            >
+                                Lưu
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleCancelTitle}
+                                disabled={isUpdatingTitle}
+                            >
+                                Hủy
+                            </Button>
+                        </div>
+                    )}
+                </div>
 
+                <div className='flex flex-col md:flex-row md:items-start justify-between gap-6'>
+                    <div className='flex-1 space-y-4'>
                         {/* GitHub Repository + Progress (same row for Member) */}
                         <div className={cn("gap-3", user?.role === 'Member' ? "flex flex-col md:flex-row md:items-stretch" : "")}>
                             <div className={cn("rounded-lg border bg-background/60 p-3", user?.role === 'Member' ? "flex-1" : "")}>
-                                <div className="flex items-center gap-2 text-sm font-medium">
-                                    <Github className="size-4 text-muted-foreground" />
-                                    GitHub Repository
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2 text-sm font-medium">
+                                        <Github className="size-4 text-muted-foreground" />
+                                        GitHub Repository
+                                    </div>
+                                    {isCurrentUserLeader && !isEditingGitUrl && (
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => {
+                                                setIsEditingGitUrl(true);
+                                                setNewGitUrl(project.githubRepoUrl || '');
+                                            }}
+                                            className="h-6 px-2 text-xs"
+                                        >
+                                            <Edit className="size-3 mr-1" />
+                                            Sửa
+                                        </Button>
+                                    )}
                                 </div>
                                 <div className="mt-2 flex flex-col md:flex-row gap-2">
-                                    <Input
-                                        value={(project as any)?.githubRepoUrl || ""}
-                                        readOnly
-                                        placeholder="Chưa có URL repository GitHub"
-                                    />
-                                    <div className="flex gap-2">
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            onClick={() => {
-                                                const url = ((project as any)?.githubRepoUrl || "").toString().trim();
-                                                if (!url) return;
-                                                window.open(url, "_blank", "noopener,noreferrer");
-                                            }}
-                                            disabled={!((project as any)?.githubRepoUrl || "").toString().trim()}
-                                        >
-                                            <ExternalLink className="mr-2 size-4" />
-                                            Mở GitHub
-                                        </Button>
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            onClick={async () => {
-                                                const url = ((project as any)?.githubRepoUrl || "").toString().trim();
-                                                if (!url) return;
-                                                try {
-                                                    await navigator.clipboard.writeText(url);
-                                                    toast.success("Đã copy link GitHub repository");
-                                                } catch {
-                                                    toast.error("Không thể copy link GitHub repository");
-                                                }
-                                            }}
-                                            disabled={!((project as any)?.githubRepoUrl || "").toString().trim()}
-                                        >
-                                            <Copy className="mr-2 size-4" />
-                                            Copy
-                                        </Button>
-                                    </div>
+                                    {isEditingGitUrl ? (
+                                        <div className="flex items-center gap-2 w-full">
+                                            <Input
+                                                value={newGitUrl}
+                                                onChange={(e) => setNewGitUrl(e.target.value)}
+                                                placeholder="https://github.com/owner/repo"
+                                                className="flex-1"
+                                                autoFocus
+                                            />
+                                            <Button
+                                                size="sm"
+                                                disabled={updateGithubUrlMutation.isPending}
+                                                onClick={() => {
+                                                    updateGithubUrlMutation.mutate({
+                                                        projectId: projectId!,
+                                                        githubRepoUrl: newGitUrl
+                                                    }, {
+                                                        onSuccess: () => setIsEditingGitUrl(false)
+                                                    });
+                                                }}
+                                            >
+                                                Lưu
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                disabled={updateGithubUrlMutation.isPending}
+                                                onClick={() => setIsEditingGitUrl(false)}
+                                            >
+                                                Hủy
+                                            </Button>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <Input
+                                                value={(project as any)?.githubRepoUrl || ""}
+                                                readOnly
+                                                placeholder="Chưa có URL repository GitHub"
+                                            />
+                                            <div className="flex gap-2">
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    onClick={() => {
+                                                        const url = ((project as any)?.githubRepoUrl || "").toString().trim();
+                                                        if (!url) return;
+                                                        window.open(url, "_blank", "noopener,noreferrer");
+                                                    }}
+                                                    disabled={!((project as any)?.githubRepoUrl || "").toString().trim()}
+                                                >
+                                                    <ExternalLink className="mr-2 size-4" />
+                                                    Mở GitHub
+                                                </Button>
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    onClick={async () => {
+                                                        const url = ((project as any)?.githubRepoUrl || "").toString().trim();
+                                                        if (!url) return;
+                                                        try {
+                                                            await navigator.clipboard.writeText(url);
+                                                            toast.success("Đã copy link GitHub repository");
+                                                        } catch {
+                                                            toast.error("Không thể copy link GitHub repository");
+                                                        }
+                                                    }}
+                                                    disabled={!((project as any)?.githubRepoUrl || "").toString().trim()}
+                                                >
+                                                    <Copy className="mr-2 size-4" />
+                                                    Copy
+                                                </Button>
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                             </div>
 
@@ -587,22 +817,38 @@ const ProjectDetails = () => {
                                 </div>
                             )}
                         </div>
+
+                        {/* Tổng quan tiến độ — chỉ Admin & Leader mới thấy dưới mô tả, chiều cao nhỏ gọn hơn */}
+                        {user?.role !== 'Member' && (
+                            <Card className="p-3 space-y-2 max-w-xl bg-background/60">
+                                <div className='flex items-center justify-between text-xs font-semibold'>
+                                    <span className='flex items-center gap-1.5'><CheckSquare className='size-3.5 text-teal-500' /> Tiến độ công việc</span>
+                                    <span className='text-teal-600'>{projectProgess || 0}%</span>
+                                </div>
+                                <Progress value={projectProgess || 0} className='h-1.5 [&>div]:bg-teal-500' />
+                                
+                                {timelineInfo && (
+                                    <>
+                                        <div className='flex items-center justify-between text-xs font-semibold pt-1 border-t'>
+                                            <span className='flex items-center gap-1.5'><CalendarDays className='size-3.5 text-blue-500' /> Tiến độ thời gian</span>
+                                            <span className={cn(timelineInfo.isOverdue ? 'text-rose-600' : 'text-blue-600')}>{timelineInfo.percentTime}%</span>
+                                        </div>
+                                        <Progress value={Math.min(timelineInfo.percentTime, 100)} className={cn('h-1.5', timelineInfo.isOverdue ? '[&>div]:bg-rose-500' : '[&>div]:bg-blue-400')} />
+                                        
+                                        <p className={cn('text-[10px] font-medium pt-0.5', (projectProgess || 0) >= timelineInfo.percentTime ? 'text-teal-600' : 'text-amber-600')}>
+                                            {(projectProgess || 0) >= timelineInfo.percentTime
+                                                ? '✓ Công việc đang đúng tiến độ'
+                                                : `⚠ Công việc chậm hơn thời gian ${timelineInfo.percentTime - (projectProgess || 0)}%`}
+                                        </p>
+                                    </>
+                                )}
+                            </Card>
+                        )}
                     </div>
 
                     {/* Right sidebar - only show for non-Member roles */}
                     {user?.role !== 'Member' && (
                         <div className='flex flex-col gap-4 md:min-w-[280px]'>
-                            {/* Progress Section */}
-                            <Card className="p-4">
-                                <div className='space-y-2'>
-                                    <div className='flex items-center justify-between'>
-                                        <span className='text-sm font-medium'>Tiến độ dự án</span>
-                                        <span className='text-sm font-bold text-primary'>{projectProgess ? projectProgess : 0}%</span>
-                                    </div>
-                                    <Progress value={projectProgess ? projectProgess : 0} className='h-2.5' />
-                                </div>
-                            </Card>
-
                             {/* Stored AI Prediction Card */}
                             {(project as any)?.prediction && (
                                 <Card className={cn(
@@ -652,10 +898,27 @@ const ProjectDetails = () => {
                                         Thêm Thành Viên
                                     </Button>
                                 )}
-                                <Button onClick={() => setIsCreateTask(true)} className="w-full">
-                                    <CheckSquare className="mr-2 size-4" />
-                                    Thêm Task
-                                </Button>
+                                {isCurrentUserLeader && (
+                                    <Button onClick={() => setIsCreateTask(true)} className="w-full">
+                                        <CheckSquare className="mr-2 size-4" />
+                                        Thêm Task
+                                    </Button>
+                                )}
+                                {project.githubRepoUrl && (
+                                    <Button
+                                        variant="outline"
+                                        onClick={handleSyncGithub}
+                                        disabled={isSyncingGithub}
+                                        className="w-full"
+                                    >
+                                        {isSyncingGithub ? (
+                                            <Loader2 className="mr-2 size-4 animate-spin text-muted-foreground" />
+                                        ) : (
+                                            <Github className="mr-2 size-4 text-slate-700" />
+                                        )}
+                                        {isSyncingGithub ? "Đang đồng bộ..." : "Đồng bộ GitHub"}
+                                    </Button>
+                                )}
                                 {isCurrentUserLeader && (
                                     <Button
                                         onClick={handlePredictDelay}
@@ -677,81 +940,373 @@ const ProjectDetails = () => {
             </div>
 
             {/* Project Statistics */}
-            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3'>
+            <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3'>
+                {/* Tổng Task */}
                 <Card
-                    className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition-all group py-3"
+                    className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition-all group py-1.5"
                     onClick={() => setIsTaskDialogOpen(true)}
                 >
-                    <CardHeader className="flex flex-row items-center justify-between pb-1 px-4 pt-3">
-                        <CardTitle className="text-xs font-semibold">Tổng Task</CardTitle>
-                        <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                            <CheckSquare className="h-4 w-4 text-primary" />
+                    <CardHeader className="flex flex-row items-center justify-between pb-0.5 px-3 pt-2">
+                        <CardTitle className="text-[11px] font-semibold text-muted-foreground">Tổng Task</CardTitle>
+                        <div className="p-1.5 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                            <CheckSquare className="h-3.5 w-3.5 text-primary" />
                         </div>
                     </CardHeader>
-                    <CardContent className="px-4 pb-3">
-                        <div className="text-xl font-bold text-foreground">{totalTasksInProject}</div>
-                        <p className="text-[11px] text-muted-foreground mt-1">
-                            Task trong dự án
+                    <CardContent className="px-3 pb-2">
+                        <div className="text-lg font-bold text-foreground leading-none">{totalTasksInProject}</div>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                            {activeTasks.length} đang hoạt động
                         </p>
                     </CardContent>
                 </Card>
 
+                {/* Hoàn thành */}
+                <Card className="hover:shadow-lg hover:border-teal-500/50 transition-all group py-1.5">
+                    <CardHeader className="flex flex-row items-center justify-between pb-0.5 px-3 pt-2">
+                        <CardTitle className="text-[11px] font-semibold text-muted-foreground">Hoàn Thành</CardTitle>
+                        <div className="p-1.5 rounded-lg bg-teal-500/10 group-hover:bg-teal-500/20 transition-colors">
+                            <Target className="h-3.5 w-3.5 text-teal-600" />
+                        </div>
+                    </CardHeader>
+                    <CardContent className="px-3 pb-2">
+                        <div className="text-lg font-bold text-teal-600 leading-none">{tasksByStatus['Done']?.length || 0}</div>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                            {projectProgess || 0}% tiến độ
+                        </p>
+                    </CardContent>
+                </Card>
+
+                {/* Quá hạn */}
+                <Card className={cn('hover:shadow-lg transition-all group py-1.5', overdueCount > 0 ? 'border-rose-200 hover:border-rose-400' : 'hover:border-primary/50')}>
+                    <CardHeader className="flex flex-row items-center justify-between pb-0.5 px-3 pt-2">
+                        <CardTitle className="text-[11px] font-semibold text-muted-foreground">Quá Hạn</CardTitle>
+                        <div className={cn('p-1.5 rounded-lg transition-colors', overdueCount > 0 ? 'bg-rose-100 group-hover:bg-rose-200' : 'bg-slate-100')}>
+                            <AlertTriangle className={cn('h-3.5 w-3.5', overdueCount > 0 ? 'text-rose-500' : 'text-slate-400')} />
+                        </div>
+                    </CardHeader>
+                    <CardContent className="px-3 pb-2">
+                        <div className={cn('text-lg font-bold leading-none', overdueCount > 0 ? 'text-rose-600' : 'text-foreground')}>{overdueCount}</div>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                            {upcomingDeadlineTasks.length} sắp hết hạn
+                        </p>
+                    </CardContent>
+                </Card>
+
+                {/* Thành Viên */}
                 <Card
-                    className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition-all group py-3"
+                    className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition-all group py-1.5"
                     onClick={() => setIsMemberDialogOpen(true)}
                 >
-                    <CardHeader className="flex flex-row items-center justify-between pb-1 px-4 pt-3">
-                        <CardTitle className="text-xs font-semibold">Thành Viên</CardTitle>
-                        <div className="p-2 rounded-lg bg-blue-500/10 group-hover:bg-blue-500/20 transition-colors">
-                            <Users className="h-4 w-4 text-blue-600" />
+                    <CardHeader className="flex flex-row items-center justify-between pb-0.5 px-3 pt-2">
+                        <CardTitle className="text-[11px] font-semibold text-muted-foreground">Thành Viên</CardTitle>
+                        <div className="p-1.5 rounded-lg bg-blue-500/10 group-hover:bg-blue-500/20 transition-colors">
+                            <Users className="h-3.5 w-3.5 text-blue-600" />
                         </div>
                     </CardHeader>
-                    <CardContent className="px-4 pb-3">
-                        <div className="text-xl font-bold text-foreground">{totalMembersInProject}</div>
-                        <p className="text-[11px] text-muted-foreground mt-1">
-                            Thành viên trong dự án
+                    <CardContent className="px-3 pb-2">
+                        <div className="text-lg font-bold text-foreground leading-none">{totalMembersInProject}</div>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                            người tham gia
                         </p>
                     </CardContent>
                 </Card>
 
-                {(project as any)?.start_date && (
-                    <Card className="hover:shadow-lg hover:border-primary/50 transition-all py-3">
-                        <CardHeader className="flex flex-row items-center justify-between pb-1 px-4 pt-3">
-                            <CardTitle className="text-xs font-semibold">Bắt Đầu</CardTitle>
-                            <div className="p-2 rounded-lg bg-green-500/10">
-                                <CalendarDays className="h-4 w-4 text-green-600" />
+                {/* Bắt đầu */}
+                {(project as any)?.start_date ? (
+                    <Card className="hover:shadow-lg hover:border-primary/50 transition-all py-1.5">
+                        <CardHeader className="flex flex-row items-center justify-between pb-0.5 px-3 pt-2">
+                            <CardTitle className="text-[11px] font-semibold text-muted-foreground">Bắt Đầu</CardTitle>
+                            <div className="p-1.5 rounded-lg bg-green-500/10">
+                                <CalendarDays className="h-3.5 w-3.5 text-green-600" />
                             </div>
                         </CardHeader>
-                        <CardContent className="px-4 pb-3">
-                            <div className="text-base font-bold text-foreground">
-                                {format(new Date((project as any).start_date), "MMM d, yyyy")}
+                        <CardContent className="px-3 pb-2">
+                            <div className="text-sm font-bold text-foreground leading-none">
+                                {format(new Date((project as any).start_date), "dd/MM/yyyy")}
                             </div>
-                            <p className="text-[11px] text-muted-foreground mt-1">
-                                Ngày bắt đầu dự án
+                            <p className="text-[10px] text-muted-foreground mt-0.5">Ngày bắt đầu</p>
+                        </CardContent>
+                    </Card>
+                ) : <div />}
+
+                {/* Kết thúc */}
+                {(project as any)?.end_date ? (
+                    <Card className={cn('hover:shadow-lg transition-all py-1.5', timelineInfo?.isOverdue ? 'border-rose-200 hover:border-rose-400' : 'hover:border-primary/50')}>
+                        <CardHeader className="flex flex-row items-center justify-between pb-0.5 px-3 pt-2">
+                            <CardTitle className="text-[11px] font-semibold text-muted-foreground">Kết Thúc</CardTitle>
+                            <div className={cn('p-1.5 rounded-lg', timelineInfo?.isOverdue ? 'bg-rose-100' : 'bg-orange-500/10')}>
+                                <CalendarDays className={cn('h-3.5 w-3.5', timelineInfo?.isOverdue ? 'text-rose-500' : 'text-orange-600')} />
+                            </div>
+                        </CardHeader>
+                        <CardContent className="px-3 pb-2">
+                            <div className={cn('text-sm font-bold leading-none', timelineInfo?.isOverdue ? 'text-rose-600' : 'text-foreground')}>
+                                {format(new Date((project as any).end_date), "dd/MM/yyyy")}
+                            </div>
+                            <p className="text-[10px] text-muted-foreground mt-0.5">
+                                {timelineInfo ? (timelineInfo.isOverdue ? '⚠ Đã quá hạn' : `Còn ${timelineInfo.remaining} ngày`) : 'Ngày kết thúc'}
                             </p>
                         </CardContent>
+                    </Card>
+                ) : <div />}
+            </div>
+
+            {/* GitHub Statistics & Activity */}
+            {project?.githubRepoUrl && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Commits & Branches Stats */}
+                    <Card className="md:col-span-1 p-4 flex flex-col justify-between h-[220px]">
+                        <div className="flex flex-col flex-1 min-h-0">
+                            <div className="flex items-center justify-between border-b pb-1.5 shrink-0">
+                                <h3 className="font-semibold text-xs flex items-center gap-1.5">
+                                    <Github className="size-3.5 text-slate-800" />
+                                    Thống kê GitHub
+                                </h3>
+                                <Badge variant="secondary" className="text-[9px] py-0 px-1.5 bg-green-50 text-green-700 border border-green-200">Connected</Badge>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-3 mt-2 shrink-0">
+                                <div className="bg-slate-50/50 p-1.5 rounded-lg border border-slate-100/50 text-center">
+                                    <p className="text-[10px] text-muted-foreground flex items-center justify-center gap-1">
+                                        <GitBranch className="size-3 text-blue-500" />
+                                        Branches
+                                    </p>
+                                    <p className="text-base font-bold text-slate-800 mt-0.5">{githubStats?.branchesCount ?? "-"}</p>
+                                </div>
+                                <div className="bg-slate-50/50 p-1.5 rounded-lg border border-slate-100/50 text-center">
+                                    <p className="text-[10px] text-muted-foreground flex items-center justify-center gap-1">
+                                        <GitCommit className="size-3 text-green-500" />
+                                        Commits
+                                    </p>
+                                    <p className="text-base font-bold text-slate-800 mt-0.5">{githubStats?.commitsCount ?? "-"}</p>
+                                </div>
+                            </div>
+                            
+                            {/* List of branches */}
+                            <div className="flex-1 min-h-0 mt-2 border-t pt-1.5 flex flex-col justify-start">
+                                <p className="text-[9px] text-muted-foreground font-semibold mb-1 shrink-0">Branches:</p>
+                                <div className="flex-1 overflow-y-auto max-h-[50px] pr-1">
+                                    {githubStats?.branches && githubStats.branches.length > 0 ? (
+                                        <div className="flex flex-wrap gap-1">
+                                            {githubStats.branches.map((branch) => (
+                                                <Badge key={branch} variant="outline" className="text-[9px] font-mono bg-slate-50 text-slate-600 border-slate-200 py-0.5 px-1.5">
+                                                    {branch}
+                                                </Badge>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-[9px] text-muted-foreground italic">Không có branch nào</p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div className="text-[9px] text-muted-foreground mt-1.5 border-t pt-1.5 italic shrink-0 truncate">
+                            Repo: {project.githubRepoOwner}/{project.githubRepoName}
+                        </div>
+                    </Card>
+
+                    {/* Latest Commits Activity Feed */}
+                    <Card className="md:col-span-2 p-4 flex flex-col h-[220px]">
+                        <div className="flex items-center justify-between border-b pb-2 mb-3 shrink-0">
+                            <h3 className="font-semibold text-sm flex items-center gap-2">
+                                <Activity className="size-4 text-indigo-500" />
+                                Lịch sử Commits mới nhất
+                            </h3>
+                        </div>
+                        <ScrollArea className="flex-1 min-h-0">
+                            {githubStats?.latestCommits && githubStats.latestCommits.length > 0 ? (
+                                <div className="space-y-2 pr-3">
+                                    {githubStats.latestCommits.map((commit) => {
+                                        const commitBranch = commit.branch || 'main';
+                                        return (
+                                            <a
+                                                key={commit.sha}
+                                                href={`https://github.com/${project.githubRepoOwner}/${project.githubRepoName}/commit/${commit.sha}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="flex items-start justify-between gap-4 p-2 rounded-lg bg-muted/30 border border-muted text-xs hover:bg-slate-50 hover:border-blue-200 transition-all cursor-pointer block"
+                                            >
+                                                <div className="space-y-1 min-w-0">
+                                                    <div className="flex items-center gap-1.5 flex-wrap">
+                                                        <Badge variant="outline" className="text-[9px] font-mono bg-blue-50 text-blue-600 border-blue-200 py-0 px-1 shrink-0">
+                                                            {commitBranch}
+                                                        </Badge>
+                                                        <span className="text-slate-400 text-[10px] shrink-0">➔</span>
+                                                        <p className="font-medium text-foreground truncate max-w-[320px] inline">
+                                                            {commit.message}
+                                                        </p>
+                                                    </div>
+                                                    <p className="text-muted-foreground text-[10px]">
+                                                        bởi <span className="font-medium text-foreground">{commit.author}</span> • {format(new Date(commit.date), "dd/MM/yyyy HH:mm")}
+                                                    </p>
+                                                </div>
+                                                <Badge variant="outline" className="font-mono text-[9px] shrink-0 bg-white">
+                                                    {commit.sha.substring(0, 7)}
+                                                </Badge>
+                                            </a>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                <div className="text-center py-8 text-xs text-muted-foreground">
+                                    Chưa có dữ liệu commits. Hãy nhấn "Đồng bộ GitHub" để cập nhật.
+                                </div>
+                            )}
+                        </ScrollArea>
+                    </Card>
+                </div>
+            )}
+
+            {/* === ANALYTICS SECTION — chỉ Admin & Leader === */}
+            {user?.role !== 'Member' && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+                {/* Timeline dự án */}
+                {timelineInfo && (
+                    <Card className="lg:col-span-3 p-4 border-l-4 border-l-teal-500">
+                        <div className="flex items-center justify-between mb-3">
+                            <h3 className="font-semibold text-sm flex items-center gap-2">
+                                <CalendarDays className="size-4 text-teal-600" />
+                                Timeline Dự Án
+                            </h3>
+                            <div className="flex items-center gap-3 text-xs">
+                                <span className="text-muted-foreground">Bắt đầu: <span className="font-medium text-foreground">{format(timelineInfo.start, 'dd/MM/yyyy')}</span></span>
+                                <span className="text-slate-400">→</span>
+                                <span className="text-muted-foreground">Kết thúc: <span className={cn('font-medium', timelineInfo.isOverdue ? 'text-rose-600' : 'text-foreground')}>{format(timelineInfo.end, 'dd/MM/yyyy')}</span></span>
+                            </div>
+                        </div>
+                        <div className="space-y-1.5">
+                            <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                <span>Đã dùng {timelineInfo.elapsed} ngày / {timelineInfo.total} ngày</span>
+                                <span className={cn('font-semibold', timelineInfo.isOverdue ? 'text-rose-600' : timelineInfo.percentTime > 80 ? 'text-amber-600' : 'text-teal-600')}>
+                                    {timelineInfo.isOverdue ? '⚠ Đã quá hạn!' : `Còn ${timelineInfo.remaining} ngày`}
+                                </span>
+                            </div>
+                            <div className="relative w-full h-3 rounded-full bg-slate-100 overflow-hidden">
+                                <div
+                                    className={cn('h-full rounded-full transition-all', timelineInfo.isOverdue ? 'bg-rose-500' : timelineInfo.percentTime > 80 ? 'bg-amber-500' : 'bg-teal-500')}
+                                    style={{ width: `${Math.min(timelineInfo.percentTime, 100)}%` }}
+                                />
+                                <div
+                                    className="absolute top-0 h-full border-r-2 border-dashed border-teal-700/50"
+                                    style={{ left: `${Math.min(timelineInfo.percentTime, 100)}%` }}
+                                />
+                            </div>
+                            <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+                                <span className="text-teal-600 font-medium">{timelineInfo.percentTime}% thời gian đã qua</span>
+                                <span className="text-blue-600 font-medium">{projectProgess || 0}% công việc hoàn thành</span>
+                            </div>
+                        </div>
                     </Card>
                 )}
 
-                {(project as any)?.end_date && (
-                    <Card className="hover:shadow-lg hover:border-primary/50 transition-all py-3">
-                        <CardHeader className="flex flex-row items-center justify-between pb-1 px-4 pt-3">
-                            <CardTitle className="text-xs font-semibold">Kết Thúc</CardTitle>
-                            <div className="p-2 rounded-lg bg-orange-500/10">
-                                <CalendarDays className="h-4 w-4 text-orange-600" />
-                            </div>
-                        </CardHeader>
-                        <CardContent className="px-4 pb-3">
-                            <div className="text-base font-bold text-foreground">
-                                {format(new Date((project as any).end_date), "MMM d, yyyy")}
-                            </div>
-                            <p className="text-[11px] text-muted-foreground mt-1">
-                                Ngày kết thúc dự án
-                            </p>
-                        </CardContent>
-                    </Card>
-                )}
+                {/* Card cảnh báo task sắp hết hạn */}
+                <Card className={cn('p-4', upcomingDeadlineTasks.length > 0 ? 'border-l-4 border-l-rose-500' : 'border-l-4 border-l-slate-200')}>
+                    <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-semibold text-sm flex items-center gap-2">
+                            <AlertTriangle className={cn('size-4', upcomingDeadlineTasks.length > 0 ? 'text-rose-500' : 'text-slate-400')} />
+                            Cảnh Báo Deadline
+                        </h3>
+                        {overdueCount > 0 && (
+                            <Badge className="bg-rose-100 text-rose-700 border-rose-200 text-[10px] font-bold">
+                                {overdueCount} quá hạn
+                            </Badge>
+                        )}
+                    </div>
+                    {upcomingDeadlineTasks.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-6 gap-2 text-center">
+                            <ShieldCheck className="size-8 text-teal-400 opacity-60" />
+                            <p className="text-xs text-muted-foreground">Không có task nào sắp hết hạn</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-2 max-h-[200px] overflow-y-auto pr-1">
+                            {upcomingDeadlineTasks.slice(0, 6).map((task) => {
+                                const due = new Date(task.dueDate!);
+                                const daysLeft = differenceInDays(due, new Date());
+                                const isOver = daysLeft < 0;
+                                return (
+                                    <button
+                                        key={task.id}
+                                        onClick={() => handleTaskClick(String(task.id))}
+                                        className="w-full text-left p-2 rounded-md border hover:bg-rose-50 transition-colors group"
+                                    >
+                                        <p className="text-xs font-medium text-foreground truncate group-hover:text-rose-700">{task.title}</p>
+                                        <div className="flex items-center justify-between mt-0.5">
+                                            <span className="text-[10px] text-muted-foreground">{format(due, 'dd/MM/yyyy')}</span>
+                                            <span className={cn('text-[10px] font-semibold', isOver ? 'text-rose-600' : daysLeft === 0 ? 'text-amber-600' : 'text-orange-500')}>
+                                                {isOver ? `Trễ ${Math.abs(daysLeft)} ngày` : daysLeft === 0 ? 'Hôm nay!' : `Còn ${daysLeft} ngày`}
+                                            </span>
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    )}
+                </Card>
+
+                {/* Phân bổ task theo thành viên */}
+                <Card className="p-4">
+                    <h3 className="font-semibold text-sm flex items-center gap-2 mb-3">
+                        <Users className="size-4 text-blue-500" />
+                        Phân Bổ Task Theo Thành Viên
+                    </h3>
+                    {memberTaskDistribution.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-6 gap-2 text-center">
+                            <Users className="size-8 text-slate-300" />
+                            <p className="text-xs text-muted-foreground">Chưa có task được giao</p>
+                        </div>
+                    ) : (
+                        <ResponsiveContainer width="100%" height={180}>
+                            <BarChart data={memberTaskDistribution} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                                <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                                <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
+                                <Tooltip
+                                    contentStyle={{ fontSize: 11 }}
+                                    formatter={(value: number, name: string) => [
+                                        value,
+                                        name === 'todo' ? 'Chưa làm' : name === 'inProgress' ? 'Đang làm' : 'Hoàn thành'
+                                    ]}
+                                />
+                                <Bar dataKey="todo" fill="#94a3b8" name="todo" stackId="a" radius={[0,0,0,0]} />
+                                <Bar dataKey="inProgress" fill="#f59e0b" name="inProgress" stackId="a" />
+                                <Bar dataKey="done" fill="#0d9488" name="done" stackId="a" radius={[4,4,0,0]} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    )}
+                    <div className="flex items-center gap-3 mt-2 justify-center">
+                        <span className="flex items-center gap-1 text-[10px] text-slate-500"><span className="w-2.5 h-2.5 rounded-sm bg-slate-400 inline-block" />Chưa làm</span>
+                        <span className="flex items-center gap-1 text-[10px] text-amber-600"><span className="w-2.5 h-2.5 rounded-sm bg-amber-400 inline-block" />Đang làm</span>
+                        <span className="flex items-center gap-1 text-[10px] text-teal-600"><span className="w-2.5 h-2.5 rounded-sm bg-teal-500 inline-block" />Hoàn thành</span>
+                    </div>
+                </Card>
+
+                {/* Tốc độ hoàn thành 7 ngày qua */}
+                <Card className="p-4">
+                    <h3 className="font-semibold text-sm flex items-center gap-2 mb-3">
+                        <TrendingUp className="size-4 text-teal-500" />
+                        Task Hoàn Thành (7 Ngày Qua)
+                    </h3>
+                    <ResponsiveContainer width="100%" height={180}>
+                        <BarChart data={weeklyCompletionData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                            <XAxis dataKey="label" tick={{ fontSize: 10 }} />
+                            <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
+                            <Tooltip
+                                contentStyle={{ fontSize: 11 }}
+                                formatter={(value: number) => [value, 'Task done']}
+                            />
+                            <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+                                {weeklyCompletionData.map((entry, index) => (
+                                    <Cell key={index} fill={entry.count > 0 ? '#0d9488' : '#e2e8f0'} />
+                                ))}
+                            </Bar>
+                        </BarChart>
+                    </ResponsiveContainer>
+                    <p className="text-[10px] text-muted-foreground text-center mt-1">
+                        Tổng: <span className="font-semibold text-teal-600">{weeklyCompletionData.reduce((s, d) => s + d.count, 0)}</span> task Done trong 7 ngày
+                    </p>
+                </Card>
             </div>
+            )} {/* end analytics — Admin & Leader only */}
 
             {/* Task Details Dialog */}
             <Dialog open={isTaskDialogOpen} onOpenChange={setIsTaskDialogOpen}>
@@ -775,7 +1330,23 @@ const ProjectDetails = () => {
                                         }}
                                     >
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-medium truncate">{task.title}</p>
+                                            <div className="flex items-center gap-1.5 flex-wrap">
+                                                <p className="text-sm font-medium truncate">{task.title}</p>
+                                                {task.githubIssueUrl && (
+                                                    <a
+                                                        href={task.githubIssueUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        onClick={(e) => e.stopPropagation()}
+                                                        className="inline-flex items-center gap-1 text-[9px] bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-1.5 py-0.5 rounded border border-slate-200/60 transition-colors"
+                                                    >
+                                                        <svg className="size-2.5 text-slate-700" viewBox="0 0 16 16" fill="currentColor">
+                                                            <path fillRule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+                                                        </svg>
+                                                        <span>#{task.githubIssueNumber || 'Issue'}</span>
+                                                    </a>
+                                                )}
+                                            </div>
                                             <div className="flex items-center gap-2 mt-1">
                                                 <Badge
                                                     variant="outline"
@@ -895,10 +1466,35 @@ const ProjectDetails = () => {
                                                                         ? 'Leader'
                                                                         : 'Member'}
                                                     </Badge>
+                                                    {project?.githubRepoUrl && (
+                                                        <Badge 
+                                                            variant="outline" 
+                                                            className={cn(
+                                                                "text-[10px] py-0 px-1.5 font-semibold",
+                                                                member.status === 'Active'
+                                                                    ? "bg-green-50 text-green-700 border-green-200"
+                                                                    : "bg-amber-50 text-amber-700 border-amber-200"
+                                                            )}
+                                                        >
+                                                            {member.status === 'Active' ? 'Active (GitHub)' : 'Pending (GitHub Invite)'}
+                                                        </Badge>
+                                                    )}
                                                 </div>
                                                 <p className="text-xs text-muted-foreground truncate">
                                                     {memberUser?.email || "Không có email"}
                                                 </p>
+                                                {memberUser?.githubUsername && (
+                                                    <a
+                                                        href={`https://github.com/${memberUser.githubUsername}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="inline-flex items-center gap-1 text-[11px] text-slate-500 hover:text-slate-800 transition-colors mt-0.5"
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    >
+                                                        <Github className="size-3" />
+                                                        <span>@{memberUser.githubUsername}</span>
+                                                    </a>
+                                                )}
                                             </div>
                                             {canDelete && (
                                                 <Button
@@ -956,6 +1552,17 @@ const ProjectDetails = () => {
                                 <div className="p-2 space-y-2">
                                     {availableUsers.map((userItem: any) => {
                                         const isSelected = selectedUserId === userItem.id;
+                                        const systemRoleRaw = (userItem?.role as string | undefined) || '';
+                                        const systemRole = systemRoleRaw.toLowerCase();
+
+                                        const getLastNameInitial = (username: string) => {
+                                            if (!username || username.trim() === "") return "";
+                                            const names = username.trim().split(" ").filter(name => name.length > 0);
+                                            if (names.length === 0) return "";
+                                            const lastName = names[names.length - 1];
+                                            return lastName.charAt(0).toUpperCase();
+                                        };
+
                                         return (
                                             <div
                                                 key={userItem.id}
@@ -965,15 +1572,36 @@ const ProjectDetails = () => {
                                                         : "hover:bg-accent border-transparent"
                                                     }`}
                                             >
-                                                <Avatar className="size-8">
+                                                <Avatar className="size-10">
                                                     <AvatarImage src={userItem.avatarUrl || undefined} />
                                                     <AvatarFallback>
-                                                        {userItem.username?.charAt(0).toUpperCase() || "U"}
+                                                        {userItem.username
+                                                            ? getLastNameInitial(userItem.username)
+                                                            : "U"}
                                                     </AvatarFallback>
                                                 </Avatar>
                                                 <div className="flex-1 min-w-0">
-                                                    <p className="text-sm font-medium truncate">{userItem.username}</p>
-                                                    <p className="text-xs text-muted-foreground truncate">{userItem.email}</p>
+                                                    <div className="flex items-center gap-2">
+                                                        <p className="text-sm font-medium truncate">
+                                                            {userItem.username}
+                                                        </p>
+                                                        <Badge variant="outline" className="text-[10px] py-0 px-1 font-semibold">
+                                                            {systemRole === 'admin'
+                                                                ? 'Admin'
+                                                                : systemRole === 'leader' || systemRole === 'kleader'
+                                                                    ? 'Leader'
+                                                                    : 'Member'}
+                                                        </Badge>
+                                                    </div>
+                                                    <p className="text-xs text-muted-foreground truncate">
+                                                        {userItem.email}
+                                                    </p>
+                                                    {userItem.githubUsername && (
+                                                        <div className="inline-flex items-center gap-1 text-[11px] text-slate-500 mt-0.5">
+                                                            <Github className="size-3" />
+                                                            <span>@{userItem.githubUsername}</span>
+                                                        </div>
+                                                    )}
                                                 </div>
                                                 {isSelected && (
                                                     <div className="size-4 rounded-full bg-primary flex items-center justify-center">

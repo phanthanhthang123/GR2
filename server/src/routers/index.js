@@ -4,6 +4,7 @@ import workspaceRouter from './workspace';
 import taskRouter from './task';
 import chatRouter from './chat';
 import notificationRouter from './notification';
+import githubRouter from './github';
 
 import { checkActiveStatus } from '../middlewares/checkActiveStatus';
 
@@ -15,6 +16,7 @@ const initRoutes = (app) => {
     app.use('/api/v1/task', taskRouter);
     app.use('/api/v1/chat', chatRouter);
     app.use('/api/v1/notification', notificationRouter);
+    app.use('/api/v1/github', githubRouter);
 
     return app.use('/', (req, res) => {
         res.send('Server on ...');

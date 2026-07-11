@@ -348,6 +348,7 @@ export const getAllUsersService = (searchQuery) => new Promise(async (resolve, r
                 'kpiScore', 'kpiModelAtSignup',
                 'cpa', 'interviewScore', 'cvScore',
                 'yearsAtCompany', 'yearsExperience', 'numProjectsPrior',
+                'githubUsername'
             ],
             order: [['username', 'ASC']],
             limit: 100 // Limit to prevent loading too many users

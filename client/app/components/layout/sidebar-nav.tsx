@@ -16,6 +16,7 @@ interface SidebarNavProps extends React.HTMLAttributes<HTMLDivElement> {
   chatUnreadCount?: number;
   className?: string;
   onItemClick?: () => void;
+  theme?: "admin" | "user";
 }
 
 export const SidebarNav = ({
@@ -25,6 +26,7 @@ export const SidebarNav = ({
   currentWorkspace,
   chatUnreadCount = 0,
   onItemClick,
+  theme = "user",
   ...props
 }: SidebarNavProps) => {
   const location = useLocation();
@@ -35,6 +37,8 @@ export const SidebarNav = ({
   useEffect(() => {
     setClickedHref(null);
   }, [location.pathname]);
+  
+  const isAdmin = theme === "admin";
   
   return (
     <nav className={cn("flex flex-col gap-y-2", className)} {...props}>
@@ -75,20 +79,26 @@ export const SidebarNav = ({
         variant={isActive ? "outline" : "ghost"}
         data-active={isActive}
         className={cn(
-          "justify-start",
-          isActive && "!bg-blue-800/20 !text-blue-600 font-medium hover:!bg-blue-800/20 hover:!text-blue-600 focus-visible:!bg-blue-800/20 focus-visible:!text-blue-600"
+          "justify-start transition-all duration-200 border-none font-medium",
+          isAdmin 
+            ? isActive 
+              ? "!bg-teal-600 !text-white hover:!bg-teal-600 focus-visible:!bg-teal-600 shadow-sm shadow-teal-900/20" 
+              : "text-slate-300 hover:text-white hover:bg-slate-800/60 focus-visible:bg-slate-800/60"
+            : isActive 
+              ? "!bg-blue-800/20 !text-blue-600 hover:!bg-blue-800/20 hover:!text-blue-600 focus-visible:!bg-blue-800/20 focus-visible:!text-blue-600" 
+              : ""
         )}
         onMouseDown={handleMouseDown}
         onClick={handleClick}
         >
-            <Icon className="mr-2 size-4"/>
+            <Icon className={cn("mr-2 size-4 shrink-0 transition-transform duration-200", isActive && "scale-110")} />
             {isCollapsed ? (
               <span className="sr-only">{el.title}</span>
             ) : (
               <span className="flex items-center justify-between w-full">
                 <span>{el.title}</span>
                 {showBadge ? (
-                  <span className="ml-2 min-w-5 h-5 px-1 rounded-full bg-red-500 text-white text-[11px] leading-5 text-center">
+                  <span className="ml-2 min-w-5 h-5 px-1 rounded-full bg-rose-600 text-white text-[11px] leading-5 text-center font-bold">
                     {chatBadgeText}
                   </span>
                 ) : null}

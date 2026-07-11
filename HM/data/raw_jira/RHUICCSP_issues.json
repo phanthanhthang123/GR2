@@ -1,0 +1,1773 @@
+{
+  "issues": [
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "6428332",
+      "self": "https://redhat.atlassian.net/rest/api/2/issue/6428332",
+      "key": "RHUICCSP-65",
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 1,
+        "total": 1,
+        "histories": [
+          {
+            "id": "83764760",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=557058%3Af58131cb-b67d-43c7-b30d-6b58d40bd077",
+              "accountId": "557058:f58131cb-b67d-43c7-b30d-6b58d40bd077",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/600529a9c8bfef89daa848e6db28ed2d?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAJ-0.png",
+                "24x24": "https://secure.gravatar.com/avatar/600529a9c8bfef89daa848e6db28ed2d?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAJ-0.png",
+                "16x16": "https://secure.gravatar.com/avatar/600529a9c8bfef89daa848e6db28ed2d?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAJ-0.png",
+                "32x32": "https://secure.gravatar.com/avatar/600529a9c8bfef89daa848e6db28ed2d?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAJ-0.png"
+              },
+              "displayName": "Automation for Jira",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "app"
+            },
+            "created": "2026-07-09T16:11:46.339+0000",
+            "items": [
+              {
+                "field": "Intelligence Requested",
+                "fieldtype": "custom",
+                "fieldId": "customfield_10986",
+                "from": null,
+                "fromString": null,
+                "to": "rfv1:k1:016011022029015000000000:FjFI4vRDXIGtYHewzEzZdaPH9V2fVxqQyVjaS1sekg29EjebK182eW+9Dn5gfdb9vhoPLig9PvnhJYwjWIkR7g==",
+                "toString": "rfv1:k1:016011022029015000000000:FjFI4vRDXIGtYHewzEzZdaPH9V2fVxqQyVjaS1sekg29EjebK182eW+9Dn5gfdb9vhoPLig9PvnhJYwjWIkR7g=="
+              }
+            ],
+            "historyMetadata": {}
+          }
+        ]
+      },
+      "fields": {
+        "summary": "Security Central CVE findings in RHUI container images",
+        "issuetype": {
+          "self": "https://redhat.atlassian.net/rest/api/2/issuetype/10016",
+          "id": "10016",
+          "description": "A problem or error.",
+          "iconUrl": "https://redhat.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10303?size=medium",
+          "name": "Bug",
+          "subtask": false,
+          "avatarId": 10303,
+          "hierarchyLevel": 0
+        },
+        "created": "2026-07-09T16:11:43.471+0000",
+        "resolutiondate": null,
+        "duedate": null,
+        "assignee": null,
+        "priority": {
+          "self": "https://redhat.atlassian.net/rest/api/2/priority/10005",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/priorities/trivial.svg",
+          "name": "Undefined",
+          "id": "10005"
+        },
+        "updated": "2026-07-09T16:11:46.339+0000",
+        "status": {
+          "self": "https://redhat.atlassian.net/rest/api/2/status/10142",
+          "description": "Initial creation status. Implies nothing yet and should be very short lived; also can be a Bugzilla status.",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/statuses/generic.png",
+          "name": "New",
+          "id": "10142",
+          "statusCategory": {
+            "self": "https://redhat.atlassian.net/rest/api/2/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        }
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "6180837",
+      "self": "https://redhat.atlassian.net/rest/api/2/issue/6180837",
+      "key": "RHUICCSP-61",
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 3,
+        "total": 3,
+        "histories": [
+          {
+            "id": "82600648",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=70121%3A59ee1426-efae-4f81-88d5-4b8d3ca3e8f1",
+              "accountId": "70121:59ee1426-efae-4f81-88d5-4b8d3ca3e8f1",
+              "avatarUrls": {
+                "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/RB-4.png",
+                "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/RB-4.png",
+                "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/RB-4.png",
+                "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/RB-4.png"
+              },
+              "displayName": "Radek Biba",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2026-06-23T13:22:00.137+0000",
+            "items": [
+              {
+                "field": "resolution",
+                "fieldtype": "jira",
+                "fieldId": "resolution",
+                "from": null,
+                "fromString": null,
+                "to": "10037",
+                "toString": "Not a Bug"
+              },
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "fieldId": "status",
+                "from": "10142",
+                "fromString": "New",
+                "to": "6",
+                "toString": "Closed"
+              }
+            ]
+          },
+          {
+            "id": "82040178",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=5cbf8354069f210efa0df2df",
+              "accountId": "5cbf8354069f210efa0df2df",
+              "avatarUrls": {
+                "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/MP-6.png",
+                "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/MP-6.png",
+                "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/MP-6.png",
+                "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/MP-6.png"
+              },
+              "displayName": "mb Pierce",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2026-06-17T11:23:14.092+0000",
+            "items": [
+              {
+                "field": "Ready",
+                "fieldtype": "custom",
+                "fieldId": "customfield_10484",
+                "from": "10472",
+                "fromString": "False",
+                "to": "10471",
+                "toString": "True"
+              }
+            ]
+          },
+          {
+            "id": "81945832",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=557058%3Af58131cb-b67d-43c7-b30d-6b58d40bd077",
+              "accountId": "557058:f58131cb-b67d-43c7-b30d-6b58d40bd077",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/600529a9c8bfef89daa848e6db28ed2d?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAJ-0.png",
+                "24x24": "https://secure.gravatar.com/avatar/600529a9c8bfef89daa848e6db28ed2d?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAJ-0.png",
+                "16x16": "https://secure.gravatar.com/avatar/600529a9c8bfef89daa848e6db28ed2d?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAJ-0.png",
+                "32x32": "https://secure.gravatar.com/avatar/600529a9c8bfef89daa848e6db28ed2d?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAJ-0.png"
+              },
+              "displayName": "Automation for Jira",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "app"
+            },
+            "created": "2026-06-16T18:28:20.096+0000",
+            "items": [
+              {
+                "field": "Intelligence Requested",
+                "fieldtype": "custom",
+                "fieldId": "customfield_10986",
+                "from": null,
+                "fromString": null,
+                "to": "FjFI4vRDXIGtYHewzEzZdaPH9V2fVxqQyVjaS1sekg29EjebK182eW+9Dn5gfdb9vhoPLig9PvnhJYwjWIkR7g==",
+                "toString": "FjFI4vRDXIGtYHewzEzZdaPH9V2fVxqQyVjaS1sekg29EjebK182eW+9Dn5gfdb9vhoPLig9PvnhJYwjWIkR7g=="
+              }
+            ],
+            "historyMetadata": {}
+          }
+        ]
+      },
+      "fields": {
+        "summary": "Syncing all repos results in error",
+        "issuetype": {
+          "self": "https://redhat.atlassian.net/rest/api/2/issuetype/10016",
+          "id": "10016",
+          "description": "A problem or error.",
+          "iconUrl": "https://redhat.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10303?size=medium",
+          "name": "Bug",
+          "subtask": false,
+          "avatarId": 10303,
+          "hierarchyLevel": 0
+        },
+        "created": "2026-06-16T18:28:12.942+0000",
+        "resolutiondate": "2026-06-23T13:22:00.116+0000",
+        "duedate": null,
+        "assignee": null,
+        "priority": {
+          "self": "https://redhat.atlassian.net/rest/api/2/priority/10005",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/priorities/trivial.svg",
+          "name": "Undefined",
+          "id": "10005"
+        },
+        "updated": "2026-06-23T13:22:00.137+0000",
+        "status": {
+          "self": "https://redhat.atlassian.net/rest/api/2/status/6",
+          "description": "The work item is considered finished, the resolution is correct. work items which are closed can be reopened.",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/statuses/closed.png",
+          "name": "Closed",
+          "id": "6",
+          "statusCategory": {
+            "self": "https://redhat.atlassian.net/rest/api/2/statuscategory/3",
+            "id": 3,
+            "key": "done",
+            "colorName": "green",
+            "name": "Done"
+          }
+        }
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "5776930",
+      "self": "https://redhat.atlassian.net/rest/api/2/issue/5776930",
+      "key": "RHUICCSP-48",
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 4,
+        "total": 4,
+        "histories": [
+          {
+            "id": "77838457",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3Ac401f76f-4995-4c85-a249-e839c254456f",
+              "accountId": "712020:c401f76f-4995-4c85-a249-e839c254456f",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/625111deeffc1a3ec666385cbfb3bb92?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FYK-3.png",
+                "24x24": "https://secure.gravatar.com/avatar/625111deeffc1a3ec666385cbfb3bb92?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FYK-3.png",
+                "16x16": "https://secure.gravatar.com/avatar/625111deeffc1a3ec666385cbfb3bb92?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FYK-3.png",
+                "32x32": "https://secure.gravatar.com/avatar/625111deeffc1a3ec666385cbfb3bb92?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FYK-3.png"
+              },
+              "displayName": "Yasushi Kawajiri",
+              "active": true,
+              "timeZone": "Japan",
+              "accountType": "atlassian"
+            },
+            "created": "2026-04-20T06:53:38.407+0000",
+            "items": [
+              {
+                "field": "resolution",
+                "fieldtype": "jira",
+                "fieldId": "resolution",
+                "from": null,
+                "fromString": null,
+                "to": "10037",
+                "toString": "Not a Bug"
+              },
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "fieldId": "status",
+                "from": "10142",
+                "fromString": "New",
+                "to": "6",
+                "toString": "Closed"
+              }
+            ]
+          },
+          {
+            "id": "77838422",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=557058%3Ad2e5bd5c-dc49-41eb-a6f0-5e01093666c1",
+              "accountId": "557058:d2e5bd5c-dc49-41eb-a6f0-5e01093666c1",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/ef67bf2d6b781cf719eaa378d89efbbc?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSJ-0.png",
+                "24x24": "https://secure.gravatar.com/avatar/ef67bf2d6b781cf719eaa378d89efbbc?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSJ-0.png",
+                "16x16": "https://secure.gravatar.com/avatar/ef67bf2d6b781cf719eaa378d89efbbc?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSJ-0.png",
+                "32x32": "https://secure.gravatar.com/avatar/ef67bf2d6b781cf719eaa378d89efbbc?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSJ-0.png"
+              },
+              "displayName": "ScriptRunner for Jira",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "app"
+            },
+            "created": "2026-04-20T06:53:09.023+0000",
+            "items": [
+              {
+                "field": "Contributing Groups",
+                "fieldtype": "custom",
+                "fieldId": "customfield_10479",
+                "from": null,
+                "fromString": null,
+                "to": null,
+                "toString": "[Fujitsu Confidential Group]"
+              }
+            ]
+          },
+          {
+            "id": "77838421",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=557058%3Af58131cb-b67d-43c7-b30d-6b58d40bd077",
+              "accountId": "557058:f58131cb-b67d-43c7-b30d-6b58d40bd077",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/600529a9c8bfef89daa848e6db28ed2d?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAJ-0.png",
+                "24x24": "https://secure.gravatar.com/avatar/600529a9c8bfef89daa848e6db28ed2d?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAJ-0.png",
+                "16x16": "https://secure.gravatar.com/avatar/600529a9c8bfef89daa848e6db28ed2d?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAJ-0.png",
+                "32x32": "https://secure.gravatar.com/avatar/600529a9c8bfef89daa848e6db28ed2d?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAJ-0.png"
+              },
+              "displayName": "Automation for Jira",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "app"
+            },
+            "created": "2026-04-20T06:53:08.548+0000",
+            "items": [
+              {
+                "field": "Intelligence Requested",
+                "fieldtype": "custom",
+                "fieldId": "customfield_10986",
+                "from": null,
+                "fromString": null,
+                "to": "FjFI4vRDXIGtYHewzEzZdaPH9V2fVxqQyVjaS1sekg29EjebK182eW+9Dn5gfdb9vhoPLig9PvnhJYwjWIkR7g==",
+                "toString": "FjFI4vRDXIGtYHewzEzZdaPH9V2fVxqQyVjaS1sekg29EjebK182eW+9Dn5gfdb9vhoPLig9PvnhJYwjWIkR7g=="
+              }
+            ],
+            "historyMetadata": {}
+          },
+          {
+            "id": "77838420",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3A598d0282-7430-4a6c-9e89-fbd88679e424",
+              "accountId": "712020:598d0282-7430-4a6c-9e89-fbd88679e424",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/573dcb2fa1491b2623023b4ce48e2ea2?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FPA-0.png",
+                "24x24": "https://secure.gravatar.com/avatar/573dcb2fa1491b2623023b4ce48e2ea2?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FPA-0.png",
+                "16x16": "https://secure.gravatar.com/avatar/573dcb2fa1491b2623023b4ce48e2ea2?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FPA-0.png",
+                "32x32": "https://secure.gravatar.com/avatar/573dcb2fa1491b2623023b4ce48e2ea2?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FPA-0.png"
+              },
+              "displayName": "pme-bot service account",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2026-04-20T06:53:08.140+0000",
+            "items": [
+              {
+                "field": "Market",
+                "fieldtype": "custom",
+                "fieldId": "customfield_10995",
+                "from": null,
+                "fromString": null,
+                "to": "FjFI4vRDXIGtYHewzEzZdYXWY6xFXtu7gdqwi4jwotp0jcF9dQ8J7oaYqY+GVn2Es5tVs38SkVKTf8NaifU8Ng==",
+                "toString": "FjFI4vRDXIGtYHewzEzZdYXWY6xFXtu7gdqwi4jwotp0jcF9dQ8J7oaYqY+GVn2Es5tVs38SkVKTf8NaifU8Ng=="
+              }
+            ],
+            "historyMetadata": {}
+          }
+        ]
+      },
+      "fields": {
+        "summary": "[test][dry-run] dummy issue for testing",
+        "issuetype": {
+          "self": "https://redhat.atlassian.net/rest/api/2/issuetype/10016",
+          "id": "10016",
+          "description": "A problem or error.",
+          "iconUrl": "https://redhat.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10303?size=medium",
+          "name": "Bug",
+          "subtask": false,
+          "avatarId": 10303,
+          "hierarchyLevel": 0
+        },
+        "created": "2026-04-20T06:53:05.409+0000",
+        "resolutiondate": "2026-04-20T06:53:38.380+0000",
+        "duedate": null,
+        "assignee": null,
+        "priority": {
+          "self": "https://redhat.atlassian.net/rest/api/2/priority/10005",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/priorities/trivial.svg",
+          "name": "Undefined",
+          "id": "10005"
+        },
+        "updated": "2026-04-20T06:53:38.407+0000",
+        "status": {
+          "self": "https://redhat.atlassian.net/rest/api/2/status/6",
+          "description": "The work item is considered finished, the resolution is correct. work items which are closed can be reopened.",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/statuses/closed.png",
+          "name": "Closed",
+          "id": "6",
+          "statusCategory": {
+            "self": "https://redhat.atlassian.net/rest/api/2/statuscategory/3",
+            "id": 3,
+            "key": "done",
+            "colorName": "green",
+            "name": "Done"
+          }
+        }
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "5744979",
+      "self": "https://redhat.atlassian.net/rest/api/2/issue/5744979",
+      "key": "RHUICCSP-45",
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 7,
+        "total": 7,
+        "histories": [
+          {
+            "id": "77522682",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3Ac401f76f-4995-4c85-a249-e839c254456f",
+              "accountId": "712020:c401f76f-4995-4c85-a249-e839c254456f",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/625111deeffc1a3ec666385cbfb3bb92?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FYK-3.png",
+                "24x24": "https://secure.gravatar.com/avatar/625111deeffc1a3ec666385cbfb3bb92?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FYK-3.png",
+                "16x16": "https://secure.gravatar.com/avatar/625111deeffc1a3ec666385cbfb3bb92?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FYK-3.png",
+                "32x32": "https://secure.gravatar.com/avatar/625111deeffc1a3ec666385cbfb3bb92?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FYK-3.png"
+              },
+              "displayName": "Yasushi Kawajiri",
+              "active": true,
+              "timeZone": "Japan",
+              "accountType": "atlassian"
+            },
+            "created": "2026-04-14T00:46:14.552+0000",
+            "items": [
+              {
+                "field": "Contributing Groups",
+                "fieldtype": "custom",
+                "fieldId": "customfield_10479",
+                "from": null,
+                "fromString": "[Fujitsu Confidential Group]",
+                "to": null,
+                "toString": ""
+              }
+            ]
+          },
+          {
+            "id": "77522681",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3Ac401f76f-4995-4c85-a249-e839c254456f",
+              "accountId": "712020:c401f76f-4995-4c85-a249-e839c254456f",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/625111deeffc1a3ec666385cbfb3bb92?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FYK-3.png",
+                "24x24": "https://secure.gravatar.com/avatar/625111deeffc1a3ec666385cbfb3bb92?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FYK-3.png",
+                "16x16": "https://secure.gravatar.com/avatar/625111deeffc1a3ec666385cbfb3bb92?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FYK-3.png",
+                "32x32": "https://secure.gravatar.com/avatar/625111deeffc1a3ec666385cbfb3bb92?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FYK-3.png"
+              },
+              "displayName": "Yasushi Kawajiri",
+              "active": true,
+              "timeZone": "Japan",
+              "accountType": "atlassian"
+            },
+            "created": "2026-04-14T00:46:00.775+0000",
+            "items": [
+              {
+                "field": "security",
+                "fieldtype": "jira",
+                "fieldId": "security",
+                "from": "10039",
+                "fromString": "Red Hat Partner",
+                "to": null,
+                "toString": null
+              }
+            ]
+          },
+          {
+            "id": "77522678",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3Ac401f76f-4995-4c85-a249-e839c254456f",
+              "accountId": "712020:c401f76f-4995-4c85-a249-e839c254456f",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/625111deeffc1a3ec666385cbfb3bb92?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FYK-3.png",
+                "24x24": "https://secure.gravatar.com/avatar/625111deeffc1a3ec666385cbfb3bb92?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FYK-3.png",
+                "16x16": "https://secure.gravatar.com/avatar/625111deeffc1a3ec666385cbfb3bb92?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FYK-3.png",
+                "32x32": "https://secure.gravatar.com/avatar/625111deeffc1a3ec666385cbfb3bb92?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FYK-3.png"
+              },
+              "displayName": "Yasushi Kawajiri",
+              "active": true,
+              "timeZone": "Japan",
+              "accountType": "atlassian"
+            },
+            "created": "2026-04-14T00:45:16.803+0000",
+            "items": [
+              {
+                "field": "resolution",
+                "fieldtype": "jira",
+                "fieldId": "resolution",
+                "from": null,
+                "fromString": null,
+                "to": "10037",
+                "toString": "Not a Bug"
+              },
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "fieldId": "status",
+                "from": "10142",
+                "fromString": "New",
+                "to": "6",
+                "toString": "Closed"
+              }
+            ]
+          },
+          {
+            "id": "77522675",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3Ac401f76f-4995-4c85-a249-e839c254456f",
+              "accountId": "712020:c401f76f-4995-4c85-a249-e839c254456f",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/625111deeffc1a3ec666385cbfb3bb92?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FYK-3.png",
+                "24x24": "https://secure.gravatar.com/avatar/625111deeffc1a3ec666385cbfb3bb92?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FYK-3.png",
+                "16x16": "https://secure.gravatar.com/avatar/625111deeffc1a3ec666385cbfb3bb92?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FYK-3.png",
+                "32x32": "https://secure.gravatar.com/avatar/625111deeffc1a3ec666385cbfb3bb92?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FYK-3.png"
+              },
+              "displayName": "Yasushi Kawajiri",
+              "active": true,
+              "timeZone": "Japan",
+              "accountType": "atlassian"
+            },
+            "created": "2026-04-14T00:45:05.347+0000",
+            "items": [
+              {
+                "field": "security",
+                "fieldtype": "jira",
+                "fieldId": "security",
+                "from": null,
+                "fromString": null,
+                "to": "10039",
+                "toString": "Red Hat Partner"
+              }
+            ]
+          },
+          {
+            "id": "77522667",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=557058%3Ad2e5bd5c-dc49-41eb-a6f0-5e01093666c1",
+              "accountId": "557058:d2e5bd5c-dc49-41eb-a6f0-5e01093666c1",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/ef67bf2d6b781cf719eaa378d89efbbc?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSJ-0.png",
+                "24x24": "https://secure.gravatar.com/avatar/ef67bf2d6b781cf719eaa378d89efbbc?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSJ-0.png",
+                "16x16": "https://secure.gravatar.com/avatar/ef67bf2d6b781cf719eaa378d89efbbc?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSJ-0.png",
+                "32x32": "https://secure.gravatar.com/avatar/ef67bf2d6b781cf719eaa378d89efbbc?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSJ-0.png"
+              },
+              "displayName": "ScriptRunner for Jira",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "app"
+            },
+            "created": "2026-04-14T00:42:32.798+0000",
+            "items": [
+              {
+                "field": "Contributing Groups",
+                "fieldtype": "custom",
+                "fieldId": "customfield_10479",
+                "from": null,
+                "fromString": null,
+                "to": null,
+                "toString": "[Fujitsu Confidential Group]"
+              }
+            ]
+          },
+          {
+            "id": "77522666",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=557058%3Af58131cb-b67d-43c7-b30d-6b58d40bd077",
+              "accountId": "557058:f58131cb-b67d-43c7-b30d-6b58d40bd077",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/600529a9c8bfef89daa848e6db28ed2d?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAJ-0.png",
+                "24x24": "https://secure.gravatar.com/avatar/600529a9c8bfef89daa848e6db28ed2d?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAJ-0.png",
+                "16x16": "https://secure.gravatar.com/avatar/600529a9c8bfef89daa848e6db28ed2d?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAJ-0.png",
+                "32x32": "https://secure.gravatar.com/avatar/600529a9c8bfef89daa848e6db28ed2d?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAJ-0.png"
+              },
+              "displayName": "Automation for Jira",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "app"
+            },
+            "created": "2026-04-14T00:42:32.240+0000",
+            "items": [
+              {
+                "field": "Intelligence Requested",
+                "fieldtype": "custom",
+                "fieldId": "customfield_10986",
+                "from": null,
+                "fromString": null,
+                "to": "FjFI4vRDXIGtYHewzEzZdaPH9V2fVxqQyVjaS1sekg29EjebK182eW+9Dn5gfdb9vhoPLig9PvnhJYwjWIkR7g==",
+                "toString": "FjFI4vRDXIGtYHewzEzZdaPH9V2fVxqQyVjaS1sekg29EjebK182eW+9Dn5gfdb9vhoPLig9PvnhJYwjWIkR7g=="
+              }
+            ],
+            "historyMetadata": {}
+          },
+          {
+            "id": "77522665",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3A598d0282-7430-4a6c-9e89-fbd88679e424",
+              "accountId": "712020:598d0282-7430-4a6c-9e89-fbd88679e424",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/573dcb2fa1491b2623023b4ce48e2ea2?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FPA-0.png",
+                "24x24": "https://secure.gravatar.com/avatar/573dcb2fa1491b2623023b4ce48e2ea2?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FPA-0.png",
+                "16x16": "https://secure.gravatar.com/avatar/573dcb2fa1491b2623023b4ce48e2ea2?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FPA-0.png",
+                "32x32": "https://secure.gravatar.com/avatar/573dcb2fa1491b2623023b4ce48e2ea2?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FPA-0.png"
+              },
+              "displayName": "pme-bot service account",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2026-04-14T00:42:32.022+0000",
+            "items": [
+              {
+                "field": "Market",
+                "fieldtype": "custom",
+                "fieldId": "customfield_10995",
+                "from": null,
+                "fromString": null,
+                "to": "FjFI4vRDXIGtYHewzEzZdYXWY6xFXtu7gdqwi4jwotp0jcF9dQ8J7oaYqY+GVn2Es5tVs38SkVKTf8NaifU8Ng==",
+                "toString": "FjFI4vRDXIGtYHewzEzZdYXWY6xFXtu7gdqwi4jwotp0jcF9dQ8J7oaYqY+GVn2Es5tVs38SkVKTf8NaifU8Ng=="
+              }
+            ],
+            "historyMetadata": {}
+          }
+        ]
+      },
+      "fields": {
+        "summary": "[test][dry-run] dummy issue for testing",
+        "issuetype": {
+          "self": "https://redhat.atlassian.net/rest/api/2/issuetype/10016",
+          "id": "10016",
+          "description": "A problem or error.",
+          "iconUrl": "https://redhat.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10303?size=medium",
+          "name": "Bug",
+          "subtask": false,
+          "avatarId": 10303,
+          "hierarchyLevel": 0
+        },
+        "created": "2026-04-14T00:42:29.526+0000",
+        "resolutiondate": "2026-04-14T00:45:16.779+0000",
+        "duedate": null,
+        "assignee": null,
+        "priority": {
+          "self": "https://redhat.atlassian.net/rest/api/2/priority/10005",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/priorities/trivial.svg",
+          "name": "Undefined",
+          "id": "10005"
+        },
+        "updated": "2026-04-14T00:46:14.552+0000",
+        "status": {
+          "self": "https://redhat.atlassian.net/rest/api/2/status/6",
+          "description": "The work item is considered finished, the resolution is correct. work items which are closed can be reopened.",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/statuses/closed.png",
+          "name": "Closed",
+          "id": "6",
+          "statusCategory": {
+            "self": "https://redhat.atlassian.net/rest/api/2/statuscategory/3",
+            "id": 3,
+            "key": "done",
+            "colorName": "green",
+            "name": "Done"
+          }
+        }
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "5724201",
+      "self": "https://redhat.atlassian.net/rest/api/2/issue/5724201",
+      "key": "RHUICCSP-42",
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 3,
+        "total": 3,
+        "histories": [
+          {
+            "id": "77625677",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=5cbf54072675f70e50cd5e64",
+              "accountId": "5cbf54072675f70e50cd5e64",
+              "avatarUrls": {
+                "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/RE-5.png",
+                "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/RE-5.png",
+                "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/RE-5.png",
+                "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/RE-5.png"
+              },
+              "displayName": "Rehana Raj Edakandiyil",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2026-04-15T13:06:47.446+0000",
+            "items": [
+              {
+                "field": "resolution",
+                "fieldtype": "jira",
+                "fieldId": "resolution",
+                "from": null,
+                "fromString": null,
+                "to": "10038",
+                "toString": "Obsolete"
+              },
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "fieldId": "status",
+                "from": "10142",
+                "fromString": "New",
+                "to": "6",
+                "toString": "Closed"
+              }
+            ]
+          },
+          {
+            "id": "77335122",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=557058%3Af58131cb-b67d-43c7-b30d-6b58d40bd077",
+              "accountId": "557058:f58131cb-b67d-43c7-b30d-6b58d40bd077",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/600529a9c8bfef89daa848e6db28ed2d?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAJ-0.png",
+                "24x24": "https://secure.gravatar.com/avatar/600529a9c8bfef89daa848e6db28ed2d?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAJ-0.png",
+                "16x16": "https://secure.gravatar.com/avatar/600529a9c8bfef89daa848e6db28ed2d?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAJ-0.png",
+                "32x32": "https://secure.gravatar.com/avatar/600529a9c8bfef89daa848e6db28ed2d?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAJ-0.png"
+              },
+              "displayName": "Automation for Jira",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "app"
+            },
+            "created": "2026-04-10T00:25:41.595+0000",
+            "items": [
+              {
+                "field": "Intelligence Requested",
+                "fieldtype": "custom",
+                "fieldId": "customfield_10986",
+                "from": null,
+                "fromString": null,
+                "to": "FjFI4vRDXIGtYHewzEzZdaPH9V2fVxqQyVjaS1sekg29EjebK182eW+9Dn5gfdb9vhoPLig9PvnhJYwjWIkR7g==",
+                "toString": "FjFI4vRDXIGtYHewzEzZdaPH9V2fVxqQyVjaS1sekg29EjebK182eW+9Dn5gfdb9vhoPLig9PvnhJYwjWIkR7g=="
+              }
+            ],
+            "historyMetadata": {}
+          },
+          {
+            "id": "77335121",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3A598d0282-7430-4a6c-9e89-fbd88679e424",
+              "accountId": "712020:598d0282-7430-4a6c-9e89-fbd88679e424",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/573dcb2fa1491b2623023b4ce48e2ea2?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FPA-0.png",
+                "24x24": "https://secure.gravatar.com/avatar/573dcb2fa1491b2623023b4ce48e2ea2?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FPA-0.png",
+                "16x16": "https://secure.gravatar.com/avatar/573dcb2fa1491b2623023b4ce48e2ea2?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FPA-0.png",
+                "32x32": "https://secure.gravatar.com/avatar/573dcb2fa1491b2623023b4ce48e2ea2?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FPA-0.png"
+              },
+              "displayName": "pme-bot service account",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2026-04-10T00:25:41.501+0000",
+            "items": [
+              {
+                "field": "Market",
+                "fieldtype": "custom",
+                "fieldId": "customfield_10995",
+                "from": null,
+                "fromString": null,
+                "to": "FjFI4vRDXIGtYHewzEzZdYXWY6xFXtu7gdqwi4jwotp0jcF9dQ8J7oaYqY+GVn2Es5tVs38SkVKTf8NaifU8Ng==",
+                "toString": "FjFI4vRDXIGtYHewzEzZdYXWY6xFXtu7gdqwi4jwotp0jcF9dQ8J7oaYqY+GVn2Es5tVs38SkVKTf8NaifU8Ng=="
+              }
+            ],
+            "historyMetadata": {}
+          }
+        ]
+      },
+      "fields": {
+        "summary": "[test][dry-run] dummy issue for testing",
+        "issuetype": {
+          "self": "https://redhat.atlassian.net/rest/api/2/issuetype/10016",
+          "id": "10016",
+          "description": "A problem or error.",
+          "iconUrl": "https://redhat.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10303?size=medium",
+          "name": "Bug",
+          "subtask": false,
+          "avatarId": 10303,
+          "hierarchyLevel": 0
+        },
+        "created": "2026-04-10T00:25:39.046+0000",
+        "resolutiondate": "2026-04-15T13:06:47.425+0000",
+        "duedate": null,
+        "assignee": null,
+        "priority": {
+          "self": "https://redhat.atlassian.net/rest/api/2/priority/10005",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/priorities/trivial.svg",
+          "name": "Undefined",
+          "id": "10005"
+        },
+        "updated": "2026-04-15T13:06:47.446+0000",
+        "status": {
+          "self": "https://redhat.atlassian.net/rest/api/2/status/6",
+          "description": "The work item is considered finished, the resolution is correct. work items which are closed can be reopened.",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/statuses/closed.png",
+          "name": "Closed",
+          "id": "6",
+          "statusCategory": {
+            "self": "https://redhat.atlassian.net/rest/api/2/statuscategory/3",
+            "id": 3,
+            "key": "done",
+            "colorName": "green",
+            "name": "Done"
+          }
+        }
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "5696582",
+      "self": "https://redhat.atlassian.net/rest/api/2/issue/5696582",
+      "key": "RHUICCSP-38",
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 3,
+        "total": 3,
+        "histories": [
+          {
+            "id": "77948140",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=557058%3Abc7754ad-1c09-4de6-8d60-589a7e1f59c2",
+              "accountId": "557058:bc7754ad-1c09-4de6-8d60-589a7e1f59c2",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/74da231a65e13d00de2d85f9732b0c62?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FMM-4.png",
+                "24x24": "https://secure.gravatar.com/avatar/74da231a65e13d00de2d85f9732b0c62?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FMM-4.png",
+                "16x16": "https://secure.gravatar.com/avatar/74da231a65e13d00de2d85f9732b0c62?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FMM-4.png",
+                "32x32": "https://secure.gravatar.com/avatar/74da231a65e13d00de2d85f9732b0c62?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FMM-4.png"
+              },
+              "displayName": "Martin Minar",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2026-04-21T11:18:16.544+0000",
+            "items": [
+              {
+                "field": "resolution",
+                "fieldtype": "jira",
+                "fieldId": "resolution",
+                "from": null,
+                "fromString": null,
+                "to": "10002",
+                "toString": "Duplicate"
+              },
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "fieldId": "status",
+                "from": "10142",
+                "fromString": "New",
+                "to": "6",
+                "toString": "Closed"
+              }
+            ]
+          },
+          {
+            "id": "77284672",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=635fbcc11db4d2ebcf649d8e",
+              "accountId": "635fbcc11db4d2ebcf649d8e",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/7b63305194b62c0a721da3502aea9c3e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSS-1.png",
+                "24x24": "https://secure.gravatar.com/avatar/7b63305194b62c0a721da3502aea9c3e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSS-1.png",
+                "16x16": "https://secure.gravatar.com/avatar/7b63305194b62c0a721da3502aea9c3e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSS-1.png",
+                "32x32": "https://secure.gravatar.com/avatar/7b63305194b62c0a721da3502aea9c3e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSS-1.png"
+              },
+              "displayName": "Suresh Sakhare",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2026-04-09T09:49:58.788+0000",
+            "items": [
+              {
+                "field": "Contributing Groups",
+                "fieldtype": "custom",
+                "fieldId": "customfield_10479",
+                "from": null,
+                "fromString": null,
+                "to": null,
+                "toString": "[Fujitsu Confidential Group]"
+              }
+            ]
+          },
+          {
+            "id": "77067587",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3A598d0282-7430-4a6c-9e89-fbd88679e424",
+              "accountId": "712020:598d0282-7430-4a6c-9e89-fbd88679e424",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/573dcb2fa1491b2623023b4ce48e2ea2?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FPA-0.png",
+                "24x24": "https://secure.gravatar.com/avatar/573dcb2fa1491b2623023b4ce48e2ea2?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FPA-0.png",
+                "16x16": "https://secure.gravatar.com/avatar/573dcb2fa1491b2623023b4ce48e2ea2?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FPA-0.png",
+                "32x32": "https://secure.gravatar.com/avatar/573dcb2fa1491b2623023b4ce48e2ea2?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FPA-0.png"
+              },
+              "displayName": "pme-bot service account",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2026-04-06T00:11:36.716+0000",
+            "items": [
+              {
+                "field": "Market",
+                "fieldtype": "custom",
+                "fieldId": "customfield_10995",
+                "from": null,
+                "fromString": null,
+                "to": "FjFI4vRDXIGtYHewzEzZdYXWY6xFXtu7gdqwi4jwotp0jcF9dQ8J7oaYqY+GVn2Es5tVs38SkVKTf8NaifU8Ng==",
+                "toString": "FjFI4vRDXIGtYHewzEzZdYXWY6xFXtu7gdqwi4jwotp0jcF9dQ8J7oaYqY+GVn2Es5tVs38SkVKTf8NaifU8Ng=="
+              }
+            ],
+            "historyMetadata": {}
+          }
+        ]
+      },
+      "fields": {
+        "summary": "[test][dry-run] dummy issue for testing",
+        "issuetype": {
+          "self": "https://redhat.atlassian.net/rest/api/2/issuetype/10016",
+          "id": "10016",
+          "description": "A problem or error.",
+          "iconUrl": "https://redhat.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10303?size=medium",
+          "name": "Bug",
+          "subtask": false,
+          "avatarId": 10303,
+          "hierarchyLevel": 0
+        },
+        "created": "2026-04-06T00:11:34.363+0000",
+        "resolutiondate": "2026-04-21T11:18:16.516+0000",
+        "duedate": null,
+        "assignee": null,
+        "priority": {
+          "self": "https://redhat.atlassian.net/rest/api/2/priority/10005",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/priorities/trivial.svg",
+          "name": "Undefined",
+          "id": "10005"
+        },
+        "updated": "2026-04-21T11:18:16.544+0000",
+        "status": {
+          "self": "https://redhat.atlassian.net/rest/api/2/status/6",
+          "description": "The work item is considered finished, the resolution is correct. work items which are closed can be reopened.",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/statuses/closed.png",
+          "name": "Closed",
+          "id": "6",
+          "statusCategory": {
+            "self": "https://redhat.atlassian.net/rest/api/2/statuscategory/3",
+            "id": 3,
+            "key": "done",
+            "colorName": "green",
+            "name": "Done"
+          }
+        }
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "5309484",
+      "self": "https://redhat.atlassian.net/rest/api/2/issue/5309484",
+      "key": "RHUICCSP-33",
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 2,
+        "total": 2,
+        "histories": [
+          {
+            "id": "68300621",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=557058%3A6120d7e1-f953-4d26-aa48-5247e9022442",
+              "accountId": "557058:6120d7e1-f953-4d26-aa48-5247e9022442",
+              "avatarUrls": {
+                "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png"
+              },
+              "displayName": "Danny Ranck",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2026-03-19T17:54:15.824+0000",
+            "items": [
+              {
+                "field": "resolution",
+                "fieldtype": "jira",
+                "fieldId": "resolution",
+                "from": null,
+                "fromString": null,
+                "to": "10000",
+                "toString": "Done"
+              },
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "fieldId": "status",
+                "from": "3",
+                "fromString": "In Progress",
+                "to": "6",
+                "toString": "Closed"
+              }
+            ]
+          },
+          {
+            "id": "68293313",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=557058%3A6120d7e1-f953-4d26-aa48-5247e9022442",
+              "accountId": "557058:6120d7e1-f953-4d26-aa48-5247e9022442",
+              "avatarUrls": {
+                "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png"
+              },
+              "displayName": "Danny Ranck",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2026-03-19T17:36:21.520+0000",
+            "items": [
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "fieldId": "status",
+                "from": "10142",
+                "fromString": "New",
+                "to": "3",
+                "toString": "In Progress"
+              }
+            ]
+          }
+        ]
+      },
+      "fields": {
+        "summary": "Need an actual list of repos to include in the EUS and Base SAP-APPS offerings",
+        "issuetype": {
+          "self": "https://redhat.atlassian.net/rest/api/2/issuetype/10016",
+          "id": "10016",
+          "description": "A problem or error.",
+          "iconUrl": "https://redhat.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10303?size=medium",
+          "name": "Bug",
+          "subtask": false,
+          "avatarId": 10303,
+          "hierarchyLevel": 0
+        },
+        "created": "2026-03-10T19:46:35.369+0000",
+        "resolutiondate": "2026-03-19T17:54:15.796+0000",
+        "duedate": null,
+        "assignee": null,
+        "priority": {
+          "self": "https://redhat.atlassian.net/rest/api/2/priority/10001",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/priorities/critical.svg",
+          "name": "Critical",
+          "id": "10001"
+        },
+        "updated": "2026-03-19T17:54:16.185+0000",
+        "status": {
+          "self": "https://redhat.atlassian.net/rest/api/2/status/6",
+          "description": "The work item is considered finished, the resolution is correct. work items which are closed can be reopened.",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/statuses/closed.png",
+          "name": "Closed",
+          "id": "6",
+          "statusCategory": {
+            "self": "https://redhat.atlassian.net/rest/api/2/statuscategory/3",
+            "id": 3,
+            "key": "done",
+            "colorName": "green",
+            "name": "Done"
+          }
+        }
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "5309492",
+      "self": "https://redhat.atlassian.net/rest/api/2/issue/5309492",
+      "key": "RHUICCSP-23",
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 1,
+        "total": 1,
+        "histories": [
+          {
+            "id": "61932189",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=5cbf54072675f70e50cd5e64",
+              "accountId": "5cbf54072675f70e50cd5e64",
+              "avatarUrls": {
+                "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/RE-5.png",
+                "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/RE-5.png",
+                "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/RE-5.png",
+                "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/RE-5.png"
+              },
+              "displayName": "Rehana Raj Edakandiyil",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2026-03-05T16:55:58.910+0000",
+            "items": [
+              {
+                "field": "resolution",
+                "fieldtype": "jira",
+                "fieldId": "resolution",
+                "from": null,
+                "fromString": null,
+                "to": "10001",
+                "toString": "Won't Do"
+              },
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "fieldId": "status",
+                "from": "10142",
+                "fromString": "New",
+                "to": "6",
+                "toString": "Closed"
+              }
+            ]
+          }
+        ]
+      },
+      "fields": {
+        "summary": "RHUI index.html",
+        "issuetype": {
+          "self": "https://redhat.atlassian.net/rest/api/2/issuetype/10009",
+          "id": "10009",
+          "description": "Used to indicate the smallest unit of work for a team to complete and is end user-facing",
+          "iconUrl": "https://redhat.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10315?size=medium",
+          "name": "Story",
+          "subtask": false,
+          "avatarId": 10315,
+          "hierarchyLevel": 0
+        },
+        "created": "2025-11-21T14:45:08.091+0000",
+        "resolutiondate": "2026-03-05T16:55:58.877+0000",
+        "duedate": null,
+        "assignee": null,
+        "priority": {
+          "self": "https://redhat.atlassian.net/rest/api/2/priority/10004",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/priorities/minor.svg",
+          "name": "Minor",
+          "id": "10004"
+        },
+        "updated": "2026-03-05T16:55:58.907+0000",
+        "status": {
+          "self": "https://redhat.atlassian.net/rest/api/2/status/6",
+          "description": "The work item is considered finished, the resolution is correct. work items which are closed can be reopened.",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/statuses/closed.png",
+          "name": "Closed",
+          "id": "6",
+          "statusCategory": {
+            "self": "https://redhat.atlassian.net/rest/api/2/statuscategory/3",
+            "id": 3,
+            "key": "done",
+            "colorName": "green",
+            "name": "Done"
+          }
+        }
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "5309496",
+      "self": "https://redhat.atlassian.net/rest/api/2/issue/5309496",
+      "key": "RHUICCSP-22",
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 1,
+        "total": 1,
+        "histories": [
+          {
+            "id": "61932213",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=5cbf54072675f70e50cd5e64",
+              "accountId": "5cbf54072675f70e50cd5e64",
+              "avatarUrls": {
+                "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/RE-5.png",
+                "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/RE-5.png",
+                "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/RE-5.png",
+                "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/RE-5.png"
+              },
+              "displayName": "Rehana Raj Edakandiyil",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2026-03-05T16:54:34.928+0000",
+            "items": [
+              {
+                "field": "resolution",
+                "fieldtype": "jira",
+                "fieldId": "resolution",
+                "from": null,
+                "fromString": null,
+                "to": "10038",
+                "toString": "Obsolete"
+              },
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "fieldId": "status",
+                "from": "10142",
+                "fromString": "New",
+                "to": "6",
+                "toString": "Closed"
+              }
+            ]
+          }
+        ]
+      },
+      "fields": {
+        "summary": "Pulp Postgres user password change",
+        "issuetype": {
+          "self": "https://redhat.atlassian.net/rest/api/2/issuetype/10009",
+          "id": "10009",
+          "description": "Used to indicate the smallest unit of work for a team to complete and is end user-facing",
+          "iconUrl": "https://redhat.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10315?size=medium",
+          "name": "Story",
+          "subtask": false,
+          "avatarId": 10315,
+          "hierarchyLevel": 0
+        },
+        "created": "2025-11-20T17:39:08.417+0000",
+        "resolutiondate": "2026-03-05T16:54:34.885+0000",
+        "duedate": null,
+        "assignee": null,
+        "priority": {
+          "self": "https://redhat.atlassian.net/rest/api/2/priority/10003",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/priorities/medium.svg",
+          "name": "Normal",
+          "id": "10003"
+        },
+        "updated": "2026-03-05T16:54:34.925+0000",
+        "status": {
+          "self": "https://redhat.atlassian.net/rest/api/2/status/6",
+          "description": "The work item is considered finished, the resolution is correct. work items which are closed can be reopened.",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/statuses/closed.png",
+          "name": "Closed",
+          "id": "6",
+          "statusCategory": {
+            "self": "https://redhat.atlassian.net/rest/api/2/statuscategory/3",
+            "id": 3,
+            "key": "done",
+            "colorName": "green",
+            "name": "Done"
+          }
+        }
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "5309514",
+      "self": "https://redhat.atlassian.net/rest/api/2/issue/5309514",
+      "key": "RHUICCSP-21",
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 0,
+        "total": 0,
+        "histories": []
+      },
+      "fields": {
+        "summary": "Postgres password hashing",
+        "issuetype": {
+          "self": "https://redhat.atlassian.net/rest/api/2/issuetype/10009",
+          "id": "10009",
+          "description": "Used to indicate the smallest unit of work for a team to complete and is end user-facing",
+          "iconUrl": "https://redhat.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10315?size=medium",
+          "name": "Story",
+          "subtask": false,
+          "avatarId": 10315,
+          "hierarchyLevel": 0
+        },
+        "created": "2025-11-20T17:28:14.211+0000",
+        "resolutiondate": null,
+        "duedate": null,
+        "assignee": null,
+        "priority": {
+          "self": "https://redhat.atlassian.net/rest/api/2/priority/10003",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/priorities/medium.svg",
+          "name": "Normal",
+          "id": "10003"
+        },
+        "updated": "2025-12-01T07:30:27.600+0000",
+        "status": {
+          "self": "https://redhat.atlassian.net/rest/api/2/status/10142",
+          "description": "Initial creation status. Implies nothing yet and should be very short lived; also can be a Bugzilla status.",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/statuses/generic.png",
+          "name": "New",
+          "id": "10142",
+          "statusCategory": {
+            "self": "https://redhat.atlassian.net/rest/api/2/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        }
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "5309520",
+      "self": "https://redhat.atlassian.net/rest/api/2/issue/5309520",
+      "key": "RHUICCSP-19",
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 3,
+        "total": 3,
+        "histories": [
+          {
+            "id": "61932443",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=557058%3A6120d7e1-f953-4d26-aa48-5247e9022442",
+              "accountId": "557058:6120d7e1-f953-4d26-aa48-5247e9022442",
+              "avatarUrls": {
+                "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png"
+              },
+              "displayName": "Danny Ranck",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2025-11-13T19:16:10.355+0000",
+            "items": [
+              {
+                "field": "resolution",
+                "fieldtype": "jira",
+                "fieldId": "resolution",
+                "from": null,
+                "fromString": null,
+                "to": "10000",
+                "toString": "Done"
+              },
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "fieldId": "status",
+                "from": "3",
+                "fromString": "In Progress",
+                "to": "6",
+                "toString": "Closed"
+              }
+            ]
+          },
+          {
+            "id": "61932444",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=557058%3A6120d7e1-f953-4d26-aa48-5247e9022442",
+              "accountId": "557058:6120d7e1-f953-4d26-aa48-5247e9022442",
+              "avatarUrls": {
+                "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png"
+              },
+              "displayName": "Danny Ranck",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2025-11-13T19:15:45.295+0000",
+            "items": [
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "fieldId": "status",
+                "from": "10142",
+                "fromString": "New",
+                "to": "3",
+                "toString": "In Progress"
+              }
+            ]
+          },
+          {
+            "id": "61932445",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=557058%3A6120d7e1-f953-4d26-aa48-5247e9022442",
+              "accountId": "557058:6120d7e1-f953-4d26-aa48-5247e9022442",
+              "avatarUrls": {
+                "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png"
+              },
+              "displayName": "Danny Ranck",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2025-11-13T19:15:39.428+0000",
+            "items": [
+              {
+                "field": "assignee",
+                "fieldtype": "jira",
+                "fieldId": "assignee",
+                "from": null,
+                "fromString": null,
+                "to": "712020:c9b55dfd-3cd9-4f0b-9710-f6434cb3a60b",
+                "toString": "Stephen Herr",
+                "tmpFromAccountId": null,
+                "tmpToAccountId": "712020:c9b55dfd-3cd9-4f0b-9710-f6434cb3a60b"
+              }
+            ]
+          }
+        ]
+      },
+      "fields": {
+        "summary": "RHUI4: change in repository names",
+        "issuetype": {
+          "self": "https://redhat.atlassian.net/rest/api/2/issuetype/10016",
+          "id": "10016",
+          "description": "A problem or error.",
+          "iconUrl": "https://redhat.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10303?size=medium",
+          "name": "Bug",
+          "subtask": false,
+          "avatarId": 10303,
+          "hierarchyLevel": 0
+        },
+        "created": "2025-11-04T10:09:21.873+0000",
+        "resolutiondate": "2025-11-13T19:16:10.318+0000",
+        "duedate": null,
+        "assignee": {
+          "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3Ac9b55dfd-3cd9-4f0b-9710-f6434cb3a60b",
+          "accountId": "712020:c9b55dfd-3cd9-4f0b-9710-f6434cb3a60b",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/ee97f8baad24fc9ce984182578d090e9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSH-4.png",
+            "24x24": "https://secure.gravatar.com/avatar/ee97f8baad24fc9ce984182578d090e9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSH-4.png",
+            "16x16": "https://secure.gravatar.com/avatar/ee97f8baad24fc9ce984182578d090e9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSH-4.png",
+            "32x32": "https://secure.gravatar.com/avatar/ee97f8baad24fc9ce984182578d090e9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSH-4.png"
+          },
+          "displayName": "Stephen Herr",
+          "active": true,
+          "timeZone": "Etc/GMT",
+          "accountType": "atlassian"
+        },
+        "priority": {
+          "self": "https://redhat.atlassian.net/rest/api/2/priority/10005",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/priorities/trivial.svg",
+          "name": "Undefined",
+          "id": "10005"
+        },
+        "updated": "2026-01-05T15:41:35.551+0000",
+        "status": {
+          "self": "https://redhat.atlassian.net/rest/api/2/status/6",
+          "description": "The work item is considered finished, the resolution is correct. work items which are closed can be reopened.",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/statuses/closed.png",
+          "name": "Closed",
+          "id": "6",
+          "statusCategory": {
+            "self": "https://redhat.atlassian.net/rest/api/2/statuscategory/3",
+            "id": 3,
+            "key": "done",
+            "colorName": "green",
+            "name": "Done"
+          }
+        }
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "5309489",
+      "self": "https://redhat.atlassian.net/rest/api/2/issue/5309489",
+      "key": "RHUICCSP-1",
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 8,
+        "total": 8,
+        "histories": [
+          {
+            "id": "61932176",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=557058%3A6120d7e1-f953-4d26-aa48-5247e9022442",
+              "accountId": "557058:6120d7e1-f953-4d26-aa48-5247e9022442",
+              "avatarUrls": {
+                "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png"
+              },
+              "displayName": "Danny Ranck",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2025-08-19T12:25:56.793+0000",
+            "items": [
+              {
+                "field": "security",
+                "fieldtype": "jira",
+                "fieldId": "security",
+                "from": "10034",
+                "fromString": "Red Hat Employee",
+                "to": null,
+                "toString": null
+              }
+            ]
+          },
+          {
+            "id": "61932177",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=557058%3A6120d7e1-f953-4d26-aa48-5247e9022442",
+              "accountId": "557058:6120d7e1-f953-4d26-aa48-5247e9022442",
+              "avatarUrls": {
+                "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png"
+              },
+              "displayName": "Danny Ranck",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2025-08-19T12:25:25.519+0000",
+            "items": [
+              {
+                "field": "Contributing Groups",
+                "fieldtype": "custom",
+                "fieldId": "customfield_10479",
+                "from": null,
+                "fromString": "[Google Confidential Group, Microsoft Confidential Group]",
+                "to": null,
+                "toString": ""
+              }
+            ]
+          },
+          {
+            "id": "61932178",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=557058%3A6120d7e1-f953-4d26-aa48-5247e9022442",
+              "accountId": "557058:6120d7e1-f953-4d26-aa48-5247e9022442",
+              "avatarUrls": {
+                "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png"
+              },
+              "displayName": "Danny Ranck",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2025-05-06T13:36:28.612+0000",
+            "items": [
+              {
+                "field": "resolution",
+                "fieldtype": "jira",
+                "fieldId": "resolution",
+                "from": null,
+                "fromString": null,
+                "to": "10037",
+                "toString": "Not a Bug"
+              },
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "fieldId": "status",
+                "from": "3",
+                "fromString": "In Progress",
+                "to": "6",
+                "toString": "Closed"
+              }
+            ]
+          },
+          {
+            "id": "61932179",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=557058%3A6120d7e1-f953-4d26-aa48-5247e9022442",
+              "accountId": "557058:6120d7e1-f953-4d26-aa48-5247e9022442",
+              "avatarUrls": {
+                "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png"
+              },
+              "displayName": "Danny Ranck",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2025-05-06T13:29:55.127+0000",
+            "items": [
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "fieldId": "status",
+                "from": "10142",
+                "fromString": "New",
+                "to": "3",
+                "toString": "In Progress"
+              }
+            ]
+          },
+          {
+            "id": "61932180",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=557058%3A6120d7e1-f953-4d26-aa48-5247e9022442",
+              "accountId": "557058:6120d7e1-f953-4d26-aa48-5247e9022442",
+              "avatarUrls": {
+                "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png"
+              },
+              "displayName": "Danny Ranck",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2025-04-18T19:25:06.634+0000",
+            "items": [
+              {
+                "field": "Workflow",
+                "fieldtype": "jira",
+                "from": null,
+                "fromString": "OJA-WF-J",
+                "to": null,
+                "toString": "OJA-WF-BK"
+              }
+            ]
+          },
+          {
+            "id": "61932181",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=557058%3A6120d7e1-f953-4d26-aa48-5247e9022442",
+              "accountId": "557058:6120d7e1-f953-4d26-aa48-5247e9022442",
+              "avatarUrls": {
+                "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png"
+              },
+              "displayName": "Danny Ranck",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2025-04-03T13:28:30.934+0000",
+            "items": [
+              {
+                "field": "security",
+                "fieldtype": "jira",
+                "fieldId": "security",
+                "from": "10039",
+                "fromString": "Red Hat Partner",
+                "to": "10034",
+                "toString": "Red Hat Employee"
+              }
+            ]
+          },
+          {
+            "id": "61932182",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=5f7b5d7a25fbdf0068669be4",
+              "accountId": "5f7b5d7a25fbdf0068669be4",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/ca60d5c2692875b763331c67a72696ae?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJK-0.png",
+                "24x24": "https://secure.gravatar.com/avatar/ca60d5c2692875b763331c67a72696ae?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJK-0.png",
+                "16x16": "https://secure.gravatar.com/avatar/ca60d5c2692875b763331c67a72696ae?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJK-0.png",
+                "32x32": "https://secure.gravatar.com/avatar/ca60d5c2692875b763331c67a72696ae?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJK-0.png"
+              },
+              "displayName": "Justin Kreft",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2025-04-02T17:54:24.220+0000",
+            "items": [
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "fieldId": "status",
+                "from": "10142",
+                "fromString": "New",
+                "to": "10142",
+                "toString": "New"
+              }
+            ]
+          },
+          {
+            "id": "61932183",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=557058%3A6120d7e1-f953-4d26-aa48-5247e9022442",
+              "accountId": "557058:6120d7e1-f953-4d26-aa48-5247e9022442",
+              "avatarUrls": {
+                "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png",
+                "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DR-5.png"
+              },
+              "displayName": "Danny Ranck",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2025-03-28T15:50:03.475+0000",
+            "items": [
+              {
+                "field": "Contributing Groups",
+                "fieldtype": "custom",
+                "fieldId": "customfield_10479",
+                "from": null,
+                "fromString": null,
+                "to": null,
+                "toString": "[Google Confidential Group, Microsoft Confidential Group]"
+              }
+            ]
+          }
+        ]
+      },
+      "fields": {
+        "summary": "Initial test issue",
+        "issuetype": {
+          "self": "https://redhat.atlassian.net/rest/api/2/issuetype/10014",
+          "id": "10014",
+          "description": "A small, distinct piece of work.",
+          "iconUrl": "https://redhat.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+          "name": "Task",
+          "subtask": false,
+          "avatarId": 10318,
+          "hierarchyLevel": 0
+        },
+        "created": "2025-03-28T13:35:22.632+0000",
+        "resolutiondate": "2025-05-06T13:36:28.560+0000",
+        "duedate": null,
+        "assignee": null,
+        "priority": {
+          "self": "https://redhat.atlassian.net/rest/api/2/priority/10005",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/priorities/trivial.svg",
+          "name": "Undefined",
+          "id": "10005"
+        },
+        "updated": "2025-08-19T12:25:56.792+0000",
+        "status": {
+          "self": "https://redhat.atlassian.net/rest/api/2/status/6",
+          "description": "The work item is considered finished, the resolution is correct. work items which are closed can be reopened.",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/statuses/closed.png",
+          "name": "Closed",
+          "id": "6",
+          "statusCategory": {
+            "self": "https://redhat.atlassian.net/rest/api/2/statuscategory/3",
+            "id": 3,
+            "key": "done",
+            "colorName": "green",
+            "name": "Done"
+          }
+        }
+      }
+    }
+  ],
+  "isLast": true
+}

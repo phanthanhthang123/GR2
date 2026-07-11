@@ -17,7 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Shield, User2, Bell, Settings2 } from "lucide-react";
+import { Shield, User2, Bell, Settings2, Github } from "lucide-react";
 import { queryClient } from "@/provider/react-query-provider";
 
 type Preferences = {
@@ -52,6 +52,7 @@ const SettingPage = () => {
   const avatarFileInputRef = React.useRef<HTMLInputElement>(null);
 
   const [displayName, setDisplayName] = React.useState(user?.username || "");
+  const [githubUsername, setGithubUsername] = React.useState(user?.githubUsername || "");
   const [bio, setBio] = React.useState("");
 
   const [currentPassword, setCurrentPassword] = React.useState("");
@@ -69,7 +70,8 @@ const SettingPage = () => {
 
   React.useEffect(() => {
     setDisplayName(user?.username || "");
-  }, [user?.username]);
+    setGithubUsername(user?.githubUsername || "");
+  }, [user?.username, user?.githubUsername]);
 
   const roleVariant =
     user?.role === "Admin" ? "default" : user?.role === "Leader" ? "secondary" : "outline";
@@ -103,6 +105,17 @@ const SettingPage = () => {
             <div className="min-w-0">
               <p className="font-semibold text-slate-900 truncate">{user?.username || "Người dùng"}</p>
               <p className="text-sm text-slate-600 truncate">{user?.email || "—"}</p>
+              {user?.githubUsername && (
+                <a
+                  href={`https://github.com/${user.githubUsername}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-slate-800 transition-colors mt-0.5"
+                >
+                  <Github className="size-3.5" />
+                  <span>@{user.githubUsername}</span>
+                </a>
+              )}
             </div>
           </div>
 
@@ -130,17 +143,17 @@ const SettingPage = () => {
 
             <TabsContent
               value="profile"
-              className="mt-0 min-h-0 flex-1 overflow-hidden pt-3 outline-none"
+              className="mt-0 min-h-0 flex-1 overflow-y-auto pt-3 outline-none"
             >
-              <div className="grid h-full min-h-0 grid-cols-1 items-stretch gap-3 lg:grid-cols-2 lg:gap-3">
-                <Card className="flex min-h-0 flex-col gap-0 overflow-hidden border-slate-200 py-0 shadow-sm">
+              <div className="grid grid-cols-1 items-stretch gap-3 lg:grid-cols-2 lg:gap-3 pb-4">
+                <Card className="flex flex-col gap-0 border-slate-200 py-0 shadow-sm bg-white">
                   <CardHeader className="shrink-0 space-y-1 px-4 py-3 sm:px-5">
                     <CardTitle className="text-base">Thông tin cá nhân</CardTitle>
                     <CardDescription className="text-xs sm:text-sm">
                       Cập nhật tên hiển thị và giới thiệu ngắn.
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="flex min-h-0 flex-1 flex-col space-y-3 overflow-hidden px-4 pb-3 sm:px-5">
+                  <CardContent className="flex flex-col space-y-3 px-4 pb-3 sm:px-5">
                     <div className="space-y-2">
                       <Label htmlFor="displayName">Họ tên</Label>
                       <Input
@@ -164,6 +177,19 @@ const SettingPage = () => {
                       </p>
                     </div>
                     <div className="space-y-2">
+                      <Label htmlFor="githubUsername">Tài khoản GitHub</Label>
+                      <Input
+                        id="githubUsername"
+                        value={githubUsername}
+                        onChange={(e) => setGithubUsername(e.target.value)}
+                        placeholder="Nhập username GitHub của bạn"
+                        className="bg-white"
+                      />
+                      <p className="text-xs text-slate-500">
+                        Dùng để đồng bộ quyền tham gia dự án.
+                      </p>
+                    </div>
+                    <div className="space-y-2">
                       <Label htmlFor="bio">Giới thiệu</Label>
                       <Textarea
                         id="bio"
@@ -179,6 +205,7 @@ const SettingPage = () => {
                         variant="outline"
                         onClick={() => {
                           setDisplayName(user?.username || "");
+                          setGithubUsername(user?.githubUsername || "");
                           setBio("");
                           toast.message("Đã hoàn tác thay đổi.");
                         }}
@@ -201,14 +228,30 @@ const SettingPage = () => {
                           updateProfileMutation.mutate(
                             { id: user.id, username },
                             {
-                              onSuccess: (res: any) => {
+                              onSuccess: async (res: any) => {
                                 if (res?.err !== 0) {
                                   toast.error(res?.msg || "Cập nhật thất bại.");
                                   return;
                                 }
-                                const next = { ...(user as any), ...(res?.response || {}) };
-                                updateUser(next);
-                                toast.success(res?.msg || "Đã lưu thay đổi.");
+
+                                // Update githubUsername
+                                try {
+                                  const { updateData } = await import("@/lib/fetch-utlis");
+                                  const gitRes = await updateData<{ err: number; response?: any }>("/github/user-profile", {
+                                    githubUsername
+                                  });
+                                  const next = {
+                                    ...(user as any),
+                                    ...(res?.response || {}),
+                                    githubUsername: gitRes?.response?.githubUsername || null
+                                  };
+                                  updateUser(next);
+                                  toast.success("Đã lưu thay đổi thông tin cá nhân và tài khoản GitHub.");
+                                } catch (e) {
+                                  const next = { ...(user as any), ...(res?.response || {}) };
+                                  updateUser(next);
+                                  toast.success("Đã lưu họ tên (lỗi đồng bộ GitHub).");
+                                }
                               },
                               onError: (err: any) => {
                                 toast.error(err?.response?.data?.msg || "Có lỗi khi cập nhật.");
@@ -223,14 +266,14 @@ const SettingPage = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="flex min-h-0 flex-col gap-0 overflow-hidden border-slate-200 py-0 shadow-sm">
+                <Card className="flex flex-col gap-0 border-slate-200 py-0 shadow-sm bg-white">
                   <CardHeader className="shrink-0 space-y-1 px-4 py-3 sm:px-5">
                     <CardTitle className="text-base">Ảnh đại diện</CardTitle>
                     <CardDescription className="text-xs sm:text-sm">
                       JPEG, PNG, GIF hoặc WebP, dung lượng tối đa 5MB.
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="flex min-h-0 flex-1 flex-col space-y-3 overflow-hidden px-4 pb-3 sm:px-5">
+                  <CardContent className="flex flex-col space-y-3 px-4 pb-3 sm:px-5">
                     <input
                       ref={avatarFileInputRef}
                       type="file"
@@ -307,16 +350,16 @@ const SettingPage = () => {
 
             <TabsContent
               value="security"
-              className="mt-0 min-h-0 flex-1 overflow-hidden pt-3 outline-none"
+              className="mt-0 min-h-0 flex-1 overflow-y-auto pt-3 outline-none"
             >
-              <Card className="flex h-full min-h-0 flex-col gap-0 overflow-hidden border-slate-200 py-0 shadow-sm">
+              <Card className="flex flex-col gap-0 border-slate-200 py-0 shadow-sm bg-white">
                 <CardHeader className="shrink-0 space-y-1 px-4 py-3 sm:px-5">
                   <CardTitle className="text-base">Đổi mật khẩu</CardTitle>
                   <CardDescription className="text-xs sm:text-sm">
                     Mật khẩu mạnh, tối thiểu 8 ký tự.
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="flex min-h-0 flex-1 flex-col space-y-3 overflow-hidden px-4 pb-3 sm:px-5">
+                <CardContent className="flex flex-col space-y-3 px-4 pb-3 sm:px-5">
                   <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-3">
                     <div className="space-y-2">
                       <Label htmlFor="currentPassword">Mật khẩu hiện tại</Label>
@@ -407,16 +450,16 @@ const SettingPage = () => {
 
             <TabsContent
               value="notifications"
-              className="mt-0 min-h-0 flex-1 overflow-hidden pt-3 outline-none"
+              className="mt-0 min-h-0 flex-1 overflow-y-auto pt-3 outline-none"
             >
-              <Card className="flex h-full min-h-0 flex-col gap-0 overflow-hidden border-slate-200 py-0 shadow-sm">
+              <Card className="flex flex-col gap-0 border-slate-200 py-0 shadow-sm bg-white">
                 <CardHeader className="shrink-0 space-y-1 px-4 py-3 sm:px-5">
                   <CardTitle className="text-base">Tuỳ chọn thông báo</CardTitle>
                   <CardDescription className="text-xs sm:text-sm">
                     Cấu hình nhận thông báo qua email và hệ thống.
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="flex min-h-0 flex-1 flex-col space-y-2 overflow-hidden px-4 pb-3 sm:px-5">
+                <CardContent className="flex flex-col space-y-2 px-4 pb-3 sm:px-5">
                   <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">
                     <div className="flex shrink-0 items-start gap-2 rounded-lg border border-slate-200 p-3">
                       <Checkbox
@@ -492,16 +535,16 @@ const SettingPage = () => {
 
             <TabsContent
               value="system"
-              className="mt-0 min-h-0 flex-1 overflow-hidden pt-3 outline-none"
+              className="mt-0 min-h-0 flex-1 overflow-y-auto pt-3 outline-none"
             >
-              <Card className="flex h-full min-h-0 flex-col gap-0 overflow-hidden border-slate-200 py-0 shadow-sm">
+              <Card className="flex flex-col gap-0 border-slate-200 py-0 shadow-sm bg-white">
                 <CardHeader className="shrink-0 space-y-1 px-4 py-3 sm:px-5">
                   <CardTitle className="text-base">Thông tin hệ thống</CardTitle>
                   <CardDescription className="text-xs sm:text-sm">
                     Debug nhanh khi demo.
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="flex min-h-0 flex-1 flex-col space-y-2 overflow-hidden px-4 pb-3 text-sm sm:px-5">
+                <CardContent className="flex flex-col space-y-2 px-4 pb-3 text-sm sm:px-5">
                   <div className="grid shrink-0 grid-cols-1 gap-2 md:grid-cols-2">
                     <div className="rounded-lg border border-slate-200 p-3">
                       <p className="text-xs text-slate-500">User ID</p>

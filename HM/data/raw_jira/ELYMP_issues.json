@@ -1,0 +1,1453 @@
+{
+  "issues": [
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "5757472",
+      "self": "https://redhat.atlassian.net/rest/api/2/issue/5757472",
+      "key": "ELYMP-12",
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 2,
+        "total": 2,
+        "histories": [
+          {
+            "id": "77646522",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3A8914d317-1254-42ed-9ac7-a70109890e46",
+              "accountId": "712020:8914d317-1254-42ed-9ac7-a70109890e46",
+              "avatarUrls": {
+                "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png"
+              },
+              "displayName": "Darran Lofthouse",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2026-04-15T16:19:26.609+0000",
+            "items": [
+              {
+                "field": "resolution",
+                "fieldtype": "jira",
+                "fieldId": "resolution",
+                "from": null,
+                "fromString": null,
+                "to": "10000",
+                "toString": "Done"
+              },
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "fieldId": "status",
+                "from": "1",
+                "fromString": "Open",
+                "to": "5",
+                "toString": "Resolved"
+              }
+            ]
+          },
+          {
+            "id": "77646508",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=557058%3Af58131cb-b67d-43c7-b30d-6b58d40bd077",
+              "accountId": "557058:f58131cb-b67d-43c7-b30d-6b58d40bd077",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/600529a9c8bfef89daa848e6db28ed2d?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAJ-0.png",
+                "24x24": "https://secure.gravatar.com/avatar/600529a9c8bfef89daa848e6db28ed2d?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAJ-0.png",
+                "16x16": "https://secure.gravatar.com/avatar/600529a9c8bfef89daa848e6db28ed2d?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAJ-0.png",
+                "32x32": "https://secure.gravatar.com/avatar/600529a9c8bfef89daa848e6db28ed2d?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAJ-0.png"
+              },
+              "displayName": "Automation for Jira",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "app"
+            },
+            "created": "2026-04-15T16:19:16.996+0000",
+            "items": [
+              {
+                "field": "Intelligence Requested",
+                "fieldtype": "custom",
+                "fieldId": "customfield_10986",
+                "from": null,
+                "fromString": null,
+                "to": "FjFI4vRDXIGtYHewzEzZdaPH9V2fVxqQyVjaS1sekg29EjebK182eW+9Dn5gfdb9vhoPLig9PvnhJYwjWIkR7g==",
+                "toString": "FjFI4vRDXIGtYHewzEzZdaPH9V2fVxqQyVjaS1sekg29EjebK182eW+9Dn5gfdb9vhoPLig9PvnhJYwjWIkR7g=="
+              }
+            ],
+            "historyMetadata": {}
+          }
+        ]
+      },
+      "fields": {
+        "summary": "Release Elytron MP 2.1.0.Alpha1",
+        "issuetype": {
+          "self": "https://redhat.atlassian.net/rest/api/2/issuetype/10118",
+          "id": "10118",
+          "description": "A container task to coordinate the tasks for a given release.",
+          "iconUrl": "https://redhat.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10300?size=medium",
+          "name": "Release",
+          "subtask": false,
+          "avatarId": 10300,
+          "hierarchyLevel": 0
+        },
+        "created": "2026-04-15T16:19:14.650+0000",
+        "resolutiondate": "2026-04-15T16:19:26.589+0000",
+        "duedate": null,
+        "assignee": {
+          "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3A8914d317-1254-42ed-9ac7-a70109890e46",
+          "accountId": "712020:8914d317-1254-42ed-9ac7-a70109890e46",
+          "avatarUrls": {
+            "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+            "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+            "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+            "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png"
+          },
+          "displayName": "Darran Lofthouse",
+          "active": true,
+          "timeZone": "Etc/GMT",
+          "accountType": "atlassian"
+        },
+        "priority": {
+          "self": "https://redhat.atlassian.net/rest/api/2/priority/10002",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/priorities/major.svg",
+          "name": "Major",
+          "id": "10002"
+        },
+        "updated": "2026-04-15T16:19:26.609+0000",
+        "status": {
+          "self": "https://redhat.atlassian.net/rest/api/2/status/5",
+          "description": "A resolution has been taken, and it's awaiting verification by the reporter. From here work items are either reopened, or are closed.",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/statuses/resolved.png",
+          "name": "Resolved",
+          "id": "5",
+          "statusCategory": {
+            "self": "https://redhat.atlassian.net/rest/api/2/statuscategory/3",
+            "id": 3,
+            "key": "done",
+            "colorName": "green",
+            "name": "Done"
+          }
+        }
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "5757441",
+      "self": "https://redhat.atlassian.net/rest/api/2/issue/5757441",
+      "key": "ELYMP-11",
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 3,
+        "total": 3,
+        "histories": [
+          {
+            "id": "77646459",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3A8914d317-1254-42ed-9ac7-a70109890e46",
+              "accountId": "712020:8914d317-1254-42ed-9ac7-a70109890e46",
+              "avatarUrls": {
+                "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png"
+              },
+              "displayName": "Darran Lofthouse",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2026-04-15T16:18:36.607+0000",
+            "items": [
+              {
+                "field": "resolution",
+                "fieldtype": "jira",
+                "fieldId": "resolution",
+                "from": null,
+                "fromString": null,
+                "to": "10000",
+                "toString": "Done"
+              },
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "fieldId": "status",
+                "from": "10147",
+                "fromString": "Coding In Progress",
+                "to": "5",
+                "toString": "Resolved"
+              }
+            ]
+          },
+          {
+            "id": "77646207",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3A8914d317-1254-42ed-9ac7-a70109890e46",
+              "accountId": "712020:8914d317-1254-42ed-9ac7-a70109890e46",
+              "avatarUrls": {
+                "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png"
+              },
+              "displayName": "Darran Lofthouse",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2026-04-15T16:13:35.322+0000",
+            "items": [
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "fieldId": "status",
+                "from": "1",
+                "fromString": "Open",
+                "to": "10147",
+                "toString": "Coding In Progress"
+              }
+            ]
+          },
+          {
+            "id": "77646205",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=557058%3Af58131cb-b67d-43c7-b30d-6b58d40bd077",
+              "accountId": "557058:f58131cb-b67d-43c7-b30d-6b58d40bd077",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/600529a9c8bfef89daa848e6db28ed2d?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAJ-0.png",
+                "24x24": "https://secure.gravatar.com/avatar/600529a9c8bfef89daa848e6db28ed2d?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAJ-0.png",
+                "16x16": "https://secure.gravatar.com/avatar/600529a9c8bfef89daa848e6db28ed2d?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAJ-0.png",
+                "32x32": "https://secure.gravatar.com/avatar/600529a9c8bfef89daa848e6db28ed2d?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAJ-0.png"
+              },
+              "displayName": "Automation for Jira",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "app"
+            },
+            "created": "2026-04-15T16:13:30.057+0000",
+            "items": [
+              {
+                "field": "Intelligence Requested",
+                "fieldtype": "custom",
+                "fieldId": "customfield_10986",
+                "from": null,
+                "fromString": null,
+                "to": "FjFI4vRDXIGtYHewzEzZdaPH9V2fVxqQyVjaS1sekg29EjebK182eW+9Dn5gfdb9vhoPLig9PvnhJYwjWIkR7g==",
+                "toString": "FjFI4vRDXIGtYHewzEzZdaPH9V2fVxqQyVjaS1sekg29EjebK182eW+9Dn5gfdb9vhoPLig9PvnhJYwjWIkR7g=="
+              }
+            ],
+            "historyMetadata": {}
+          }
+        ]
+      },
+      "fields": {
+        "summary": "Update the Elytron MP project to deploy via new Nexus",
+        "issuetype": {
+          "self": "https://redhat.atlassian.net/rest/api/2/issuetype/10114",
+          "id": "10114",
+          "description": "An enhancement to or refactoring of existing functionality that is not configurable by an end user (typically a change made by an internal team that affects users)",
+          "iconUrl": "https://redhat.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10310?size=medium",
+          "name": "Enhancement",
+          "subtask": false,
+          "avatarId": 10310,
+          "hierarchyLevel": 0
+        },
+        "created": "2026-04-15T16:13:27.657+0000",
+        "resolutiondate": "2026-04-15T16:18:36.587+0000",
+        "duedate": null,
+        "assignee": {
+          "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3A8914d317-1254-42ed-9ac7-a70109890e46",
+          "accountId": "712020:8914d317-1254-42ed-9ac7-a70109890e46",
+          "avatarUrls": {
+            "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+            "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+            "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+            "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png"
+          },
+          "displayName": "Darran Lofthouse",
+          "active": true,
+          "timeZone": "Etc/GMT",
+          "accountType": "atlassian"
+        },
+        "priority": {
+          "self": "https://redhat.atlassian.net/rest/api/2/priority/10002",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/priorities/major.svg",
+          "name": "Major",
+          "id": "10002"
+        },
+        "updated": "2026-04-15T16:18:36.607+0000",
+        "status": {
+          "self": "https://redhat.atlassian.net/rest/api/2/status/5",
+          "description": "A resolution has been taken, and it's awaiting verification by the reporter. From here work items are either reopened, or are closed.",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/statuses/resolved.png",
+          "name": "Resolved",
+          "id": "5",
+          "statusCategory": {
+            "self": "https://redhat.atlassian.net/rest/api/2/statuscategory/3",
+            "id": 3,
+            "key": "done",
+            "colorName": "green",
+            "name": "Done"
+          }
+        }
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "5753715",
+      "self": "https://redhat.atlassian.net/rest/api/2/issue/5753715",
+      "key": "ELYMP-10",
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 3,
+        "total": 3,
+        "histories": [
+          {
+            "id": "77643564",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3A8914d317-1254-42ed-9ac7-a70109890e46",
+              "accountId": "712020:8914d317-1254-42ed-9ac7-a70109890e46",
+              "avatarUrls": {
+                "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png"
+              },
+              "displayName": "Darran Lofthouse",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2026-04-15T15:33:26.629+0000",
+            "items": [
+              {
+                "field": "resolution",
+                "fieldtype": "jira",
+                "fieldId": "resolution",
+                "from": null,
+                "fromString": null,
+                "to": "10000",
+                "toString": "Done"
+              },
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "fieldId": "status",
+                "from": "10147",
+                "fromString": "Coding In Progress",
+                "to": "5",
+                "toString": "Resolved"
+              }
+            ]
+          },
+          {
+            "id": "77608990",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3A8914d317-1254-42ed-9ac7-a70109890e46",
+              "accountId": "712020:8914d317-1254-42ed-9ac7-a70109890e46",
+              "avatarUrls": {
+                "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png"
+              },
+              "displayName": "Darran Lofthouse",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2026-04-15T10:04:35.295+0000",
+            "items": [
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "fieldId": "status",
+                "from": "1",
+                "fromString": "Open",
+                "to": "10147",
+                "toString": "Coding In Progress"
+              }
+            ]
+          },
+          {
+            "id": "77608979",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=557058%3Af58131cb-b67d-43c7-b30d-6b58d40bd077",
+              "accountId": "557058:f58131cb-b67d-43c7-b30d-6b58d40bd077",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/600529a9c8bfef89daa848e6db28ed2d?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAJ-0.png",
+                "24x24": "https://secure.gravatar.com/avatar/600529a9c8bfef89daa848e6db28ed2d?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAJ-0.png",
+                "16x16": "https://secure.gravatar.com/avatar/600529a9c8bfef89daa848e6db28ed2d?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAJ-0.png",
+                "32x32": "https://secure.gravatar.com/avatar/600529a9c8bfef89daa848e6db28ed2d?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAJ-0.png"
+              },
+              "displayName": "Automation for Jira",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "app"
+            },
+            "created": "2026-04-15T10:04:27.331+0000",
+            "items": [
+              {
+                "field": "Intelligence Requested",
+                "fieldtype": "custom",
+                "fieldId": "customfield_10986",
+                "from": null,
+                "fromString": null,
+                "to": "FjFI4vRDXIGtYHewzEzZdaPH9V2fVxqQyVjaS1sekg29EjebK182eW+9Dn5gfdb9vhoPLig9PvnhJYwjWIkR7g==",
+                "toString": "FjFI4vRDXIGtYHewzEzZdaPH9V2fVxqQyVjaS1sekg29EjebK182eW+9Dn5gfdb9vhoPLig9PvnhJYwjWIkR7g=="
+              }
+            ],
+            "historyMetadata": {}
+          }
+        ]
+      },
+      "fields": {
+        "summary": "Update our CI testing for all LTS versions and update our build to use Java 25 only",
+        "issuetype": {
+          "self": "https://redhat.atlassian.net/rest/api/2/issuetype/10114",
+          "id": "10114",
+          "description": "An enhancement to or refactoring of existing functionality that is not configurable by an end user (typically a change made by an internal team that affects users)",
+          "iconUrl": "https://redhat.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10310?size=medium",
+          "name": "Enhancement",
+          "subtask": false,
+          "avatarId": 10310,
+          "hierarchyLevel": 0
+        },
+        "created": "2026-04-15T10:04:24.866+0000",
+        "resolutiondate": "2026-04-15T15:33:26.609+0000",
+        "duedate": null,
+        "assignee": {
+          "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3A8914d317-1254-42ed-9ac7-a70109890e46",
+          "accountId": "712020:8914d317-1254-42ed-9ac7-a70109890e46",
+          "avatarUrls": {
+            "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+            "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+            "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+            "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png"
+          },
+          "displayName": "Darran Lofthouse",
+          "active": true,
+          "timeZone": "Etc/GMT",
+          "accountType": "atlassian"
+        },
+        "priority": {
+          "self": "https://redhat.atlassian.net/rest/api/2/priority/10002",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/priorities/major.svg",
+          "name": "Major",
+          "id": "10002"
+        },
+        "updated": "2026-04-15T15:33:26.629+0000",
+        "status": {
+          "self": "https://redhat.atlassian.net/rest/api/2/status/5",
+          "description": "A resolution has been taken, and it's awaiting verification by the reporter. From here work items are either reopened, or are closed.",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/statuses/resolved.png",
+          "name": "Resolved",
+          "id": "5",
+          "statusCategory": {
+            "self": "https://redhat.atlassian.net/rest/api/2/statuscategory/3",
+            "id": 3,
+            "key": "done",
+            "colorName": "green",
+            "name": "Done"
+          }
+        }
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "5458122",
+      "self": "https://redhat.atlassian.net/rest/api/2/issue/5458122",
+      "key": "ELYMP-9",
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 1,
+        "total": 1,
+        "histories": [
+          {
+            "id": "63515018",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=557058%3A77ee905e-260d-41c6-bb2b-54c8b9f0113a",
+              "accountId": "557058:77ee905e-260d-41c6-bb2b-54c8b9f0113a",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/e07a676199f6ad0af96a61a691b114b3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FFJ-5.png",
+                "24x24": "https://secure.gravatar.com/avatar/e07a676199f6ad0af96a61a691b114b3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FFJ-5.png",
+                "16x16": "https://secure.gravatar.com/avatar/e07a676199f6ad0af96a61a691b114b3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FFJ-5.png",
+                "32x32": "https://secure.gravatar.com/avatar/e07a676199f6ad0af96a61a691b114b3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FFJ-5.png"
+              },
+              "displayName": "Farah Juma",
+              "active": false,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2022-09-13T22:09:23.877+0000",
+            "items": [
+              {
+                "field": "fixVersions",
+                "fieldtype": "jira",
+                "fieldId": "fixVersions",
+                "from": null,
+                "fromString": null,
+                "to": "100962",
+                "toString": "2.0.0.Beta5"
+              },
+              {
+                "field": "resolution",
+                "fieldtype": "jira",
+                "fieldId": "resolution",
+                "from": null,
+                "fromString": null,
+                "to": "10000",
+                "toString": "Done"
+              },
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "fieldId": "status",
+                "from": "1",
+                "fromString": "Open",
+                "to": "5",
+                "toString": "Resolved"
+              }
+            ]
+          }
+        ]
+      },
+      "fields": {
+        "summary": "Release WildFly Elytron MicroProfile 2.0.0.Final",
+        "issuetype": {
+          "self": "https://redhat.atlassian.net/rest/api/2/issuetype/10118",
+          "id": "10118",
+          "description": "A container task to coordinate the tasks for a given release.",
+          "iconUrl": "https://redhat.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10300?size=medium",
+          "name": "Release",
+          "subtask": false,
+          "avatarId": 10300,
+          "hierarchyLevel": 0
+        },
+        "created": "2022-09-13T22:04:26.888+0000",
+        "resolutiondate": "2022-09-13T22:09:23.856+0000",
+        "duedate": null,
+        "assignee": {
+          "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=557058%3A77ee905e-260d-41c6-bb2b-54c8b9f0113a",
+          "accountId": "557058:77ee905e-260d-41c6-bb2b-54c8b9f0113a",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/e07a676199f6ad0af96a61a691b114b3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FFJ-5.png",
+            "24x24": "https://secure.gravatar.com/avatar/e07a676199f6ad0af96a61a691b114b3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FFJ-5.png",
+            "16x16": "https://secure.gravatar.com/avatar/e07a676199f6ad0af96a61a691b114b3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FFJ-5.png",
+            "32x32": "https://secure.gravatar.com/avatar/e07a676199f6ad0af96a61a691b114b3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FFJ-5.png"
+          },
+          "displayName": "Farah Juma",
+          "active": false,
+          "timeZone": "Etc/GMT",
+          "accountType": "atlassian"
+        },
+        "priority": {
+          "self": "https://redhat.atlassian.net/rest/api/2/priority/10002",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/priorities/major.svg",
+          "name": "Major",
+          "id": "10002"
+        },
+        "updated": "2022-09-13T22:09:23.873+0000",
+        "status": {
+          "self": "https://redhat.atlassian.net/rest/api/2/status/5",
+          "description": "A resolution has been taken, and it's awaiting verification by the reporter. From here work items are either reopened, or are closed.",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/statuses/resolved.png",
+          "name": "Resolved",
+          "id": "5",
+          "statusCategory": {
+            "self": "https://redhat.atlassian.net/rest/api/2/statuscategory/3",
+            "id": 3,
+            "key": "done",
+            "colorName": "green",
+            "name": "Done"
+          }
+        }
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "5458121",
+      "self": "https://redhat.atlassian.net/rest/api/2/issue/5458121",
+      "key": "ELYMP-8",
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 1,
+        "total": 1,
+        "histories": [
+          {
+            "id": "63515017",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=557058%3A77ee905e-260d-41c6-bb2b-54c8b9f0113a",
+              "accountId": "557058:77ee905e-260d-41c6-bb2b-54c8b9f0113a",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/e07a676199f6ad0af96a61a691b114b3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FFJ-5.png",
+                "24x24": "https://secure.gravatar.com/avatar/e07a676199f6ad0af96a61a691b114b3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FFJ-5.png",
+                "16x16": "https://secure.gravatar.com/avatar/e07a676199f6ad0af96a61a691b114b3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FFJ-5.png",
+                "32x32": "https://secure.gravatar.com/avatar/e07a676199f6ad0af96a61a691b114b3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FFJ-5.png"
+              },
+              "displayName": "Farah Juma",
+              "active": false,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2022-09-13T22:09:12.250+0000",
+            "items": [
+              {
+                "field": "fixVersions",
+                "fieldtype": "jira",
+                "fieldId": "fixVersions",
+                "from": null,
+                "fromString": null,
+                "to": "100962",
+                "toString": "2.0.0.Beta5"
+              },
+              {
+                "field": "resolution",
+                "fieldtype": "jira",
+                "fieldId": "resolution",
+                "from": null,
+                "fromString": null,
+                "to": "10000",
+                "toString": "Done"
+              },
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "fieldId": "status",
+                "from": "1",
+                "fromString": "Open",
+                "to": "5",
+                "toString": "Resolved"
+              }
+            ]
+          }
+        ]
+      },
+      "fields": {
+        "summary": "Upgrade SmallRye JWT to 4.0.0",
+        "issuetype": {
+          "self": "https://redhat.atlassian.net/rest/api/2/issuetype/10156",
+          "id": "10156",
+          "description": "A task tracking an update to a bundled component or revision of component upstream of the project.",
+          "iconUrl": "https://redhat.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10310?size=medium",
+          "name": "Component Upgrade",
+          "subtask": false,
+          "avatarId": 10310,
+          "hierarchyLevel": 0
+        },
+        "created": "2022-09-13T22:03:11.742+0000",
+        "resolutiondate": "2022-09-13T22:09:12.227+0000",
+        "duedate": null,
+        "assignee": {
+          "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=557058%3A77ee905e-260d-41c6-bb2b-54c8b9f0113a",
+          "accountId": "557058:77ee905e-260d-41c6-bb2b-54c8b9f0113a",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/e07a676199f6ad0af96a61a691b114b3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FFJ-5.png",
+            "24x24": "https://secure.gravatar.com/avatar/e07a676199f6ad0af96a61a691b114b3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FFJ-5.png",
+            "16x16": "https://secure.gravatar.com/avatar/e07a676199f6ad0af96a61a691b114b3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FFJ-5.png",
+            "32x32": "https://secure.gravatar.com/avatar/e07a676199f6ad0af96a61a691b114b3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FFJ-5.png"
+          },
+          "displayName": "Farah Juma",
+          "active": false,
+          "timeZone": "Etc/GMT",
+          "accountType": "atlassian"
+        },
+        "priority": {
+          "self": "https://redhat.atlassian.net/rest/api/2/priority/10002",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/priorities/major.svg",
+          "name": "Major",
+          "id": "10002"
+        },
+        "updated": "2022-09-13T22:09:12.246+0000",
+        "status": {
+          "self": "https://redhat.atlassian.net/rest/api/2/status/5",
+          "description": "A resolution has been taken, and it's awaiting verification by the reporter. From here work items are either reopened, or are closed.",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/statuses/resolved.png",
+          "name": "Resolved",
+          "id": "5",
+          "statusCategory": {
+            "self": "https://redhat.atlassian.net/rest/api/2/statuscategory/3",
+            "id": 3,
+            "key": "done",
+            "colorName": "green",
+            "name": "Done"
+          }
+        }
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "5458119",
+      "self": "https://redhat.atlassian.net/rest/api/2/issue/5458119",
+      "key": "ELYMP-7",
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 1,
+        "total": 1,
+        "histories": [
+          {
+            "id": "63515015",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=557058%3A77ee905e-260d-41c6-bb2b-54c8b9f0113a",
+              "accountId": "557058:77ee905e-260d-41c6-bb2b-54c8b9f0113a",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/e07a676199f6ad0af96a61a691b114b3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FFJ-5.png",
+                "24x24": "https://secure.gravatar.com/avatar/e07a676199f6ad0af96a61a691b114b3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FFJ-5.png",
+                "16x16": "https://secure.gravatar.com/avatar/e07a676199f6ad0af96a61a691b114b3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FFJ-5.png",
+                "32x32": "https://secure.gravatar.com/avatar/e07a676199f6ad0af96a61a691b114b3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FFJ-5.png"
+              },
+              "displayName": "Farah Juma",
+              "active": false,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2022-09-13T22:08:59.626+0000",
+            "items": [
+              {
+                "field": "fixVersions",
+                "fieldtype": "jira",
+                "fieldId": "fixVersions",
+                "from": null,
+                "fromString": null,
+                "to": "100962",
+                "toString": "2.0.0.Beta5"
+              },
+              {
+                "field": "resolution",
+                "fieldtype": "jira",
+                "fieldId": "resolution",
+                "from": null,
+                "fromString": null,
+                "to": "10000",
+                "toString": "Done"
+              },
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "fieldId": "status",
+                "from": "1",
+                "fromString": "Open",
+                "to": "5",
+                "toString": "Resolved"
+              }
+            ]
+          }
+        ]
+      },
+      "fields": {
+        "summary": "Upgrade CDI API to 4.0.0",
+        "issuetype": {
+          "self": "https://redhat.atlassian.net/rest/api/2/issuetype/10156",
+          "id": "10156",
+          "description": "A task tracking an update to a bundled component or revision of component upstream of the project.",
+          "iconUrl": "https://redhat.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10310?size=medium",
+          "name": "Component Upgrade",
+          "subtask": false,
+          "avatarId": 10310,
+          "hierarchyLevel": 0
+        },
+        "created": "2022-09-13T22:01:38.376+0000",
+        "resolutiondate": "2022-09-13T22:08:59.605+0000",
+        "duedate": null,
+        "assignee": {
+          "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=557058%3A77ee905e-260d-41c6-bb2b-54c8b9f0113a",
+          "accountId": "557058:77ee905e-260d-41c6-bb2b-54c8b9f0113a",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/e07a676199f6ad0af96a61a691b114b3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FFJ-5.png",
+            "24x24": "https://secure.gravatar.com/avatar/e07a676199f6ad0af96a61a691b114b3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FFJ-5.png",
+            "16x16": "https://secure.gravatar.com/avatar/e07a676199f6ad0af96a61a691b114b3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FFJ-5.png",
+            "32x32": "https://secure.gravatar.com/avatar/e07a676199f6ad0af96a61a691b114b3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FFJ-5.png"
+          },
+          "displayName": "Farah Juma",
+          "active": false,
+          "timeZone": "Etc/GMT",
+          "accountType": "atlassian"
+        },
+        "priority": {
+          "self": "https://redhat.atlassian.net/rest/api/2/priority/10002",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/priorities/major.svg",
+          "name": "Major",
+          "id": "10002"
+        },
+        "updated": "2022-09-13T22:08:59.622+0000",
+        "status": {
+          "self": "https://redhat.atlassian.net/rest/api/2/status/5",
+          "description": "A resolution has been taken, and it's awaiting verification by the reporter. From here work items are either reopened, or are closed.",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/statuses/resolved.png",
+          "name": "Resolved",
+          "id": "5",
+          "statusCategory": {
+            "self": "https://redhat.atlassian.net/rest/api/2/statuscategory/3",
+            "id": 3,
+            "key": "done",
+            "colorName": "green",
+            "name": "Done"
+          }
+        }
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "5458120",
+      "self": "https://redhat.atlassian.net/rest/api/2/issue/5458120",
+      "key": "ELYMP-6",
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 1,
+        "total": 1,
+        "histories": [
+          {
+            "id": "63515016",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3A8914d317-1254-42ed-9ac7-a70109890e46",
+              "accountId": "712020:8914d317-1254-42ed-9ac7-a70109890e46",
+              "avatarUrls": {
+                "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png"
+              },
+              "displayName": "Darran Lofthouse",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2022-08-22T17:08:26.845+0000",
+            "items": [
+              {
+                "field": "resolution",
+                "fieldtype": "jira",
+                "fieldId": "resolution",
+                "from": null,
+                "fromString": null,
+                "to": "10000",
+                "toString": "Done"
+              },
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "fieldId": "status",
+                "from": "1",
+                "fromString": "Open",
+                "to": "5",
+                "toString": "Resolved"
+              }
+            ]
+          }
+        ]
+      },
+      "fields": {
+        "summary": "Release Elytron MP 2.0.0.Beta4",
+        "issuetype": {
+          "self": "https://redhat.atlassian.net/rest/api/2/issuetype/10118",
+          "id": "10118",
+          "description": "A container task to coordinate the tasks for a given release.",
+          "iconUrl": "https://redhat.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10300?size=medium",
+          "name": "Release",
+          "subtask": false,
+          "avatarId": 10300,
+          "hierarchyLevel": 0
+        },
+        "created": "2022-08-22T16:51:47.774+0000",
+        "resolutiondate": "2022-08-22T17:08:26.834+0000",
+        "duedate": null,
+        "assignee": {
+          "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3A8914d317-1254-42ed-9ac7-a70109890e46",
+          "accountId": "712020:8914d317-1254-42ed-9ac7-a70109890e46",
+          "avatarUrls": {
+            "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+            "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+            "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+            "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png"
+          },
+          "displayName": "Darran Lofthouse",
+          "active": true,
+          "timeZone": "Etc/GMT",
+          "accountType": "atlassian"
+        },
+        "priority": {
+          "self": "https://redhat.atlassian.net/rest/api/2/priority/10002",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/priorities/major.svg",
+          "name": "Major",
+          "id": "10002"
+        },
+        "updated": "2022-08-22T17:08:26.844+0000",
+        "status": {
+          "self": "https://redhat.atlassian.net/rest/api/2/status/5",
+          "description": "A resolution has been taken, and it's awaiting verification by the reporter. From here work items are either reopened, or are closed.",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/statuses/resolved.png",
+          "name": "Resolved",
+          "id": "5",
+          "statusCategory": {
+            "self": "https://redhat.atlassian.net/rest/api/2/statuscategory/3",
+            "id": 3,
+            "key": "done",
+            "colorName": "green",
+            "name": "Done"
+          }
+        }
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "5458124",
+      "self": "https://redhat.atlassian.net/rest/api/2/issue/5458124",
+      "key": "ELYMP-5",
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 1,
+        "total": 1,
+        "histories": [
+          {
+            "id": "63515009",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3A8914d317-1254-42ed-9ac7-a70109890e46",
+              "accountId": "712020:8914d317-1254-42ed-9ac7-a70109890e46",
+              "avatarUrls": {
+                "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png"
+              },
+              "displayName": "Darran Lofthouse",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2022-08-22T16:50:49.774+0000",
+            "items": [
+              {
+                "field": "resolution",
+                "fieldtype": "jira",
+                "fieldId": "resolution",
+                "from": null,
+                "fromString": null,
+                "to": "10000",
+                "toString": "Done"
+              },
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "fieldId": "status",
+                "from": "1",
+                "fromString": "Open",
+                "to": "5",
+                "toString": "Resolved"
+              }
+            ]
+          }
+        ]
+      },
+      "fields": {
+        "summary": "This project should use a different group ID to the main Elytron project",
+        "issuetype": {
+          "self": "https://redhat.atlassian.net/rest/api/2/issuetype/10014",
+          "id": "10014",
+          "description": "A small, distinct piece of work.",
+          "iconUrl": "https://redhat.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+          "name": "Task",
+          "subtask": false,
+          "avatarId": 10318,
+          "hierarchyLevel": 0
+        },
+        "created": "2022-08-19T09:51:20.045+0000",
+        "resolutiondate": "2022-08-22T16:50:49.764+0000",
+        "duedate": null,
+        "assignee": {
+          "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3A8914d317-1254-42ed-9ac7-a70109890e46",
+          "accountId": "712020:8914d317-1254-42ed-9ac7-a70109890e46",
+          "avatarUrls": {
+            "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+            "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+            "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+            "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png"
+          },
+          "displayName": "Darran Lofthouse",
+          "active": true,
+          "timeZone": "Etc/GMT",
+          "accountType": "atlassian"
+        },
+        "priority": {
+          "self": "https://redhat.atlassian.net/rest/api/2/priority/10002",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/priorities/major.svg",
+          "name": "Major",
+          "id": "10002"
+        },
+        "updated": "2022-08-22T16:50:49.773+0000",
+        "status": {
+          "self": "https://redhat.atlassian.net/rest/api/2/status/5",
+          "description": "A resolution has been taken, and it's awaiting verification by the reporter. From here work items are either reopened, or are closed.",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/statuses/resolved.png",
+          "name": "Resolved",
+          "id": "5",
+          "statusCategory": {
+            "self": "https://redhat.atlassian.net/rest/api/2/statuscategory/3",
+            "id": 3,
+            "key": "done",
+            "colorName": "green",
+            "name": "Done"
+          }
+        }
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "5458125",
+      "self": "https://redhat.atlassian.net/rest/api/2/issue/5458125",
+      "key": "ELYMP-4",
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 2,
+        "total": 2,
+        "histories": [
+          {
+            "id": "63515010",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3A8914d317-1254-42ed-9ac7-a70109890e46",
+              "accountId": "712020:8914d317-1254-42ed-9ac7-a70109890e46",
+              "avatarUrls": {
+                "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png"
+              },
+              "displayName": "Darran Lofthouse",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2022-04-22T13:43:47.010+0000",
+            "items": [
+              {
+                "field": "resolution",
+                "fieldtype": "jira",
+                "fieldId": "resolution",
+                "from": null,
+                "fromString": null,
+                "to": "10000",
+                "toString": "Done"
+              },
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "fieldId": "status",
+                "from": "10147",
+                "fromString": "Coding In Progress",
+                "to": "5",
+                "toString": "Resolved"
+              }
+            ]
+          },
+          {
+            "id": "63515011",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3A8914d317-1254-42ed-9ac7-a70109890e46",
+              "accountId": "712020:8914d317-1254-42ed-9ac7-a70109890e46",
+              "avatarUrls": {
+                "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png"
+              },
+              "displayName": "Darran Lofthouse",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2022-04-22T11:54:00.303+0000",
+            "items": [
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "fieldId": "status",
+                "from": "1",
+                "fromString": "Open",
+                "to": "10147",
+                "toString": "Coding In Progress"
+              }
+            ]
+          }
+        ]
+      },
+      "fields": {
+        "summary": "Release Elytron MP 2.0.0.Beta3",
+        "issuetype": {
+          "self": "https://redhat.atlassian.net/rest/api/2/issuetype/10118",
+          "id": "10118",
+          "description": "A container task to coordinate the tasks for a given release.",
+          "iconUrl": "https://redhat.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10300?size=medium",
+          "name": "Release",
+          "subtask": false,
+          "avatarId": 10300,
+          "hierarchyLevel": 0
+        },
+        "created": "2022-04-22T11:53:53.651+0000",
+        "resolutiondate": "2022-04-22T13:43:46.996+0000",
+        "duedate": null,
+        "assignee": {
+          "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3A8914d317-1254-42ed-9ac7-a70109890e46",
+          "accountId": "712020:8914d317-1254-42ed-9ac7-a70109890e46",
+          "avatarUrls": {
+            "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+            "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+            "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+            "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png"
+          },
+          "displayName": "Darran Lofthouse",
+          "active": true,
+          "timeZone": "Etc/GMT",
+          "accountType": "atlassian"
+        },
+        "priority": {
+          "self": "https://redhat.atlassian.net/rest/api/2/priority/10002",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/priorities/major.svg",
+          "name": "Major",
+          "id": "10002"
+        },
+        "updated": "2022-04-22T13:43:47.009+0000",
+        "status": {
+          "self": "https://redhat.atlassian.net/rest/api/2/status/5",
+          "description": "A resolution has been taken, and it's awaiting verification by the reporter. From here work items are either reopened, or are closed.",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/statuses/resolved.png",
+          "name": "Resolved",
+          "id": "5",
+          "statusCategory": {
+            "self": "https://redhat.atlassian.net/rest/api/2/statuscategory/3",
+            "id": 3,
+            "key": "done",
+            "colorName": "green",
+            "name": "Done"
+          }
+        }
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "5458126",
+      "self": "https://redhat.atlassian.net/rest/api/2/issue/5458126",
+      "key": "ELYMP-3",
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 1,
+        "total": 1,
+        "histories": [
+          {
+            "id": "63515012",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3A8914d317-1254-42ed-9ac7-a70109890e46",
+              "accountId": "712020:8914d317-1254-42ed-9ac7-a70109890e46",
+              "avatarUrls": {
+                "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png"
+              },
+              "displayName": "Darran Lofthouse",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2022-04-22T11:53:26.954+0000",
+            "items": [
+              {
+                "field": "resolution",
+                "fieldtype": "jira",
+                "fieldId": "resolution",
+                "from": null,
+                "fromString": null,
+                "to": "10000",
+                "toString": "Done"
+              },
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "fieldId": "status",
+                "from": "1",
+                "fromString": "Open",
+                "to": "5",
+                "toString": "Resolved"
+              }
+            ]
+          }
+        ]
+      },
+      "fields": {
+        "summary": "The CDI service extension is in the Jakarta EE 8 namespace",
+        "issuetype": {
+          "self": "https://redhat.atlassian.net/rest/api/2/issuetype/10016",
+          "id": "10016",
+          "description": "A problem or error.",
+          "iconUrl": "https://redhat.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10303?size=medium",
+          "name": "Bug",
+          "subtask": false,
+          "avatarId": 10303,
+          "hierarchyLevel": 0
+        },
+        "created": "2022-04-22T11:37:21.660+0000",
+        "resolutiondate": "2022-04-22T11:53:26.939+0000",
+        "duedate": null,
+        "assignee": {
+          "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3A8914d317-1254-42ed-9ac7-a70109890e46",
+          "accountId": "712020:8914d317-1254-42ed-9ac7-a70109890e46",
+          "avatarUrls": {
+            "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+            "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+            "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+            "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png"
+          },
+          "displayName": "Darran Lofthouse",
+          "active": true,
+          "timeZone": "Etc/GMT",
+          "accountType": "atlassian"
+        },
+        "priority": {
+          "self": "https://redhat.atlassian.net/rest/api/2/priority/10001",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/priorities/critical.svg",
+          "name": "Critical",
+          "id": "10001"
+        },
+        "updated": "2022-04-22T11:53:26.953+0000",
+        "status": {
+          "self": "https://redhat.atlassian.net/rest/api/2/status/5",
+          "description": "A resolution has been taken, and it's awaiting verification by the reporter. From here work items are either reopened, or are closed.",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/statuses/resolved.png",
+          "name": "Resolved",
+          "id": "5",
+          "statusCategory": {
+            "self": "https://redhat.atlassian.net/rest/api/2/statuscategory/3",
+            "id": 3,
+            "key": "done",
+            "colorName": "green",
+            "name": "Done"
+          }
+        }
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "5458118",
+      "self": "https://redhat.atlassian.net/rest/api/2/issue/5458118",
+      "key": "ELYMP-2",
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 2,
+        "total": 2,
+        "histories": [
+          {
+            "id": "63515013",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3A8914d317-1254-42ed-9ac7-a70109890e46",
+              "accountId": "712020:8914d317-1254-42ed-9ac7-a70109890e46",
+              "avatarUrls": {
+                "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png"
+              },
+              "displayName": "Darran Lofthouse",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2022-04-21T17:20:02.318+0000",
+            "items": [
+              {
+                "field": "resolution",
+                "fieldtype": "jira",
+                "fieldId": "resolution",
+                "from": null,
+                "fromString": null,
+                "to": "10000",
+                "toString": "Done"
+              },
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "fieldId": "status",
+                "from": "10147",
+                "fromString": "Coding In Progress",
+                "to": "5",
+                "toString": "Resolved"
+              }
+            ]
+          },
+          {
+            "id": "63515014",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3A8914d317-1254-42ed-9ac7-a70109890e46",
+              "accountId": "712020:8914d317-1254-42ed-9ac7-a70109890e46",
+              "avatarUrls": {
+                "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png"
+              },
+              "displayName": "Darran Lofthouse",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2022-04-21T09:30:52.273+0000",
+            "items": [
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "fieldId": "status",
+                "from": "1",
+                "fromString": "Open",
+                "to": "10147",
+                "toString": "Coding In Progress"
+              }
+            ]
+          }
+        ]
+      },
+      "fields": {
+        "summary": "Release Elytron MP 2.0.0.Beta2",
+        "issuetype": {
+          "self": "https://redhat.atlassian.net/rest/api/2/issuetype/10118",
+          "id": "10118",
+          "description": "A container task to coordinate the tasks for a given release.",
+          "iconUrl": "https://redhat.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10300?size=medium",
+          "name": "Release",
+          "subtask": false,
+          "avatarId": 10300,
+          "hierarchyLevel": 0
+        },
+        "created": "2022-04-21T09:24:38.123+0000",
+        "resolutiondate": "2022-04-21T17:20:02.296+0000",
+        "duedate": null,
+        "assignee": {
+          "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3A8914d317-1254-42ed-9ac7-a70109890e46",
+          "accountId": "712020:8914d317-1254-42ed-9ac7-a70109890e46",
+          "avatarUrls": {
+            "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+            "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+            "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+            "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png"
+          },
+          "displayName": "Darran Lofthouse",
+          "active": true,
+          "timeZone": "Etc/GMT",
+          "accountType": "atlassian"
+        },
+        "priority": {
+          "self": "https://redhat.atlassian.net/rest/api/2/priority/10002",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/priorities/major.svg",
+          "name": "Major",
+          "id": "10002"
+        },
+        "updated": "2022-04-21T17:20:02.316+0000",
+        "status": {
+          "self": "https://redhat.atlassian.net/rest/api/2/status/5",
+          "description": "A resolution has been taken, and it's awaiting verification by the reporter. From here work items are either reopened, or are closed.",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/statuses/resolved.png",
+          "name": "Resolved",
+          "id": "5",
+          "statusCategory": {
+            "self": "https://redhat.atlassian.net/rest/api/2/statuscategory/3",
+            "id": 3,
+            "key": "done",
+            "colorName": "green",
+            "name": "Done"
+          }
+        }
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "5458123",
+      "self": "https://redhat.atlassian.net/rest/api/2/issue/5458123",
+      "key": "ELYMP-1",
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 1,
+        "total": 1,
+        "histories": [
+          {
+            "id": "63515019",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3A8914d317-1254-42ed-9ac7-a70109890e46",
+              "accountId": "712020:8914d317-1254-42ed-9ac7-a70109890e46",
+              "avatarUrls": {
+                "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+                "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png"
+              },
+              "displayName": "Darran Lofthouse",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2022-03-29T15:14:30.238+0000",
+            "items": [
+              {
+                "field": "description",
+                "fieldtype": "jira",
+                "fieldId": "description",
+                "from": null,
+                "fromString": null,
+                "to": null,
+                "toString": "Keep me alive."
+              }
+            ]
+          }
+        ]
+      },
+      "fields": {
+        "summary": "Keep the project alive.",
+        "issuetype": {
+          "self": "https://redhat.atlassian.net/rest/api/2/issuetype/10014",
+          "id": "10014",
+          "description": "A small, distinct piece of work.",
+          "iconUrl": "https://redhat.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+          "name": "Task",
+          "subtask": false,
+          "avatarId": 10318,
+          "hierarchyLevel": 0
+        },
+        "created": "2021-07-23T13:49:25.309+0000",
+        "resolutiondate": null,
+        "duedate": null,
+        "assignee": {
+          "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3A8914d317-1254-42ed-9ac7-a70109890e46",
+          "accountId": "712020:8914d317-1254-42ed-9ac7-a70109890e46",
+          "avatarUrls": {
+            "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+            "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+            "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png",
+            "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/DL-1.png"
+          },
+          "displayName": "Darran Lofthouse",
+          "active": true,
+          "timeZone": "Etc/GMT",
+          "accountType": "atlassian"
+        },
+        "priority": {
+          "self": "https://redhat.atlassian.net/rest/api/2/priority/10002",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/priorities/major.svg",
+          "name": "Major",
+          "id": "10002"
+        },
+        "updated": "2022-03-29T15:14:30.235+0000",
+        "status": {
+          "self": "https://redhat.atlassian.net/rest/api/2/status/1",
+          "description": "The work item is open and ready for the assignee to start work on it.",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/statuses/open.png",
+          "name": "Open",
+          "id": "1",
+          "statusCategory": {
+            "self": "https://redhat.atlassian.net/rest/api/2/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        }
+      }
+    }
+  ],
+  "isLast": true
+}

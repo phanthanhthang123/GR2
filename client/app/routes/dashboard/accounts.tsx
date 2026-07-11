@@ -16,11 +16,12 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Lock, Unlock } from "lucide-react";
+import { Plus, Pencil, Trash2, Lock, Unlock, AlertTriangle, Github } from "lucide-react";
 import type { User } from "@/type";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 import {
   Pagination,
   PaginationContent,
@@ -56,6 +57,7 @@ type UsersResponse = {
     | "yearsAtCompany"
     | "yearsExperience"
     | "numProjectsPrior"
+    | "githubUsername"
   >[];
 };
 
@@ -114,6 +116,7 @@ const AccountsPage: React.FC = () => {
     model: string | null;
   } | null>(null);
   const [editingUser, setEditingUser] = React.useState<null | EditingUserRow>(null);
+  const [selectedUserDetail, setSelectedUserDetail] = React.useState<any>(null);
   // controlled input: cho phép để trống ("") để user xoá số 0 rồi nhập lại
   const [editYearsAtCompanyText, setEditYearsAtCompanyText] = React.useState<string>("0");
   const [internalStats, setInternalStats] = React.useState<null | {
@@ -284,10 +287,13 @@ const AccountsPage: React.FC = () => {
   const toggleStatusMutation = useMutation({
     mutationFn: (payload: { id: string; isActive: boolean }) =>
       updateData<any>(`/auth/admin/users/${payload.id}/toggle-status`, { isActive: payload.isActive }),
-    onSuccess: (res: any) => {
+    onSuccess: (res: any, variables) => {
       if (res.err === 0) {
         queryClient.invalidateQueries({ queryKey: ["admin-users"] });
         toast.success(res.msg || "Cập nhật trạng thái tài khoản thành công");
+        if (selectedUserDetail && selectedUserDetail.id === variables.id) {
+          setSelectedUserDetail((prev: any) => ({ ...prev, isActive: variables.isActive }));
+        }
       } else {
         toast.error(res.msg || "Không thể cập nhật trạng thái tài khoản");
       }
@@ -918,7 +924,8 @@ const AccountsPage: React.FC = () => {
               paginatedData.map((u) => (
                 <div
                   key={u.id}
-                  className="bg-white rounded-lg border border-slate-200 p-4 shadow-sm hover:border-blue-500 transition-colors space-y-3"
+                  onClick={() => setSelectedUserDetail(u)}
+                  className="bg-white rounded-lg border border-slate-200 p-4 shadow-sm hover:border-blue-500 cursor-pointer transition-colors space-y-3"
                 >
                   <div className="flex items-center gap-3">
                     <Avatar className="size-10 shrink-0">
@@ -960,7 +967,7 @@ const AccountsPage: React.FC = () => {
                     )}
                   </div>
 
-                  <div className="flex justify-end gap-2 pt-2 border-t">
+                  <div className="flex justify-end gap-2 pt-2 border-t" onClick={(e) => e.stopPropagation()}>
                     <Button
                       variant="outline"
                       size="sm"
@@ -1086,7 +1093,8 @@ const AccountsPage: React.FC = () => {
                   paginatedData.map((u) => (
                     <tr
                       key={u.id}
-                      className="border-t border-slate-100 hover:bg-blue-50"
+                      onClick={() => setSelectedUserDetail(u)}
+                      className="border-t border-slate-100 hover:bg-blue-50 cursor-pointer transition-colors"
                     >
                       <td className="px-4 py-2">
                         <Avatar className="size-9">
@@ -1122,7 +1130,7 @@ const AccountsPage: React.FC = () => {
                           <span className="text-slate-400">—</span>
                         )}
                       </td>
-                      <td className="px-4 py-2">
+                      <td className="px-4 py-2" onClick={(e) => e.stopPropagation()}>
                         <div className="flex justify-end gap-2">
                           <Button
                             variant="outline"
@@ -1278,6 +1286,138 @@ const AccountsPage: React.FC = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Detail Dialog for User */}
+      <Dialog open={selectedUserDetail !== null} onOpenChange={(open) => { if (!open) setSelectedUserDetail(null); }}>
+        <DialogContent className="max-w-md w-[96vw]">
+          <DialogHeader>
+            <DialogTitle>Chi tiết tài khoản</DialogTitle>
+            <DialogDescription>
+              Xem thông tin chi tiết thành viên và cập nhật trạng thái hoạt động.
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedUserDetail && (
+            <div className="space-y-6 pt-4">
+              {/* Profile Header */}
+              <div className="flex items-center gap-4">
+                <Avatar className="h-16 w-16">
+                  <AvatarImage src={selectedUserDetail.avatarUrl || undefined} />
+                  <AvatarFallback className="text-xl">
+                    {userInitials(selectedUserDetail.username) || "U"}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="space-y-1">
+                  <h3 className="text-lg font-bold text-slate-800">{selectedUserDetail.username}</h3>
+                  <div className="flex items-center gap-2">
+                    <Badge className={cn("px-2 py-0.5 rounded font-medium border text-xs", 
+                      selectedUserDetail.role === "Admin" ? "bg-red-50 text-red-700 border-red-200" :
+                      selectedUserDetail.role === "Leader" ? "bg-blue-50 text-blue-700 border-blue-200" :
+                      "bg-slate-50 text-slate-700 border-slate-200"
+                    )}>
+                      {selectedUserDetail.role}
+                    </Badge>
+                    <Badge className={cn("px-2 py-0.5 rounded font-medium text-xs border-none text-white", 
+                      selectedUserDetail.isActive !== false ? "bg-emerald-500" : "bg-red-500"
+                    )}>
+                      {selectedUserDetail.isActive !== false ? "Đang hoạt động" : "Bị khóa"}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+
+              {/* Details fields */}
+              <div className="border rounded-lg divide-y bg-slate-50/50 text-sm">
+                <div className="p-3 flex justify-between">
+                  <span className="text-muted-foreground">Email:</span>
+                  <span className="font-medium text-slate-800">{selectedUserDetail.email}</span>
+                </div>
+                <div className="p-3 flex justify-between items-center">
+                  <span className="text-muted-foreground">Tài khoản GitHub:</span>
+                  {selectedUserDetail.githubUsername ? (
+                    <a
+                      href={`https://github.com/${selectedUserDetail.githubUsername}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium text-blue-600 hover:underline inline-flex items-center gap-1"
+                    >
+                      <Github className="size-4" />
+                      @{selectedUserDetail.githubUsername}
+                    </a>
+                  ) : (
+                    <span className="text-slate-400 italic">Chưa liên kết</span>
+                  )}
+                </div>
+                {selectedUserDetail.cpa != null && (
+                  <div className="p-3 flex justify-between">
+                    <span className="text-muted-foreground">CPA:</span>
+                    <span className="font-mono text-slate-800">{selectedUserDetail.cpa}</span>
+                  </div>
+                )}
+                {selectedUserDetail.yearsExperience != null && (
+                  <div className="p-3 flex justify-between">
+                    <span className="text-muted-foreground">Kinh nghiệm:</span>
+                    <span className="text-slate-800">{selectedUserDetail.yearsExperience} năm</span>
+                  </div>
+                )}
+                {selectedUserDetail.kpiScore != null && (
+                  <div className="p-3 flex justify-between">
+                    <span className="text-muted-foreground">Điểm KPI khởi tạo:</span>
+                    <span className="font-mono text-emerald-600 font-semibold">
+                      {Number(selectedUserDetail.kpiScore).toFixed(4)} {selectedUserDetail.kpiModelAtSignup ? `(Model ${selectedUserDetail.kpiModelAtSignup})` : ""}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Lock/Unlock Actions */}
+              <div className="border border-amber-200 bg-amber-50/20 rounded-lg p-4 space-y-3">
+                <h4 className="font-semibold text-sm flex items-center gap-2 text-amber-700">
+                  <AlertTriangle className="h-4 w-4" />
+                  Quyền quản trị tài khoản
+                </h4>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Khi tài khoản bị khóa, thành viên đó sẽ không thể đăng nhập hoặc thực hiện bất kỳ hành động nào trong các workspace của hệ thống.
+                </p>
+                <div className="pt-2 flex justify-end">
+                  {selectedUserDetail.role === "Admin" ? (
+                    <p className="text-xs text-red-500 font-medium">Không thể khóa tài khoản Admin chính hệ thống.</p>
+                  ) : (
+                    <Button
+                      type="button"
+                      disabled={toggleStatusMutation.isPending}
+                      variant={selectedUserDetail.isActive !== false ? "destructive" : "default"}
+                      className={selectedUserDetail.isActive === false ? "bg-emerald-600 hover:bg-emerald-500 text-white" : ""}
+                      onClick={() => {
+                        const nextState = selectedUserDetail.isActive === false;
+                        if (
+                          window.confirm(
+                            `Bạn có chắc chắn muốn ${nextState ? "mở khóa" : "khóa"} tài khoản của ${selectedUserDetail.username}?`
+                          )
+                        ) {
+                          toggleStatusMutation.mutate({ id: selectedUserDetail.id, isActive: nextState });
+                        }
+                      }}
+                    >
+                      {toggleStatusMutation.isPending ? (
+                        "Đang xử lý..."
+                      ) : selectedUserDetail.isActive !== false ? (
+                        <>
+                          <Lock className="w-4 h-4 mr-2" /> Khóa tài khoản
+                        </>
+                      ) : (
+                        <>
+                          <Unlock className="w-4 h-4 mr-2" /> Mở khóa tài khoản
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

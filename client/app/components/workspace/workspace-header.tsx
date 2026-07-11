@@ -2,13 +2,15 @@ import type { User, Workspace } from "@/type";
 import React, { useMemo, useState } from "react";
 import { WorkspaceAvatar } from "./workspace-avatar";
 import { Button } from "../ui/button";
-import { Plus, UserPlus } from "lucide-react";
+import { Plus, UserPlus, ArrowLeft } from "lucide-react";
 import { Avatar } from "@radix-ui/react-avatar";
 import { AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useAuth } from "@/provider/auth-context";
 import { WorkspaceMembersDialog } from "./workspace-members-dialog";
+import { useNavigate } from "react-router";
 
 const WorkspaceHeader = (workspace: any) => {
+  const navigate = useNavigate();
   const workspaceData: Workspace = workspace.workspace;
   const { user, isLoading: isAuthLoading } = useAuth();
   const [isMembersDialogOpen, setIsMembersDialogOpen] = useState(false);
@@ -47,7 +49,22 @@ const WorkspaceHeader = (workspace: any) => {
     <div className="space-y-8">
       <div className="space-y-3">
         <div className="flex flex-col-reverse md:flex-row md:justify-between md:items-center gap-3">
-          <div className="flex md:items-center gap-3">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              size="icon"
+              type="button"
+              onClick={() => {
+                if (window.history.length > 1) {
+                  navigate(-1);
+                } else {
+                  navigate("/workspaces");
+                }
+              }}
+              className="size-9 rounded-lg border-slate-200 shrink-0"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
             {workspaceData.color && (
               <WorkspaceAvatar
                 color={workspaceData.color}

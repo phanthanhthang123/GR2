@@ -1,4 +1,4 @@
-import { LayoutDashboard, User, ListCheck, CheckCircle2, Settings, Users2, MessagesSquare } from "lucide-react";
+import { LayoutDashboard, User, ListCheck, CheckCircle2, Settings, Users2, MessagesSquare, Building2, Shield } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export interface NavItem {
@@ -42,5 +42,34 @@ export const NAV_ITEMS: NavItem[] = [
     title: "Quản Lý Tài Khoản",
     href: "/accounts",
     icon: Users2,
+  },
+];
+
+/** Navigation items dành riêng cho Admin */
+export const ADMIN_NAV_ITEMS: NavItem[] = [
+  {
+    title: "Tổng Quan Hệ Thống",
+    href: "/dashboard",
+    icon: Shield,
+  },
+  {
+    title: "Quản Lý Tài Khoản",
+    href: "/accounts",
+    icon: Users2,
+  },
+  {
+    title: "Tất Cả Workspace",
+    href: "/workspaces",
+    icon: Building2,
+  },
+  {
+    title: "Chat",
+    href: "/chat",
+    icon: MessagesSquare,
+  },
+  {
+    title: "Cài Đặt",
+    href: "/settings",
+    icon: Settings,
   },
 ];

@@ -1,6 +1,7 @@
 import db from '../models';
 import { v4 } from 'uuid';
 import { createNotificationService } from './notification';
+import { createGithubIssue, updateGithubIssue, closeGithubIssue } from './github';
 
 export const updateProjectProgress = async (projectId) => {
     try {
@@ -36,9 +37,89 @@ export const updateProjectProgress = async (projectId) => {
     }
 };
 
+/**
+ * Sync Task to GitHub Issue
+ */
+export const syncTaskToGithub = async (taskId) => {
+    try {
+        const task = await db.Task.findOne({
+            where: { id: taskId },
+            include: [
+                { model: db.Project, as: 'project', attributes: ['id', 'githubRepoOwner', 'githubRepoName'] },
+                { model: db.Users, as: 'assignedUser', attributes: ['id', 'githubUsername'] }
+            ]
+        });
+
+        if (!task || !task.project) return;
+        const owner = task.project.githubRepoOwner;
+        const repo = task.project.githubRepoName;
+
+        if (!owner || !repo) return;
+
+        const assigneeUsername = task.assignedUser?.githubUsername || null;
+
+        if (task.isArchived) {
+            if (task.githubIssueNumber) {
+                await closeGithubIssue(owner, repo, task.githubIssueNumber, true);
+                console.log(`[Sync Task] Closed GitHub Issue #${task.githubIssueNumber} for Archived Task #${task.id}`);
+            }
+            return;
+        }
+
+        if (!task.githubIssueNumber) {
+            // Create issue on GitHub
+            const result = await createGithubIssue(owner, repo, task, assigneeUsername);
+            if (result && result.issueNumber) {
+                await task.update({
+                    githubIssueNumber: result.issueNumber,
+                    githubIssueUrl: result.issueUrl
+                });
+                console.log(`[Sync Task] Created GitHub Issue #${result.issueNumber} for Task #${task.id}`);
+            }
+        } else {
+            // Update existing issue on GitHub
+            await updateGithubIssue(owner, repo, task.githubIssueNumber, task, assigneeUsername);
+            console.log(`[Sync Task] Updated GitHub Issue #${task.githubIssueNumber} for Task #${task.id}`);
+        }
+    } catch (error) {
+        console.error(`[Sync Task] Failed to sync task #${taskId} to GitHub:`, error.message);
+    }
+};
+
 //CREATE TASK
 export const createTaskService = (projectId, taskData, actorUserId) => new Promise(async (resolve, reject) => {
     try {
+        // Check permissions: only project creator, project leader, member with role 'Leader', or system Admin/Leader can create tasks
+        if (actorUserId) {
+            const currentUser = await db.Users.findOne({ where: { id: actorUserId } });
+            const isSystemAdminOrLeader = currentUser?.role === 'Admin' || currentUser?.role === 'Leader';
+
+            const project = await db.Project.findOne({
+                where: { id: projectId },
+                include: [{ model: db.Project_Member, as: 'members' }]
+            });
+
+            if (!project) {
+                return resolve({
+                    err: 1,
+                    msg: 'Project not found'
+                });
+            }
+
+            const isLeader =
+                project.leader_id === actorUserId ||
+                project.created_by === actorUserId ||
+                isSystemAdminOrLeader ||
+                project.members?.some(member => member.user_id === actorUserId && member.role === 'Leader');
+
+            if (!isLeader) {
+                return resolve({
+                    err: 1,
+                    msg: 'Bạn không có quyền thêm task trong dự án này'
+                });
+            }
+        }
+
         // Check if a task with the same title already exists in this project
         const existingTask = await db.Task.findOne({
             where: {
@@ -80,6 +161,7 @@ export const createTaskService = (projectId, taskData, actorUserId) => new Promi
         }
 
         await updateProjectProgress(projectId);
+        syncTaskToGithub(task.id).catch(console.error);
 
         if (assignedTo) {
             const actor = actorUserId ? await db.Users.findByPk(actorUserId, { attributes: ['username'] }) : null;
@@ -337,6 +419,8 @@ export const updateTaskTitleService = (taskId, title, userId) => new Promise(asy
             // Don't fail the whole operation if activity creation fails
         }
 
+        syncTaskToGithub(task.id).catch(console.error);
+
         await task.reload({
             include: [
                 { model: db.Users, as: 'assignedUser', attributes: ['id', 'username', 'email', 'avatarUrl'] },
@@ -388,6 +472,7 @@ export const updateTaskStatusService = (taskId, status, userId) => new Promise(a
         });
 
         await updateProjectProgress(task.project_id);
+        syncTaskToGithub(task.id).catch(console.error);
 
         try {
             const numericTaskId = typeof taskId === 'string' && !isNaN(taskId) ? parseInt(taskId, 10) : taskId;
@@ -443,6 +528,8 @@ export const updateTaskDescriptionService = (taskId, description, userId) => new
             description: description || null,
             updatedAt: new Date()
         });
+
+        syncTaskToGithub(task.id).catch(console.error);
 
         try {
             const numericTaskId = typeof taskId === 'string' && !isNaN(taskId) ? parseInt(taskId, 10) : taskId;
@@ -505,6 +592,8 @@ export const updateTaskAssigneesService = (taskId, assignees, userId) => new Pro
             assigned_to: assignedTo,
             updatedAt: new Date()
         });
+
+        syncTaskToGithub(task.id).catch(console.error);
 
         const nextAssignedTo = assignedTo ? String(assignedTo) : null;
         if (nextAssignedTo && nextAssignedTo !== previousAssignedTo) {
@@ -590,6 +679,8 @@ export const updateTaskDueDateService = (taskId, dueDate, userId) => new Promise
             updatedAt: new Date()
         });
 
+        syncTaskToGithub(task.id).catch(console.error);
+
         try {
             const numericTaskId = typeof taskId === 'string' && !isNaN(taskId) ? parseInt(taskId, 10) : taskId;
             await db.Task_Activity.create({
@@ -656,6 +747,8 @@ export const updateTaskPriorityService = (taskId, priority, userId) => new Promi
             updatedAt: new Date()
         });
 
+        syncTaskToGithub(task.id).catch(console.error);
+
         // log activity
         try {
             const numericTaskId = typeof taskId === 'string' && !isNaN(taskId) ? parseInt(taskId, 10) : taskId;
@@ -719,6 +812,8 @@ export const updateTaskDifficultyService = (taskId, difficulty, userId) => new P
             difficulty: difficulty,
             updatedAt: new Date()
         });
+
+        syncTaskToGithub(task.id).catch(console.error);
 
         try {
             const numericTaskId = typeof taskId === 'string' && !isNaN(taskId) ? parseInt(taskId, 10) : taskId;
@@ -867,6 +962,7 @@ export const achievedTaskService = (taskId, userId) => new Promise(async (resolv
         });
 
         await updateProjectProgress(task.project_id);
+        syncTaskToGithub(task.id).catch(console.error);
 
         // Log activity
         try {
@@ -935,6 +1031,7 @@ export const archiveTaskService = (taskId, userId) => new Promise(async (resolve
         });
 
         await updateProjectProgress(task.project_id);
+        syncTaskToGithub(task.id).catch(console.error);
 
         // Log activity
         try {

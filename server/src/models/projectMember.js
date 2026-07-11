@@ -48,6 +48,14 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.ENUM('Leader', 'Manager', 'Developer'),
       defaultValue: 'Developer'
     },
+    status: {
+      type: DataTypes.ENUM('Pending', 'Active'),
+      defaultValue: 'Active'
+    },
+    githubInvitationId: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
     joined_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW

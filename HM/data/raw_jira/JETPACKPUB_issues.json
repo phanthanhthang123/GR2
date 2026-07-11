@@ -1,0 +1,137 @@
+{
+  "issues": [
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "5670176",
+      "self": "https://redhat.atlassian.net/rest/api/2/issue/5670176",
+      "key": "JETPACKPUB-1",
+      "changelog": {
+        "startAt": 0,
+        "maxResults": 2,
+        "total": 2,
+        "histories": [
+          {
+            "id": "76821662",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=70121%3Adf79d23f-6613-4846-9812-3779ab7c9030",
+              "accountId": "70121:df79d23f-6613-4846-9812-3779ab7c9030",
+              "avatarUrls": {
+                "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/GN-1.png",
+                "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/GN-1.png",
+                "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/GN-1.png",
+                "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/GN-1.png"
+              },
+              "displayName": "Greg Nichols",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2026-03-31T18:50:11.309+0000",
+            "items": [
+              {
+                "field": "resolution",
+                "fieldtype": "jira",
+                "fieldId": "resolution",
+                "from": null,
+                "fromString": null,
+                "to": "10000",
+                "toString": "Done"
+              },
+              {
+                "field": "status",
+                "fieldtype": "jira",
+                "fieldId": "status",
+                "from": "10142",
+                "fromString": "New",
+                "to": "6",
+                "toString": "Closed"
+              }
+            ]
+          },
+          {
+            "id": "76821553",
+            "author": {
+              "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=712020%3A598d0282-7430-4a6c-9e89-fbd88679e424",
+              "accountId": "712020:598d0282-7430-4a6c-9e89-fbd88679e424",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/573dcb2fa1491b2623023b4ce48e2ea2?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FPA-0.png",
+                "24x24": "https://secure.gravatar.com/avatar/573dcb2fa1491b2623023b4ce48e2ea2?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FPA-0.png",
+                "16x16": "https://secure.gravatar.com/avatar/573dcb2fa1491b2623023b4ce48e2ea2?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FPA-0.png",
+                "32x32": "https://secure.gravatar.com/avatar/573dcb2fa1491b2623023b4ce48e2ea2?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FPA-0.png"
+              },
+              "displayName": "pme-bot service account",
+              "active": true,
+              "timeZone": "Etc/GMT",
+              "accountType": "atlassian"
+            },
+            "created": "2026-03-31T18:47:48.414+0000",
+            "items": [
+              {
+                "field": "Market",
+                "fieldtype": "custom",
+                "fieldId": "customfield_10995",
+                "from": null,
+                "fromString": null,
+                "to": "FjFI4vRDXIGtYHewzEzZdYXWY6xFXtu7gdqwi4jwotp0jcF9dQ8J7oaYqY+GVn2Es5tVs38SkVKTf8NaifU8Ng==",
+                "toString": "FjFI4vRDXIGtYHewzEzZdYXWY6xFXtu7gdqwi4jwotp0jcF9dQ8J7oaYqY+GVn2Es5tVs38SkVKTf8NaifU8Ng=="
+              }
+            ],
+            "historyMetadata": {}
+          }
+        ]
+      },
+      "fields": {
+        "summary": "Testing Access",
+        "issuetype": {
+          "self": "https://redhat.atlassian.net/rest/api/2/issuetype/10016",
+          "id": "10016",
+          "description": "A problem or error.",
+          "iconUrl": "https://redhat.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10303?size=medium",
+          "name": "Bug",
+          "subtask": false,
+          "avatarId": 10303,
+          "hierarchyLevel": 0
+        },
+        "created": "2026-03-31T18:47:45.978+0000",
+        "resolutiondate": "2026-03-31T18:50:11.269+0000",
+        "duedate": null,
+        "assignee": {
+          "self": "https://redhat.atlassian.net/rest/api/2/user?accountId=70121%3Adf79d23f-6613-4846-9812-3779ab7c9030",
+          "accountId": "70121:df79d23f-6613-4846-9812-3779ab7c9030",
+          "avatarUrls": {
+            "48x48": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/GN-1.png",
+            "24x24": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/GN-1.png",
+            "16x16": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/GN-1.png",
+            "32x32": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/initials/GN-1.png"
+          },
+          "displayName": "Greg Nichols",
+          "active": true,
+          "timeZone": "Etc/GMT",
+          "accountType": "atlassian"
+        },
+        "priority": {
+          "self": "https://redhat.atlassian.net/rest/api/2/priority/10005",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/priorities/trivial.svg",
+          "name": "Undefined",
+          "id": "10005"
+        },
+        "updated": "2026-04-01T04:57:43.923+0000",
+        "status": {
+          "self": "https://redhat.atlassian.net/rest/api/2/status/6",
+          "description": "The work item is considered finished, the resolution is correct. work items which are closed can be reopened.",
+          "iconUrl": "https://redhat.atlassian.net/images/icons/statuses/closed.png",
+          "name": "Closed",
+          "id": "6",
+          "statusCategory": {
+            "self": "https://redhat.atlassian.net/rest/api/2/statuscategory/3",
+            "id": 3,
+            "key": "done",
+            "colorName": "green",
+            "name": "Done"
+          }
+        }
+      }
+    }
+  ],
+  "isLast": true
+}
