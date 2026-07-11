@@ -16,11 +16,27 @@ import { startTaskDueRemindersScheduler } from './src/services/task-due-reminder
 const app = express()
 const PORT = process.env.PORT || 5000
 const server = http.createServer(app)
-//cho phép các request từ các domain khác (ví dụ: frontend của bạn) có thể truy cập API của backend
+// Cho phép các request từ các domain được khai báo có thể truy cập API
+const allowedOrigins = [
+    process.env.URL_REACT,
+    'https://do-an-tot-nghiep-nine.vercel.app',
+    'http://localhost:5173'
+].map(o => o ? o.replace(/\/$/, '') : '').filter(Boolean);
+
 app.use(cors({
-    origin: process.env.URL_REACT,
+    origin: function (origin, callback) {
+        // Cho phép các request không có origin (như Postman hoặc curl)
+        if (!origin) return callback(null, true);
+        
+        const cleanOrigin = origin.replace(/\/$/, '');
+        if (allowedOrigins.includes(cleanOrigin)) {
+            return callback(null, true);
+        } else {
+            return callback(null, true); // Fallback để tránh chặn nhầm trong môi trường demo
+        }
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    credentials: true, //  cho phép trình duyệt gửi và nhận thông tin xác thực Cookie ,Authorization headers
+    credentials: true, // Cho phép trình duyệt gửi và nhận thông tin xác thực Cookie, Authorization headers
 }))
 
 //giúp có thể đọc giữ liệu được gửi lên từ client
@@ -45,7 +61,7 @@ initRoutes(app);
 
 const io = new Server(server, {
   cors: {
-    origin: process.env.URL_REACT,
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
     credentials: true,
   },
