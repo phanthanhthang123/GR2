@@ -221,8 +221,9 @@ const transporter = nodemailer.createTransport({
 // Hàm gửi email
 const sendResetPasswordEmail = async (toEmail, resetToken) => {
     const resetLink = `${process.env.URL_REACT}/reset-password?token=${resetToken}`; // URL frontend
+    const fromEmail = process.env.EMAIL_USER || 'thangphanthanh81@gmail.com';
     let mailOptions = {
-        from: '"MentorHub" <your_email@gmail.com>', // Tên thương hiệu + email gửi
+        from: `"MentorHub" <${fromEmail}>`, // Tên thương hiệu + email gửi
         to: toEmail,
         subject: '[MentorHub] Yêu cầu đặt lại mật khẩu tài khoản của bạn',
         text: `Xin chào,\n\nBạn vừa gửi yêu cầu đặt lại mật khẩu cho tài khoản MentorHub của mình.\nVui lòng nhấn vào liên kết sau để đặt lại mật khẩu mới (liên kết này sẽ hết hạn sau 15 phút):\n\n${resetLink}\n\nNếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này. Mật khẩu của bạn sẽ không bị thay đổi.\n\nCảm ơn bạn đã sử dụng MentorHub.\nĐội ngũ phát triển MentorHub`,
