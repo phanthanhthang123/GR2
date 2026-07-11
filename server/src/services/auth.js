@@ -210,11 +210,12 @@ export const logoutService = () => new Promise(async (resolve, reject) => {
 })
 
 
-const transporter = nodemailer.createTransport({
+// Tạo transporter theo kiểu lazy factory để đảm bảo đọc env vars đúng lúc
+const createMailTransporter = () => nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
+        pass: (process.env.EMAIL_PASS || '').replace(/\s/g, '') // bỏ spaces nếu có
     }
 })
 
@@ -260,6 +261,7 @@ const sendResetPasswordEmail = async (toEmail, resetToken) => {
     };
 
     try {
+        const transporter = createMailTransporter();
         let info = await transporter.sendMail(mailOptions);
         console.log('Email sent: ' + info.response);
         return { success: true, response: info.response };
@@ -480,6 +482,7 @@ const sendAdminCreatedUserCredentialsEmail = async (toEmail, username, plainPass
     };
 
     try {
+        const transporter = createMailTransporter();
         const info = await transporter.sendMail(mailOptions);
         console.log("Admin created user email sent:", info?.response);
         return { success: true, response: info?.response };
