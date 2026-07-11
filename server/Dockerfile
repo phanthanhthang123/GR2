@@ -47,4 +47,4 @@ EXPOSE 5000
 ENTRYPOINT []
 
 # Run migrations and start server
-CMD ["sh", "-c", "npx sequelize-cli db:migrate && npx nodemon --exec babel-node server.js"]
+CMD ["sh", "-c", "npx sequelize-cli db:migrate && npx babel-node server.js"]

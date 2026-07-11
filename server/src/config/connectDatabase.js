@@ -11,6 +11,8 @@ import {Sequelize}  from 'sequelize';
 // });
 
 // Option 3: Passing parameters separately (other dialects)
+const isProduction = process.env.NODE_ENV === 'production';
+
 const sequelize = new Sequelize(
     process.env.DB_NAME || 'project_manager',
     process.env.DB_USER || 'root',
@@ -18,8 +20,16 @@ const sequelize = new Sequelize(
     {
         host: process.env.DB_HOST || 'localhost',
         port: process.env.DB_PORT || 3306,
-        dialect: 'mysql', /* one of 'mysql' | 'postgres' | 'sqlite' | 'mariadb' | 'mssql' | 'db2' | 'snowflake' | 'oracle' */
-        logging: false
+        dialect: 'mysql',
+        logging: false,
+        // SSL required for Aiven MySQL (and most cloud MySQL providers)
+        ...(isProduction && {
+            dialectOptions: {
+                ssl: {
+                    rejectUnauthorized: false
+                }
+            }
+        })
     }
 );
 
