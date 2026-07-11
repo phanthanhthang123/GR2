@@ -308,7 +308,10 @@ export const adminCreateUser = async (req, res) => {
 export const adminSendUserCredentialsEmail = async (req, res) => {
     try {
         const { username, email, tempPassword } = req.body;
+        console.log('[adminSendUserCredentialsEmail] body received:', { username, email, hasTempPassword: !!tempPassword });
+        
         if (!username || !email || !tempPassword) {
+            console.warn('[adminSendUserCredentialsEmail] Missing fields:', { username, email, tempPassword });
             return res.status(400).json({
                 err: 1,
                 msg: 'Missing inputs parameter',
@@ -316,9 +319,11 @@ export const adminSendUserCredentialsEmail = async (req, res) => {
         }
 
         const response = await services.adminSendUserCredentialsEmailService(username, email, tempPassword);
+        console.log('[adminSendUserCredentialsEmail] service result:', response);
         const status = response.err === 0 ? 200 : 400;
         return res.status(status).json(response);
     } catch (error) {
+        console.error('[adminSendUserCredentialsEmail] Error:', error?.message || error);
         return res.status(500).json({
             err: -1,
             msg: 'Failed at admin send credentials email controller: ' + error,
