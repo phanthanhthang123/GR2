@@ -34,9 +34,19 @@ from src.utils import ensure_dirs
 
 def main() -> None:
     ensure_dirs()
-    print("=== Bước 1: Sinh dữ liệu CSV (nếu chưa có) ===")
+    print("=== Bước 1: Tiền xử lý dữ liệu thật từ Jira MongoDB & Sinh dữ liệu synthetic ===")
+    from src.preprocess_jira_dataset import main as preprocess_jira_data
+    from src.utils import DATA_DIR
+    real_b_path = DATA_DIR / "data_B_real.csv"
+    real_rf_path = DATA_DIR / "projects_real.csv"
+    
+    if not real_b_path.exists() or not real_rf_path.exists():
+        print("[main] Thiếu dữ liệu thật, bắt đầu tiền xử lý từ MongoDB...")
+        preprocess_jira_data()
+    else:
+        print("[main] Dữ liệu Jira thật đã được xử lý. Bỏ qua bước tiền xử lý.")
+        
     generate_all(force=False)
-    generate_project_data(force=False)
 
     print("\n=== Bước 2: Huấn luyện Model ===")
     print("-> Đang huấn luyện Logistic Regression (KPI User)...")

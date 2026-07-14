@@ -6,7 +6,7 @@ import type { PredictionResult, ModelEvaluation } from '@/hooks/use-project';
 import type { TaskStatus } from '@/type';
 import { Loader } from '@/components/loader';
 import { getProjectProgress } from '@/lib';
-import { fetchData } from '@/lib/fetch-utlis';
+import { fetchData, updateData } from '@/lib/fetch-utlis';
 import { BackButton } from '@/components/back-button';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -64,6 +64,8 @@ const ProjectDetails = () => {
     const [expandedStatuses, setExpandedStatuses] = useState<Record<string, boolean>>({});
     const [statusPages, setStatusPages] = useState<Record<string, number>>({});
     const [taskPage, setTaskPage] = useState(1);
+    const [dragOverColumn, setDragOverColumn] = useState<string | null>(null);
+    const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
     const { user } = useAuth();
     const [isPredictionDialogOpen, setIsPredictionDialogOpen] = useState(false);
     const [predictionResult, setPredictionResult] = useState<PredictionResult | null>(null);
@@ -1718,215 +1720,185 @@ const ProjectDetails = () => {
                         </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        {/* Bộ lọc trạng thái cho bảng */}
-                        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                            <div className="flex flex-wrap gap-2">
-                                {([
-                                    { key: 'All', label: 'Tất cả' },
-                                    { key: 'To Do', label: 'Chưa Làm' },
-                                    { key: 'In Progress', label: 'Đang Làm' },
-                                    { key: 'Done', label: 'Hoàn Thành' },
-                                ] as const).map((item) => (
-                                    <Button
-                                        key={item.key}
-                                        type="button"
-                                        size="sm"
-                                        variant={taskFilter === item.key ? 'default' : 'outline'}
-                                        onClick={() => setTaskFilter(item.key)}
-                                        className="text-xs md:text-sm"
-                                    >
-                                        {item.label}
-                                    </Button>
-                                ))}
-                            </div>
-                            <div className="text-xs md:text-sm text-muted-foreground">
-                                Đang hiển thị {paginatedStatusTasks.length} / {statusFilteredTasks.length} task
-                            </div>
-                        </div>
+                        {/* Kanban Board — 3 cột kéo thả */}
 
-                        {/* Bảng task theo trạng thái + phân trang */}
-                        <div className="rounded-xl border bg-background overflow-hidden">
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-sm">
-                                    <thead className="bg-muted/60 border-b">
-                                        <tr className="text-left">
-                                            <th className="px-4 py-2 w-[60px] font-medium text-xs text-muted-foreground">
-                                                ID
-                                            </th>
-                                            <th className="px-4 py-2 min-w-[220px] font-medium text-xs text-muted-foreground">
-                                                Tiêu đề
-                                            </th>
-                                            <th className="px-4 py-2 min-w-[120px] font-medium text-xs text-muted-foreground">
-                                                Trạng thái
-                                            </th>
-                                            <th className="px-4 py-2 min-w-[100px] font-medium text-xs text-muted-foreground">
-                                                Ưu tiên
-                                            </th>
-                                            <th className="px-4 py-2 min-w-[120px] font-medium text-xs text-muted-foreground">
-                                                Độ khó
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {statusFilteredTasks.length === 0 ? (
-                                            <tr>
-                                                <td
-                                                    colSpan={5}
-                                                    className="px-4 py-6 text-center text-sm text-muted-foreground"
-                                                >
-                                                    Chưa có task nào phù hợp
-                                                </td>
-                                            </tr>
-                                        ) : (
-                                            paginatedStatusTasks.map((task) => (
-                                                <tr
-                                                    key={task.id}
-                                                    className="cursor-pointer hover:bg-muted/60 border-b last:border-0"
-                                                    onClick={() => handleTaskClick(String(task.id))}
-                                                >
-                                                    <td className="px-4 py-2 text-xs text-muted-foreground">
-                                                        {task.id}
-                                                    </td>
-                                                    <td className="px-4 py-2 font-medium">
-                                                        {task.title}
-                                                    </td>
-                                                    <td className="px-4 py-2">
-                                                        <Badge
-                                                            variant="outline"
-                                                            className={cn(
-                                                                "text-xs",
-                                                                task.status === 'Done'
-                                                                    ? "bg-green-100 text-green-800"
-                                                                    : task.status === 'In Progress'
-                                                                        ? "bg-blue-100 text-blue-800"
-                                                                        : "bg-gray-100 text-gray-800"
-                                                            )}
-                                                        >
-                                                            {task.status === 'To Do'
-                                                                ? 'Chưa Làm'
-                                                                : task.status === 'In Progress'
-                                                                    ? 'Đang Làm'
-                                                                    : 'Hoàn Thành'}
-                                                        </Badge>
-                                                    </td>
-                                                    <td className="px-4 py-2">
-                                                        <Badge
-                                                            variant="outline"
-                                                            className={cn(
-                                                                "text-xs",
-                                                                task.priority === 'High'
-                                                                    ? "bg-red-100 text-red-800"
-                                                                    : task.priority === 'Medium'
-                                                                        ? "bg-yellow-100 text-yellow-800"
-                                                                        : "bg-gray-100 text-gray-800"
-                                                            )}
-                                                        >
-                                                            {task.priority}
-                                                        </Badge>
-                                                    </td>
-                                                    <td className="px-4 py-2">
-                                                        <Badge
-                                                            variant="outline"
-                                                            className={cn("text-xs bg-slate-100 text-slate-800")}
-                                                        >
-                                                            {getDifficultyLabel((task as any).difficulty)}
-                                                        </Badge>
-                                                    </td>
-                                                </tr>
-                                            ))
+                        {/* Kanban Board — 3 cột kéo thả */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 min-h-[400px]">
+                            {([
+                                {
+                                    status: 'To Do' as const,
+                                    label: 'Chưa Làm',
+                                    color: 'blue',
+                                    headerClass: 'bg-blue-50 border-blue-200',
+                                    titleClass: 'text-blue-800',
+                                    countClass: 'bg-blue-100 text-blue-700',
+                                    dropClass: 'bg-blue-50/60 border-blue-300',
+                                },
+                                {
+                                    status: 'In Progress' as const,
+                                    label: 'Đang Làm',
+                                    color: 'amber',
+                                    headerClass: 'bg-amber-50 border-amber-200',
+                                    titleClass: 'text-amber-800',
+                                    countClass: 'bg-amber-100 text-amber-700',
+                                    dropClass: 'bg-amber-50/60 border-amber-300',
+                                },
+                                {
+                                    status: 'Done' as const,
+                                    label: 'Hoàn Thành',
+                                    color: 'emerald',
+                                    headerClass: 'bg-emerald-50 border-emerald-200',
+                                    titleClass: 'text-emerald-800',
+                                    countClass: 'bg-emerald-100 text-emerald-700',
+                                    dropClass: 'bg-emerald-50/60 border-emerald-300',
+                                },
+                            ]).map((col) => {
+                                const colTasks = (tasksByStatus[col.status] || [])
+                                    .filter(t =>
+                                        !taskSearchQuery ||
+                                        t.title?.toLowerCase().includes(taskSearchQuery.toLowerCase())
+                                    );
+                                const isDragOver = dragOverColumn === col.status;
+                                return (
+                                    <div
+                                        key={col.status}
+                                        className={cn(
+                                            'flex flex-col rounded-xl border-2 transition-all duration-200',
+                                            isDragOver ? col.dropClass : 'border-border bg-muted/20'
                                         )}
-                                    </tbody>
-                                </table>
-                            </div>
+                                        onDragOver={(e) => {
+                                            e.preventDefault();
+                                            setDragOverColumn(col.status);
+                                        }}
+                                        onDragLeave={(e) => {
+                                            if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                                                setDragOverColumn(null);
+                                            }
+                                        }}
+                                        onDrop={async (e) => {
+                                            e.preventDefault();
+                                            setDragOverColumn(null);
+                                            const taskId = e.dataTransfer.getData('taskId');
+                                            const fromStatus = e.dataTransfer.getData('fromStatus');
+                                            if (!taskId || fromStatus === col.status) return;
+                                            try {
+                                                await updateData(`/task/${taskId}/update-status`, { status: col.status });
+                                                queryClient.invalidateQueries({ queryKey: ['project', projectId] });
+                                                toast.success(`Đã chuyển task sang "${col.label}"`);
+                                            } catch {
+                                                toast.error('Không thể cập nhật trạng thái task');
+                                            }
+                                        }}
+                                    >
+                                        {/* Column Header */}
+                                        <div className={cn('flex items-center justify-between px-4 py-3 rounded-t-xl border-b', col.headerClass)}>
+                                            <span className={cn('font-semibold text-sm', col.titleClass)}>{col.label}</span>
+                                            <span className={cn('text-xs font-medium px-2 py-0.5 rounded-full', col.countClass)}>
+                                                {colTasks.length}
+                                            </span>
+                                        </div>
 
-                            {/* Phân trang cho bảng */}
-                            {statusFilteredTasks.length > 0 && (
-                                <div className="flex flex-col items-center gap-3 px-4 py-3 border-t bg-muted/40">
-                                    <Pagination>
-                                        <PaginationContent className="gap-2">
-                                            <PaginationItem>
-                                                <PaginationPrevious
-                                                    href="#"
-                                                    onClick={(e) => {
-                                                        e.preventDefault();
-                                                        if (taskPage > 1) {
-                                                            setTaskPage(taskPage - 1);
-                                                        }
-                                                    }}
-                                                    className={cn(
-                                                        "min-w-[90px] h-8 text-xs",
-                                                        taskPage === 1
-                                                            ? "pointer-events-none opacity-50 cursor-not-allowed"
-                                                            : "hover:bg-accent hover:text-accent-foreground transition-colors"
-                                                    )}
-                                                />
-                                            </PaginationItem>
-
-                                            {Array.from({ length: totalTaskPages }, (_, i) => i + 1).map((page) => {
-                                                if (
-                                                    page === 1 ||
-                                                    page === totalTaskPages ||
-                                                    (page >= taskPage - 1 && page <= taskPage + 1)
-                                                ) {
+                                        {/* Cards */}
+                                        <div className="flex flex-col gap-2 p-3 flex-1 overflow-y-auto max-h-[60vh]">
+                                            {colTasks.length === 0 ? (
+                                                <div className="flex-1 flex items-center justify-center">
+                                                    <p className="text-xs text-muted-foreground text-center py-8">
+                                                        {isDragOver ? '↓ Thả task vào đây' : 'Không có task'}
+                                                    </p>
+                                                </div>
+                                            ) : (
+                                                colTasks.map((task) => {
+                                                    const assignee = (project as any)?.members?.find(
+                                                        (m: any) => m.userId === task.assigned_to
+                                                    );
+                                                    const isOverdue = task.dueDate && task.status !== 'Done' &&
+                                                        isAfter(new Date(), new Date(task.dueDate));
                                                     return (
-                                                        <PaginationItem key={page}>
-                                                            <PaginationLink
-                                                                href="#"
-                                                                onClick={(e) => {
-                                                                    e.preventDefault();
-                                                                    setTaskPage(page);
-                                                                }}
-                                                                isActive={taskPage === page}
-                                                                className={cn(
-                                                                    "min-w-[32px] h-8 text-xs flex items-center justify-center",
-                                                                    taskPage === page
-                                                                        ? "bg-primary text-primary-foreground font-semibold"
-                                                                        : "hover:bg-accent hover:text-accent-foreground transition-colors"
+                                                        <div
+                                                            key={task.id}
+                                                            draggable
+                                                            onDragStart={(e) => {
+                                                                e.dataTransfer.setData('taskId', String(task.id));
+                                                                e.dataTransfer.setData('fromStatus', col.status);
+                                                                setDraggingTaskId(String(task.id));
+                                                            }}
+                                                            onDragEnd={() => setDraggingTaskId(null)}
+                                                            onClick={() => handleTaskClick(String(task.id))}
+                                                            className={cn(
+                                                                'group bg-white rounded-lg border shadow-sm p-3 cursor-pointer',
+                                                                'hover:shadow-md hover:-translate-y-0.5 transition-all duration-150',
+                                                                draggingTaskId === String(task.id) && 'opacity-40 scale-95',
+                                                                isOverdue && 'border-red-300'
+                                                            )}
+                                                        >
+                                                            {/* Task ID + overdue */}
+                                                            <div className="flex items-center justify-between mb-1.5">
+                                                                <span className="text-[10px] text-muted-foreground font-mono">#{task.id}</span>
+                                                                {isOverdue && (
+                                                                    <span className="text-[10px] text-red-500 font-medium">⚠ Trễ hạn</span>
                                                                 )}
-                                                            >
-                                                                {page}
-                                                            </PaginationLink>
-                                                        </PaginationItem>
-                                                    );
-                                                } else if (page === taskPage - 2 || page === taskPage + 2) {
-                                                    return (
-                                                        <PaginationItem key={page}>
-                                                            <span className="px-1 py-1 text-muted-foreground text-xs">...</span>
-                                                        </PaginationItem>
-                                                    );
-                                                }
-                                                return null;
-                                            })}
+                                                            </div>
 
-                                            <PaginationItem>
-                                                <PaginationNext
-                                                    href="#"
-                                                    onClick={(e) => {
-                                                        e.preventDefault();
-                                                        if (taskPage < totalTaskPages) {
-                                                            setTaskPage(taskPage + 1);
-                                                        }
-                                                    }}
-                                                    className={cn(
-                                                        "min-w-[90px] h-8 text-xs",
-                                                        taskPage === totalTaskPages
-                                                            ? "pointer-events-none opacity-50 cursor-not-allowed"
-                                                            : "hover:bg-accent hover:text-accent-foreground transition-colors"
-                                                    )}
-                                                />
-                                            </PaginationItem>
-                                        </PaginationContent>
-                                    </Pagination>
+                                                            {/* Title */}
+                                                            <p className="text-sm font-medium text-foreground line-clamp-2 mb-2">
+                                                                {task.title}
+                                                            </p>
 
-                                    <div className="text-xs text-muted-foreground">
-                                        Trang {taskPage} / {totalTaskPages} • Hiển thị{" "}
-                                        {(taskPage - 1) * TASKS_PER_PAGE_TABLE + 1}
-                                        -
-                                        {Math.min(taskPage * TASKS_PER_PAGE_TABLE, statusFilteredTasks.length)}{" "}
-                                        trong tổng số {statusFilteredTasks.length} task
+                                                            {/* Badges row */}
+                                                            <div className="flex flex-wrap gap-1 mb-2">
+                                                                <Badge
+                                                                    variant="outline"
+                                                                    className={cn(
+                                                                        'text-[10px] px-1.5 py-0',
+                                                                        task.priority === 'High' ? 'bg-red-50 text-red-700 border-red-200'
+                                                                        : task.priority === 'Medium' ? 'bg-yellow-50 text-yellow-700 border-yellow-200'
+                                                                        : 'bg-gray-50 text-gray-600 border-gray-200'
+                                                                    )}
+                                                                >
+                                                                    {task.priority === 'High' ? '🔴' : task.priority === 'Medium' ? '🟡' : '🟢'} {task.priority}
+                                                                </Badge>
+                                                                <Badge
+                                                                    variant="outline"
+                                                                    className="text-[10px] px-1.5 py-0 bg-slate-50 text-slate-600 border-slate-200"
+                                                                >
+                                                                    {getDifficultyLabel((task as any).difficulty)}
+                                                                </Badge>
+                                                            </div>
+
+                                                            {/* Footer: assignee + due date */}
+                                                            <div className="flex items-center justify-between mt-1">
+                                                                {assignee ? (
+                                                                    <div className="flex items-center gap-1.5">
+                                                                        <Avatar className="size-5">
+                                                                            <AvatarImage src={assignee.avatarUrl || ''} />
+                                                                            <AvatarFallback className="text-[9px]">
+                                                                                {(assignee.username || '?')[0]?.toUpperCase()}
+                                                                            </AvatarFallback>
+                                                                        </Avatar>
+                                                                        <span className="text-[10px] text-muted-foreground truncate max-w-[80px]">
+                                                                            {assignee.username}
+                                                                        </span>
+                                                                    </div>
+                                                                ) : (
+                                                                    <span className="text-[10px] text-muted-foreground">Chưa giao</span>
+                                                                )}
+                                                                {task.dueDate && (
+                                                                    <span className={cn(
+                                                                        'text-[10px]',
+                                                                        isOverdue ? 'text-red-500 font-medium' : 'text-muted-foreground'
+                                                                    )}>
+                                                                        {format(new Date(task.dueDate), 'dd/MM')}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                            )}
+                                );
+                            })}
                         </div>
 
                         {/* Archived Tasks giữ nguyên */}

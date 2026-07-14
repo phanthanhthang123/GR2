@@ -92,4 +92,4 @@ if __name__ == "__main__":
     FEATURES_B = ["total_projects", "total_tasks", "hard_tasks", "years_at_company"]
 
     evaluate_model(DATA_DIR / "data_A.csv", FEATURES_A, "A (Onboarding)")
-    evaluate_model(DATA_DIR / "data_B.csv", FEATURES_B, "B (Internal)")
+    evaluate_model(DATA_DIR / "data_B_real.csv", FEATURES_B, "B (Internal)")

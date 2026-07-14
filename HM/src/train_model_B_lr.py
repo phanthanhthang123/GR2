@@ -16,7 +16,7 @@ FEATURES_B = [
 
 def train(data_path: Path | None = None) -> None:
     ensure_dirs()
-    path = data_path or (DATA_DIR / "data_B.csv")
+    path = data_path or (DATA_DIR / "data_B_real.csv")
     if not path.exists():
         raise FileNotFoundError(f"Thiếu file dữ liệu: {path}. Chạy generate_data trước.")
     train_single_threshold_lr(path, FEATURES_B, "B")

@@ -1,0 +1,9 @@
+ThePublicJiraDataset/
+HM/scratch/
+HM/data/data_B_real.csv
+HM/data/projects_real.csv
+node_modules/
+.env
+__pycache__/
+*.pyc
+*.pkl

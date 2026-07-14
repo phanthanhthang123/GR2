@@ -20,7 +20,7 @@ from src.utils import ROOT_DIR
 
 
 def train_rf() -> None:
-    data_path = ROOT_DIR / "data" / "projects_mock.csv"
+    data_path = ROOT_DIR / "data" / "projects_real.csv"
     if not data_path.exists():
         print(f"[train_rf] Không tìm thấy file {data_path}. Hãy chạy generate_project_data.py trước.")
         return

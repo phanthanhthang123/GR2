@@ -189,10 +189,15 @@ def predict_project_delay(
     ]], columns=feature_cols, dtype=float)
 
     # 3. Dự đoán + xác suất từng class
-    risk_idx = rf_model.predict(vec)[0]
+    pred = rf_model.predict(vec)[0]
+    if isinstance(pred, str):
+        risk_label = pred
+    else:
+        risk_map = {0: "Low", 1: "Medium", 2: "High"}
+        risk_label = risk_map.get(pred, "Unknown")
+        
     risk_proba = rf_model.predict_proba(vec)[0]  # xác suất cho từng class
-    risk_map = {0: "Low", 1: "Medium", 2: "High"}
-    risk_label = risk_map.get(risk_idx, "Unknown")
+    classes = rf_model.classes_
 
     # 4. Phân tích Feature Importances
     importances = bundle["feature_importances"]
@@ -236,8 +241,8 @@ def predict_project_delay(
         # Prediction confidence cho lần dự đoán này
         "prediction_confidence": {
             "probabilities": {
-                risk_map[i]: round(float(risk_proba[i]), 4)
-                for i in range(len(risk_proba))
+                str(classes[i]): round(float(risk_proba[i]), 4)
+                for i in range(len(classes))
             },
             "predicted_class": risk_label,
             "confidence_percent": round(float(max(risk_proba)) * 100, 2),
